@@ -18,7 +18,7 @@
     <properties>
         <java.version>21</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <sonar.projectKey>Batingeers-stats-service</sonar.projectKey>
+        <sonar.projectKey>AI-BERT-BACKEND_Batingeers-stats-service</sonar.projectKey>
         <sonar.organization>ai-bert-backend</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
     </properties>

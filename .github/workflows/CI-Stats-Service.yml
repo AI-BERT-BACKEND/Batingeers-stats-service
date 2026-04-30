@@ -1,4 +1,5 @@
-name: CI-Stats-Service.yml
+name: CI-Stats-Service
+
 on:
   push:
     branches:
@@ -17,7 +18,7 @@ permissions:
 
 jobs:
   compile:
-    name: Compilacion
+    name: Compilation
     runs-on: ubuntu-latest
 
     steps:
@@ -77,8 +78,16 @@ jobs:
           check_name: 'Unit Test Results'
           comment_mode: always
 
+      - name: Upload build target
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: build-target-${{ github.sha }}
+          path: target/
+          retention-days: 1
+
   analyze:
-    name: Analisis y Reportes
+    name: Analysis and reports
     runs-on: ubuntu-latest
     needs: test
 
@@ -104,8 +113,14 @@ jobs:
       - name: Grant execute permission to mvnw
         run: chmod +x mvnw
 
-      - name: Generate coverage report
-        run: ./mvnw test -B --no-transfer-progress
+      - name: Download build target
+        uses: actions/download-artifact@v4
+        with:
+          name: build-target-${{ github.sha }}
+          path: target/
+
+      - name: Generate JaCoCo report
+        run: ./mvnw jacoco:report -B --no-transfer-progress
 
       - name: Analyze with SonarCloud
         run: ./mvnw sonar:sonar -B --no-transfer-progress -Dsonar.token=${{ secrets.SONAR_TOKEN }}
@@ -119,4 +134,16 @@ jobs:
           name: jacoco-report-run${{ github.run_number }}-${{ github.sha }}
           path: target/site/jacoco/
           retention-days: 7
+
+      - name: Add JaCoCo report link to summary
+        if: always()
+        run: |
+          ARTIFACT_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          echo "## 📊 Reporte de Cobertura JaCoCo" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "El reporte fue generado exitosamente. Descárgalo desde la sección **Artifacts** de esta ejecución:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "[🔗 Ver artifacts de esta ejecución]($ARTIFACT_URL)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "> Descarga el artifact \`jacoco-report-run${{ github.run_number }}-${{ github.sha }}\` y abre \`index.html\` en tu navegador." >> $GITHUB_STEP_SUMMARY
 
