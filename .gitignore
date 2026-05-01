@@ -147,7 +147,6 @@ poetry.toml
 pyrightconfig.json
 
 #### MAVEN ####
-.mvn/
 target/
 pom.xml.tag
 pom.xml.releaseBackup
@@ -159,6 +158,7 @@ buildNumber.properties
 .mvn/timing.properties
 .project
 .classpath
+!.mvn/wrapper/
 
 !**/src/main/**/target/
 !**/src/test/**/target/
