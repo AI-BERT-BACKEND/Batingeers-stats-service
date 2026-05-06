@@ -1,0 +1,23 @@
+from pydantic_settings import BaseSettings
+
+
+class Settings(BaseSettings):
+    app_name: str = "stats-service"
+    app_port: int = 8085
+    app_env: str = "development"
+
+    jwt_secret: str = "default-secret-change-in-production"
+    jwt_algorithm: str = "HS256"
+
+    academic_service_url: str = "http://academic-service:8082"
+    task_service_url: str = "http://task-service:8083"
+
+    http_timeout: float = 10.0
+    http_max_retries: int = 3
+
+    class Config:
+        env_file = ".env"
+        case_sensitive = False
+
+
+settings = Settings()
