@@ -1,0 +1,22 @@
+[project]
+name = "stats-service"
+version = "1.0.0"
+description = "Batingeers Stats Service — Estadísticas académicas (R20, R21)"
+requires-python = ">=3.12"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+addopts = "--cov=app --cov-report=xml --cov-report=term-missing --cov-fail-under=80"
+
+[tool.coverage.run]
+source = ["app"]
+omit = ["app/__init__.py", "*/migrations/*"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "if TYPE_CHECKING:",
+    "@abstractmethod",
+    "pass$",
+]
