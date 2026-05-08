@@ -1,8 +1,10 @@
 import asyncio
 from datetime import datetime
 
+from app.domain.exceptions.stats_exceptions import ServiceUnavailableError
 from app.domain.model.dashboard import DashboardStats, SubjectSummary, TaskSummary
 from app.domain.ports.in_.dashboard_use_case import DashboardUseCase
+from app.domain.ports.out_.stats_snapshot_port import StatsSnapshotPort
 from app.infrastructure.external.academic_client import AcademicClient
 from app.infrastructure.external.task_client import TaskClient
 
@@ -65,15 +67,28 @@ def _compute_gpa_trend(subjects: list[dict]) -> str:
 
 
 class DashboardService(DashboardUseCase):
-    def __init__(self, academic_client: AcademicClient, task_client: TaskClient):
+    def __init__(
+        self,
+        academic_client: AcademicClient,
+        task_client: TaskClient,
+        repo: StatsSnapshotPort | None = None,
+    ):
         self._academic = academic_client
         self._tasks = task_client
+        self._repo = repo
 
     async def get_dashboard(self, user_id: str, token: str) -> DashboardStats:
-        subjects_data, tasks_data = await asyncio.gather(
-            self._academic.get_subjects(user_id, token),
-            self._tasks.get_tasks(user_id, token),
-        )
+        try:
+            subjects_data, tasks_data = await asyncio.gather(
+                self._academic.get_subjects(user_id, token),
+                self._tasks.get_tasks(user_id, token),
+            )
+        except ServiceUnavailableError:
+            if self._repo:
+                cached = await self._repo.get_latest_dashboard_snapshot(user_id)
+                if cached:
+                    return cached
+            raise
 
         for subject in subjects_data:
             subject["_avg"] = _weighted_average(subject.get("evaluations", []))
@@ -109,7 +124,7 @@ class DashboardService(DashboardUseCase):
         total_tasks = len(active_tasks)
         completion_rate = round((completed / total_tasks * 100) if total_tasks > 0 else 0.0, 2)
 
-        return DashboardStats(
+        stats = DashboardStats(
             user_id=user_id,
             overall_gpa=overall_gpa,
             gpa_trend=gpa_trend,
@@ -127,3 +142,8 @@ class DashboardService(DashboardUseCase):
             ),
             generated_at=datetime.utcnow(),
         )
+
+        if self._repo:
+            await self._repo.save_dashboard_snapshot(stats)
+
+        return stats

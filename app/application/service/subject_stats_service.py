@@ -1,9 +1,11 @@
 import asyncio
-from datetime import date
+from datetime import date, datetime
 
-from app.domain.exceptions.stats_exceptions import SubjectNotFoundError
+from app.application.utility.chart_generator import generate_weekly_evolution
+from app.domain.exceptions.stats_exceptions import SubjectNotFoundError, ServiceUnavailableError
 from app.domain.model.subject_stats import GradeEntry, SubjectStats
 from app.domain.ports.in_.subject_stats_use_case import SubjectStatsUseCase
+from app.domain.ports.out_.stats_snapshot_port import StatsSnapshotPort
 from app.infrastructure.external.academic_client import AcademicClient
 from app.infrastructure.external.task_client import TaskClient
 
@@ -129,12 +131,15 @@ def _build_subject_stats(subject: dict, subject_tasks: list[dict]) -> SubjectSta
     total = len(active)
     rate = round((completed / total * 100) if total > 0 else 0.0, 2)
 
+    grade_history = _build_grade_history(evaluations)
+    chart_data = generate_weekly_evolution(grade_history)
+
     return SubjectStats(
         subject_id=subject["id"],
         subject_name=subject["name"],
         subject_code=subject["code"],
         credits=subject.get("credits", 0),
-        grade_history=_build_grade_history(evaluations),
+        grade_history=grade_history,
         current_average=avg,
         max_possible_grade=_max_possible_grade(evaluations),
         minimum_needed=_minimum_needed(evaluations),
@@ -145,20 +150,32 @@ def _build_subject_stats(subject: dict, subject_tasks: list[dict]) -> SubjectSta
         tasks_overdue=overdue,
         task_completion_rate=rate,
         status=_classify_status(avg),
+        chart_data=chart_data,
+        generated_at=datetime.utcnow(),
     )
 
 
 class SubjectStatsService(SubjectStatsUseCase):
-    def __init__(self, academic_client: AcademicClient, task_client: TaskClient):
+    def __init__(
+        self,
+        academic_client: AcademicClient,
+        task_client: TaskClient,
+        repo: StatsSnapshotPort | None = None,
+    ):
         self._academic = academic_client
         self._tasks = task_client
+        self._repo = repo
 
     async def get_all_subjects_stats(self, user_id: str, token: str) -> list[SubjectStats]:
-        subjects_data, tasks_data = await asyncio.gather(
-            self._academic.get_subjects(user_id, token),
-            self._tasks.get_tasks(user_id, token),
-        )
-        return [
+        try:
+            subjects_data, tasks_data = await asyncio.gather(
+                self._academic.get_subjects(user_id, token),
+                self._tasks.get_tasks(user_id, token),
+            )
+        except ServiceUnavailableError:
+            raise
+
+        stats_list = [
             _build_subject_stats(
                 subject,
                 [t for t in tasks_data if t.get("subject_id") == subject["id"]],
@@ -166,13 +183,33 @@ class SubjectStatsService(SubjectStatsUseCase):
             for subject in subjects_data
         ]
 
+        if self._repo:
+            for stats in stats_list:
+                await self._repo.save_subject_snapshot(user_id, stats)
+
+        return stats_list
+
     async def get_subject_stats(
         self, user_id: str, subject_id: str, token: str
     ) -> SubjectStats:
-        subject_data, tasks_data = await asyncio.gather(
-            self._academic.get_subject(user_id, subject_id, token),
-            self._tasks.get_tasks_by_subject(user_id, subject_id, token),
-        )
+        try:
+            subject_data, tasks_data = await asyncio.gather(
+                self._academic.get_subject(user_id, subject_id, token),
+                self._tasks.get_tasks_by_subject(user_id, subject_id, token),
+            )
+        except ServiceUnavailableError:
+            if self._repo:
+                cached = await self._repo.get_latest_subject_snapshot(user_id, subject_id)
+                if cached:
+                    return cached
+            raise
+
         if subject_data is None:
             raise SubjectNotFoundError(subject_id)
-        return _build_subject_stats(subject_data, tasks_data)
+
+        stats = _build_subject_stats(subject_data, tasks_data)
+
+        if self._repo:
+            await self._repo.save_subject_snapshot(user_id, stats)
+
+        return stats

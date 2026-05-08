@@ -4,9 +4,11 @@ from app.application.dto.response.dashboard_response import (
     TaskSummaryDto,
 )
 from app.application.dto.response.subject_stats_response import (
+    ChartPointDto,
     GradeEntryDto,
     SubjectStatsResponseDto,
 )
+from app.application.utility.chart_generator import ChartPoint
 from app.domain.model.dashboard import DashboardStats, SubjectSummary, TaskSummary
 from app.domain.model.subject_stats import GradeEntry, SubjectStats
 
@@ -58,6 +60,14 @@ def _grade_entry_to_dto(entry: GradeEntry) -> GradeEntryDto:
     )
 
 
+def _chart_point_to_dto(cp: ChartPoint) -> ChartPointDto:
+    return ChartPointDto(
+        week_label=cp.week_label,
+        average=cp.average,
+        evaluations_count=cp.evaluations_count,
+    )
+
+
 def subject_stats_to_dto(stats: SubjectStats) -> SubjectStatsResponseDto:
     return SubjectStatsResponseDto(
         subject_id=stats.subject_id,
@@ -75,4 +85,5 @@ def subject_stats_to_dto(stats: SubjectStats) -> SubjectStatsResponseDto:
         tasks_overdue=stats.tasks_overdue,
         task_completion_rate=stats.task_completion_rate,
         status=stats.status,
+        chart_data=[_chart_point_to_dto(cp) for cp in stats.chart_data],
     )

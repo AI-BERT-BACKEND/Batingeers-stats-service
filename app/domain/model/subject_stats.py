@@ -1,5 +1,5 @@
-from dataclasses import dataclass
-from datetime import date
+from dataclasses import dataclass, field
+from datetime import date, datetime
 
 
 @dataclass
@@ -29,3 +29,5 @@ class SubjectStats:
     tasks_overdue: int
     task_completion_rate: float
     status: str  # "passing" | "at_risk" | "failing"
+    chart_data: list = field(default_factory=list)  # list[ChartPoint] — importación circular evitada
+    generated_at: datetime = field(default_factory=datetime.utcnow)

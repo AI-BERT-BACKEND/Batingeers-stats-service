@@ -11,6 +11,12 @@ class GradeEntryDto(BaseModel):
     contribution: float = Field(..., description="Aporte al promedio final (grade × weight)")
 
 
+class ChartPointDto(BaseModel):
+    week_label: str = Field(..., description="Semana en formato ISO: YYYY-WNN")
+    average: float = Field(..., description="Promedio ponderado acumulado hasta esta semana (0.0 – 5.0)")
+    evaluations_count: int = Field(..., description="Número acumulado de evaluaciones calificadas")
+
+
 class SubjectStatsResponseDto(BaseModel):
     subject_id: str
     subject_name: str
@@ -32,5 +38,9 @@ class SubjectStatsResponseDto(BaseModel):
     tasks_overdue: int
     task_completion_rate: float = Field(..., description="Tasa de completitud de tareas (0.0 – 100.0)")
     status: str = Field(..., description="passing | at_risk | failing")
+    chart_data: list[ChartPointDto] = Field(
+        default_factory=list,
+        description="Puntos de evolución semanal del promedio para gráficas de rendimiento",
+    )
 
     model_config = {"from_attributes": True}

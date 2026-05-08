@@ -1,3 +1,5 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -7,6 +9,14 @@ from app.entrypoints.rest.controller.dashboard_controller import router as dashb
 from app.entrypoints.rest.controller.subject_stats_controller import (
     router as subject_stats_router,
 )
+
+
+@asynccontextmanager
+async def lifespan(application: FastAPI):
+    from app.infrastructure.db import init_db
+    await init_db()
+    yield
+
 
 app = FastAPI(
     title="Stats Service — Batingeers",
@@ -18,12 +28,16 @@ app = FastAPI(
         "### Integración\n"
         "Consume **academic-service** (materias y notas) y **task-service** (tareas) "
         "mediante llamadas HTTP REST. El token JWT del usuario se reenvía a cada servicio.\n\n"
+        "### Persistencia\n"
+        "Los resultados se cachean en PostgreSQL. Si los servicios externos no están disponibles, "
+        "se retorna el último snapshot almacenado.\n\n"
         "### Autenticación\n"
         "Todos los endpoints requieren un token `Bearer` en el header `Authorization`."
     ),
     version="1.0.0",
     contact={"name": "Batingeers Team", "email": "juandavidvaleroa@gmail.com"},
     license_info={"name": "MIT"},
+    lifespan=lifespan,
 )
 
 app.add_middleware(

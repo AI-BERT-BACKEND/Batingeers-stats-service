@@ -15,6 +15,9 @@ class Settings(BaseSettings):
     http_timeout: float = 10.0
     http_max_retries: int = 3
 
+    # PostgreSQL — asyncpg driver: postgresql+asyncpg://user:pass@host:port/db
+    database_url: str | None = None
+
     class Config:
         env_file = ".env"
         case_sensitive = False
