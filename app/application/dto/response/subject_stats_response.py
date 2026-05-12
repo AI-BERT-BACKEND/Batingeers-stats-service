@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date as Date
 from pydantic import BaseModel, Field
 
 
@@ -9,7 +9,7 @@ class GradeEntryDto(BaseModel):
     grade: float | None = Field(
         None, description="Nota obtenida (0.0 – 5.0), null si aún no se registró"
     )
-    date: date | None = None
+    date: Date | None = None
     contribution: float = Field(
         ..., description="Aporte al promedio final (grade × weight)"
     )
