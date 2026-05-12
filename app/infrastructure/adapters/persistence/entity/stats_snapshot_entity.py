@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import DateTime, Float, Integer, String, Text, func
+from sqlalchemy import DateTime, Float, Integer, String, func
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
@@ -52,7 +52,9 @@ class SubjectSnapshotEntity(Base):
     tasks_overdue: Mapped[int] = mapped_column(Integer, nullable=False)
     task_completion_rate: Mapped[float] = mapped_column(Float, nullable=False)
     status: Mapped[str] = mapped_column(String(20), nullable=False)
-    grade_history_data: Mapped[list] = mapped_column(JSONB, nullable=False, default=list)
+    grade_history_data: Mapped[list] = mapped_column(
+        JSONB, nullable=False, default=list
+    )
     chart_data: Mapped[list] = mapped_column(JSONB, nullable=False, default=list)
     generated_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
     created_at: Mapped[datetime] = mapped_column(

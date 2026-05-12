@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from datetime import date
 
 from app.application.utility.chart_generator import ChartPoint
 from app.domain.model.dashboard import DashboardStats, SubjectSummary, TaskSummary
@@ -10,6 +10,7 @@ from app.infrastructure.adapters.persistence.entity.stats_snapshot_entity import
 
 
 # ── DashboardStats ↔ DashboardSnapshotEntity ──────────────────────────────────
+
 
 def dashboard_to_entity(stats: DashboardStats) -> DashboardSnapshotEntity:
     return DashboardSnapshotEntity(
@@ -74,6 +75,7 @@ def entity_to_dashboard(entity: DashboardSnapshotEntity) -> DashboardStats:
 
 
 # ── SubjectStats ↔ SubjectSnapshotEntity ──────────────────────────────────────
+
 
 def _grade_entry_to_dict(g: GradeEntry) -> dict:
     return {
@@ -153,7 +155,9 @@ def entity_to_subject(entity: SubjectSnapshotEntity) -> SubjectStats:
         tasks_overdue=entity.tasks_overdue,
         task_completion_rate=entity.task_completion_rate,
         status=entity.status,
-        grade_history=[_dict_to_grade_entry(d) for d in (entity.grade_history_data or [])],
+        grade_history=[
+            _dict_to_grade_entry(d) for d in (entity.grade_history_data or [])
+        ],
         chart_data=[_dict_to_chart_point(d) for d in (entity.chart_data or [])],
         generated_at=entity.generated_at,
     )

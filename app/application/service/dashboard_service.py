@@ -8,9 +8,9 @@ from app.domain.ports.out_.stats_snapshot_port import StatsSnapshotPort
 from app.infrastructure.external.academic_client import AcademicClient
 from app.infrastructure.external.task_client import TaskClient
 
-_PASSING_THRESHOLD = 3.0   # Nota mínima aprobatoria (escala colombiana 0–5)
-_AT_RISK_THRESHOLD = 3.5   # Por debajo de este valor se considera en riesgo
-_TREND_THRESHOLD = 0.2     # Diferencia mínima para considerar mejora o caída
+_PASSING_THRESHOLD = 3.0  # Nota mínima aprobatoria (escala colombiana 0–5)
+_AT_RISK_THRESHOLD = 3.5  # Por debajo de este valor se considera en riesgo
+_TREND_THRESHOLD = 0.2  # Diferencia mínima para considerar mejora o caída
 
 
 def _classify_status(average: float) -> str:
@@ -108,21 +108,27 @@ class DashboardService(DashboardUseCase):
             else:
                 failing += 1
 
-            subject_summaries.append(SubjectSummary(
-                subject_id=s["id"],
-                name=s["name"],
-                code=s["code"],
-                credits=s.get("credits", 0),
-                current_average=s["_avg"],
-                status=status,
-            ))
+            subject_summaries.append(
+                SubjectSummary(
+                    subject_id=s["id"],
+                    name=s["name"],
+                    code=s["code"],
+                    credits=s.get("credits", 0),
+                    current_average=s["_avg"],
+                    status=status,
+                )
+            )
 
         active_tasks = [t for t in tasks_data if t.get("status") != "CANCELLED"]
         completed = sum(1 for t in active_tasks if t.get("status") == "COMPLETED")
-        pending = sum(1 for t in active_tasks if t.get("status") in ("PENDING", "IN_PROGRESS"))
+        pending = sum(
+            1 for t in active_tasks if t.get("status") in ("PENDING", "IN_PROGRESS")
+        )
         overdue = sum(1 for t in active_tasks if t.get("status") == "OVERDUE")
         total_tasks = len(active_tasks)
-        completion_rate = round((completed / total_tasks * 100) if total_tasks > 0 else 0.0, 2)
+        completion_rate = round(
+            (completed / total_tasks * 100) if total_tasks > 0 else 0.0, 2
+        )
 
         stats = DashboardStats(
             user_id=user_id,
