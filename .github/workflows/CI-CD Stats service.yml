@@ -16,7 +16,7 @@ env:
   PYTHON_VERSION: '3.12'
 
 permissions:
-  contents: read
+  contents: write
   checks: write
   pull-requests: write
 
@@ -44,10 +44,16 @@ jobs:
           pip install -e ".[dev]" 2>/dev/null || pip install -r requirements.txt 2>/dev/null || true
 
       - name: Lint with ruff
-        run: ruff check .
+        run: ruff check . --fix
 
       - name: Format check with ruff
-        run: ruff format --check .
+        run: ruff format .
+
+      - name: Commit ruff fixes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git diff --quiet || (git add -A && git commit -m "style: auto-fix unused imports [ruff]" && git push)
 
   test:
     name: Tests
@@ -117,7 +123,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           args: >
-            -Dsonar.projectKey=AI-BERT-BACKEND_batingeers-stats-service
+            -Dsonar.projectKey=AI-BERT-BACKEND_batingeers---stats-service
             -Dsonar.organization=ai-bert-backend
             -Dsonar.python.coverage.reportPaths=coverage.xml
             -Dsonar.sources=app
@@ -158,7 +164,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/${{ env.REGISTRY_OWNER }}/batingeers-stats-service
+          images: ghcr.io/${{ env.REGISTRY_OWNER }}/batingeers---stats-service
           tags: |
             type=sha,prefix=,format=short
             type=raw,value=qa-latest,enable=${{ github.ref == 'refs/heads/develop' }}
@@ -171,7 +177,7 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=registry,ref=ghcr.io/${{ env.REGISTRY_OWNER }}/batingeers-stats-service:qa-latest
+          cache-from: type=registry,ref=ghcr.io/${{ env.REGISTRY_OWNER }}/batingeers---stats-service:qa-latest
           cache-to: type=inline
 
   deploy-qa:
@@ -194,7 +200,7 @@ jobs:
         with:
           resourceGroup: aibert-rg
           containerAppName: aibert-stats-service-qa
-          imageToDeploy: ghcr.io/${{ env.REGISTRY_OWNER }}/batingeers-stats-service:qa-latest
+          imageToDeploy: ghcr.io/${{ env.REGISTRY_OWNER }}/batingeers---stats-service:qa-latest
 
   deploy-prod:
     name: Deploy to PROD
@@ -216,4 +222,4 @@ jobs:
         with:
           resourceGroup: aibert-rg
           containerAppName: aibert-stats-service-prod
-          imageToDeploy: ghcr.io/${{ env.REGISTRY_OWNER }}/batingeers-stats-service:prod-latest
+          imageToDeploy: ghcr.io/${{ env.REGISTRY_OWNER }}/batingeers---stats-service:prod-latest
