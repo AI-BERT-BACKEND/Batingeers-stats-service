@@ -1,4 +1,5 @@
-name: CI-CD Stats service.yml
+name: CI-CD Stats service
+
 on:
   push:
     branches:
@@ -109,44 +110,28 @@ jobs:
         with:
           name: coverage-report-${{ github.sha }}
 
-analyze:
-  name: Analysis and Reports
-  runs-on: ubuntu-latest
-  needs: test
+      - name: Analyze with SonarCloud
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.projectKey=AI-BERT-BACKEND_batingeers-stats-service
+            -Dsonar.organization=ai-bert-backend
+            -Dsonar.python.coverage.reportPaths=coverage.xml
+            -Dsonar.sources=app
+            -Dsonar.tests=tests
 
-  steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-
-    - name: Download coverage report
-      uses: actions/download-artifact@v4
-      with:
-        name: coverage-report-${{ github.sha }}
-
-    - name: Analyze with SonarCloud
-      uses: SonarSource/sonarcloud-github-action@master
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      with:
-        args: >
-          -Dsonar.projectKey=AI-BERT-BACKEND_batingeers---stats-service
-          -Dsonar.organization=ai-bert-backend
-          -Dsonar.python.coverage.reportPaths=coverage.xml
-          -Dsonar.sources=app
-          -Dsonar.tests=tests
-
-    - name: Add Coverage report link to summary
-      if: always()
-      run: |
-        ARTIFACT_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-        echo "## 📊 Reporte de Cobertura" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "[🔗 Ver artifacts de esta ejecución]($ARTIFACT_URL)" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "> Descarga el artifact \`coverage-report-${{ github.sha }}\` para revisar la cobertura detallada." >> $GITHUB_STEP_SUMMARY
+      - name: Add Coverage report link to summary
+        if: always()
+        run: |
+          ARTIFACT_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          echo "## 📊 Reporte de Cobertura" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "[🔗 Ver artifacts de esta ejecución]($ARTIFACT_URL)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "> Descarga el artifact \`coverage-report-${{ github.sha }}\` para revisar la cobertura detallada." >> $GITHUB_STEP_SUMMARY
 
   build:
     name: Build & Push Image
@@ -173,7 +158,7 @@ analyze:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/${{ env.REGISTRY_OWNER }}/batingeers---stats-service
+          images: ghcr.io/${{ env.REGISTRY_OWNER }}/batingeers-stats-service
           tags: |
             type=sha,prefix=,format=short
             type=raw,value=qa-latest,enable=${{ github.ref == 'refs/heads/develop' }}
@@ -186,7 +171,7 @@ analyze:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=registry,ref=ghcr.io/${{ env.REGISTRY_OWNER }}/batingeers---stats-service:qa-latest
+          cache-from: type=registry,ref=ghcr.io/${{ env.REGISTRY_OWNER }}/batingeers-stats-service:qa-latest
           cache-to: type=inline
 
   deploy-qa:
@@ -209,7 +194,7 @@ analyze:
         with:
           resourceGroup: aibert-rg
           containerAppName: aibert-stats-service-qa
-          imageToDeploy: ghcr.io/${{ env.REGISTRY_OWNER }}/batingeers---stats-service:qa-latest
+          imageToDeploy: ghcr.io/${{ env.REGISTRY_OWNER }}/batingeers-stats-service:qa-latest
 
   deploy-prod:
     name: Deploy to PROD
@@ -231,8 +216,4 @@ analyze:
         with:
           resourceGroup: aibert-rg
           containerAppName: aibert-stats-service-prod
-          imageToDeploy: ghcr.io/${{ env.REGISTRY_OWNER }}/batingeers---stats-service:prod-latest
-
-
-
-
+          imageToDeploy: ghcr.io/${{ env.REGISTRY_OWNER }}/batingeers-stats-service:prod-latest
