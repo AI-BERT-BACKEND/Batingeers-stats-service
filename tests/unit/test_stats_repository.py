@@ -1,6 +1,6 @@
 import pytest
 from datetime import datetime
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock
 
 from app.domain.model.dashboard import DashboardStats, SubjectSummary, TaskSummary
 from app.domain.model.subject_stats import GradeEntry, SubjectStats
@@ -63,6 +63,7 @@ def _make_subject_stats() -> SubjectStats:
 
 # ── Mapper: DashboardStats ↔ Entity ───────────────────────────────────────────
 
+
 def test_dashboard_to_entity_preserves_user_id():
     entity = dashboard_to_entity(_make_dashboard())
     assert entity.user_id == "u-1"
@@ -99,6 +100,7 @@ def test_entity_to_dashboard_roundtrip():
 
 
 # ── Mapper: SubjectStats ↔ Entity ─────────────────────────────────────────────
+
 
 def test_subject_to_entity_preserves_ids():
     entity = subject_to_entity("u-1", _make_subject_stats())
@@ -139,6 +141,7 @@ def test_entity_to_subject_minimum_needed_none():
 
 
 # ── Repository: operaciones con sesión mockeada ───────────────────────────────
+
 
 @pytest.mark.asyncio
 async def test_repository_save_dashboard_adds_and_commits():

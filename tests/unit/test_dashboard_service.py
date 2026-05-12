@@ -10,9 +10,21 @@ _SUBJECTS = [
         "code": "MAT101",
         "credits": 4,
         "evaluations": [
-            {"id": "e1", "name": "Parcial 1", "weight": 0.3, "grade": 4.5, "date": "2026-03-15"},
-            {"id": "e2", "name": "Parcial 2", "weight": 0.3, "grade": 3.8, "date": "2026-04-15"},
-            {"id": "e3", "name": "Final",     "weight": 0.4, "grade": None, "date": None},
+            {
+                "id": "e1",
+                "name": "Parcial 1",
+                "weight": 0.3,
+                "grade": 4.5,
+                "date": "2026-03-15",
+            },
+            {
+                "id": "e2",
+                "name": "Parcial 2",
+                "weight": 0.3,
+                "grade": 3.8,
+                "date": "2026-04-15",
+            },
+            {"id": "e3", "name": "Final", "weight": 0.4, "grade": None, "date": None},
         ],
     },
     {
@@ -21,9 +33,27 @@ _SUBJECTS = [
         "code": "INF101",
         "credits": 3,
         "evaluations": [
-            {"id": "e4", "name": "Taller 1", "weight": 0.25, "grade": 5.0, "date": "2026-03-10"},
-            {"id": "e5", "name": "Taller 2", "weight": 0.25, "grade": 4.8, "date": "2026-04-10"},
-            {"id": "e6", "name": "Proyecto",  "weight": 0.5,  "grade": None, "date": None},
+            {
+                "id": "e4",
+                "name": "Taller 1",
+                "weight": 0.25,
+                "grade": 5.0,
+                "date": "2026-03-10",
+            },
+            {
+                "id": "e5",
+                "name": "Taller 2",
+                "weight": 0.25,
+                "grade": 4.8,
+                "date": "2026-04-10",
+            },
+            {
+                "id": "e6",
+                "name": "Proyecto",
+                "weight": 0.5,
+                "grade": None,
+                "date": None,
+            },
         ],
     },
 ]
@@ -69,7 +99,7 @@ async def test_subject_status_counts_sum_to_total(service):
 @pytest.mark.asyncio
 async def test_task_counts_exclude_cancelled(service):
     result = await service.get_dashboard("user-1", "token")
-    assert result.tasks.total == 5        # t6 (CANCELLED) excluido
+    assert result.tasks.total == 5  # t6 (CANCELLED) excluido
     assert result.tasks.completed == 3
     assert result.tasks.pending == 1
     assert result.tasks.overdue == 1

@@ -25,7 +25,9 @@ class StatsSnapshotRepository(StatsSnapshotPort):
         self._session.add(entity)
         await self._session.commit()
 
-    async def get_latest_dashboard_snapshot(self, user_id: str) -> DashboardStats | None:
+    async def get_latest_dashboard_snapshot(
+        self, user_id: str
+    ) -> DashboardStats | None:
         result = await self._session.execute(
             select(DashboardSnapshotEntity)
             .where(DashboardSnapshotEntity.user_id == user_id)

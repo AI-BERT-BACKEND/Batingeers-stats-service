@@ -10,9 +10,21 @@ _SUBJECT = {
     "code": "MAT101",
     "credits": 4,
     "evaluations": [
-        {"id": "e1", "name": "Parcial 1", "weight": 0.3, "grade": 4.5, "date": "2026-03-15"},
-        {"id": "e2", "name": "Parcial 2", "weight": 0.3, "grade": 3.0, "date": "2026-04-15"},
-        {"id": "e3", "name": "Final",     "weight": 0.4, "grade": None, "date": None},
+        {
+            "id": "e1",
+            "name": "Parcial 1",
+            "weight": 0.3,
+            "grade": 4.5,
+            "date": "2026-03-15",
+        },
+        {
+            "id": "e2",
+            "name": "Parcial 2",
+            "weight": 0.3,
+            "grade": 3.0,
+            "date": "2026-04-15",
+        },
+        {"id": "e3", "name": "Final", "weight": 0.4, "grade": None, "date": None},
     ],
 }
 
@@ -69,7 +81,7 @@ async def test_minimum_needed_computed_for_pending_evaluations(service):
 @pytest.mark.asyncio
 async def test_task_counts_exclude_cancelled(service):
     result = await service.get_subject_stats("user-1", "sub-1", "token")
-    assert result.tasks_total == 3   # t4 (CANCELLED) excluido
+    assert result.tasks_total == 3  # t4 (CANCELLED) excluido
     assert result.tasks_completed == 1
     assert result.tasks_overdue == 1
     assert result.tasks_pending == 1
@@ -108,10 +120,19 @@ async def test_subject_not_found_raises_exception():
 
 @pytest.mark.asyncio
 async def test_no_grades_returns_zero_average():
-    subject_no_grades = {**_SUBJECT, "evaluations": [
-        {"id": "e1", "name": "Parcial 1", "weight": 0.5, "grade": None, "date": None},
-        {"id": "e2", "name": "Final",     "weight": 0.5, "grade": None, "date": None},
-    ]}
+    subject_no_grades = {
+        **_SUBJECT,
+        "evaluations": [
+            {
+                "id": "e1",
+                "name": "Parcial 1",
+                "weight": 0.5,
+                "grade": None,
+                "date": None,
+            },
+            {"id": "e2", "name": "Final", "weight": 0.5, "grade": None, "date": None},
+        ],
+    }
     academic = MagicMock()
     academic.get_subject = AsyncMock(return_value=subject_no_grades)
     task = MagicMock()

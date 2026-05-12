@@ -15,8 +15,20 @@ _SUBJECTS = [
         "code": "MAT201",
         "credits": 3,
         "evaluations": [
-            {"id": "e1", "name": "Examen 1", "weight": 0.5, "grade": 4.0, "date": "2026-03-01"},
-            {"id": "e2", "name": "Examen 2", "weight": 0.5, "grade": None, "date": None},
+            {
+                "id": "e1",
+                "name": "Examen 1",
+                "weight": 0.5,
+                "grade": 4.0,
+                "date": "2026-03-01",
+            },
+            {
+                "id": "e2",
+                "name": "Examen 2",
+                "weight": 0.5,
+                "grade": None,
+                "date": None,
+            },
         ],
     }
 ]
@@ -129,7 +141,9 @@ def test_get_specific_subject_returns_200(MockTask, MockAcademic, client, auth_h
 
 @patch("app.entrypoints.rest.controller.subject_stats_controller.AcademicClient")
 @patch("app.entrypoints.rest.controller.subject_stats_controller.TaskClient")
-def test_get_nonexistent_subject_returns_404(MockTask, MockAcademic, client, auth_headers):
+def test_get_nonexistent_subject_returns_404(
+    MockTask, MockAcademic, client, auth_headers
+):
     MockAcademic.return_value.get_subject = AsyncMock(return_value=None)
     MockTask.return_value.get_tasks_by_subject = AsyncMock(return_value=[])
 

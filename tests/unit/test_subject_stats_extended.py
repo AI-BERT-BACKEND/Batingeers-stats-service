@@ -13,7 +13,13 @@ _SUBJECT_SINGLE_GRADE = {
     "code": "FIS101",
     "credits": 3,
     "evaluations": [
-        {"id": "e1", "name": "Único corte", "weight": 1.0, "grade": 4.2, "date": "2026-03-20"},
+        {
+            "id": "e1",
+            "name": "Único corte",
+            "weight": 1.0,
+            "grade": 4.2,
+            "date": "2026-03-20",
+        },
     ],
 }
 
@@ -24,7 +30,7 @@ _SUBJECT_NO_DATES = {
     "credits": 2,
     "evaluations": [
         {"id": "e1", "name": "Parcial", "weight": 0.5, "grade": 3.5, "date": None},
-        {"id": "e2", "name": "Final",   "weight": 0.5, "grade": None, "date": None},
+        {"id": "e2", "name": "Final", "weight": 0.5, "grade": None, "date": None},
     ],
 }
 
@@ -35,9 +41,7 @@ def _make_cached_subject(subject_id: str = "sub-x") -> SubjectStats:
         subject_name="Física I",
         subject_code="FIS101",
         credits=3,
-        grade_history=[
-            GradeEntry("e1", "Único corte", 1.0, 4.2, None, 4.2)
-        ],
+        grade_history=[GradeEntry("e1", "Único corte", 1.0, 4.2, None, 4.2)],
         current_average=4.2,
         max_possible_grade=4.2,
         minimum_needed=None,
@@ -53,6 +57,7 @@ def _make_cached_subject(subject_id: str = "sub-x") -> SubjectStats:
 
 
 # ── R21: un solo corte registrado ──────────────────────────────────────────────
+
 
 @pytest.fixture
 def service_single_grade():
@@ -70,7 +75,9 @@ async def test_single_grade_average_equals_that_grade(service_single_grade):
 
 
 @pytest.mark.asyncio
-async def test_single_grade_max_possible_equals_current_when_fully_graded(service_single_grade):
+async def test_single_grade_max_possible_equals_current_when_fully_graded(
+    service_single_grade,
+):
     result = await service_single_grade.get_subject_stats("u1", "sub-x", "tok")
     # Solo hay una evaluación y ya está calificada → max = current
     assert result.max_possible_grade == pytest.approx(4.2, rel=0.01)
@@ -114,10 +121,13 @@ async def test_grade_without_date_generates_no_chart_points():
 
 # ── R21: servicio externo no disponible ───────────────────────────────────────
 
+
 @pytest.mark.asyncio
 async def test_service_unavailable_without_repo_raises():
     academic = MagicMock()
-    academic.get_subject = AsyncMock(side_effect=ServiceUnavailableError("academic-service"))
+    academic.get_subject = AsyncMock(
+        side_effect=ServiceUnavailableError("academic-service")
+    )
     task = MagicMock()
     task.get_tasks_by_subject = AsyncMock(return_value=[])
     svc = SubjectStatsService(academic, task, repo=None)
@@ -130,7 +140,9 @@ async def test_service_unavailable_without_repo_raises():
 async def test_service_unavailable_returns_cached_snapshot():
     cached = _make_cached_subject("sub-x")
     academic = MagicMock()
-    academic.get_subject = AsyncMock(side_effect=ServiceUnavailableError("academic-service"))
+    academic.get_subject = AsyncMock(
+        side_effect=ServiceUnavailableError("academic-service")
+    )
     task = MagicMock()
     task.get_tasks_by_subject = AsyncMock(return_value=[])
     repo = MagicMock()
@@ -147,7 +159,9 @@ async def test_service_unavailable_returns_cached_snapshot():
 @pytest.mark.asyncio
 async def test_service_unavailable_no_cache_raises():
     academic = MagicMock()
-    academic.get_subject = AsyncMock(side_effect=ServiceUnavailableError("academic-service"))
+    academic.get_subject = AsyncMock(
+        side_effect=ServiceUnavailableError("academic-service")
+    )
     task = MagicMock()
     task.get_tasks_by_subject = AsyncMock(return_value=[])
     repo = MagicMock()
