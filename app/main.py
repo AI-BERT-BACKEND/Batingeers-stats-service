@@ -5,8 +5,12 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
 from app.entrypoints.advice.exception_handler import register_exception_handlers
-from app.entrypoints.rest.controller.dashboard_controller import router as dashboard_router
-from app.entrypoints.rest.controller.gamification_controller import router as gamification_router
+from app.entrypoints.rest.controller.dashboard_controller import (
+    router as dashboard_router,
+)
+from app.entrypoints.rest.controller.gamification_controller import (
+    router as gamification_router,
+)
 from app.entrypoints.rest.controller.subject_stats_controller import (
     router as subject_stats_router,
 )
@@ -15,6 +19,7 @@ from app.entrypoints.rest.controller.subject_stats_controller import (
 @asynccontextmanager
 async def lifespan(application: FastAPI):
     from app.infrastructure.db import init_db
+
     await init_db()
     yield
 

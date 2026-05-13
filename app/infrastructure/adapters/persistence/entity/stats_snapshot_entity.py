@@ -53,7 +53,9 @@ class SubjectSnapshotEntity(Base):
     task_completion_rate: Mapped[float] = mapped_column(Float, nullable=False)
     status: Mapped[str] = mapped_column(String(20), nullable=False)
     projected_grade: Mapped[float] = mapped_column(Float, nullable=True, default=0.0)
-    grade_history_data: Mapped[list] = mapped_column(JSONB, nullable=False, default=list)
+    grade_history_data: Mapped[list] = mapped_column(
+        JSONB, nullable=False, default=list
+    )
     related_tasks_data: Mapped[list] = mapped_column(JSONB, nullable=True, default=list)
     chart_data: Mapped[list] = mapped_column(JSONB, nullable=False, default=list)
     generated_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)

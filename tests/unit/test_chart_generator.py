@@ -1,11 +1,16 @@
 import pytest
 from datetime import date
 
-from app.application.utility.chart_generator import ChartPoint, generate_weekly_evolution
+from app.application.utility.chart_generator import (
+    ChartPoint,
+    generate_weekly_evolution,
+)
 from app.domain.model.subject_stats import GradeEntry
 
 
-def _entry(eval_id: str, weight: float, grade: float | None, iso_date: str | None) -> GradeEntry:
+def _entry(
+    eval_id: str, weight: float, grade: float | None, iso_date: str | None
+) -> GradeEntry:
     return GradeEntry(
         evaluation_id=eval_id,
         evaluation_name=eval_id,
@@ -19,7 +24,7 @@ def _entry(eval_id: str, weight: float, grade: float | None, iso_date: str | Non
 _HISTORY = [
     _entry("e1", 0.3, 4.5, "2026-03-15"),  # Semana 2026-W11
     _entry("e2", 0.3, 3.0, "2026-04-15"),  # Semana 2026-W16
-    _entry("e3", 0.4, None, None),          # Sin fecha — no debe aparecer en chart
+    _entry("e3", 0.4, None, None),  # Sin fecha — no debe aparecer en chart
 ]
 
 

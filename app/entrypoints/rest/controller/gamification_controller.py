@@ -1,6 +1,9 @@
 from fastapi import APIRouter, Depends
 
-from app.application.dto.response.gamification_response import BadgeDto, GamificationResponseDto
+from app.application.dto.response.gamification_response import (
+    BadgeDto,
+    GamificationResponseDto,
+)
 from app.application.service.gamification_service import GamificationService
 from app.dependencies import get_current_user
 from app.infrastructure.external.task_client import TaskClient

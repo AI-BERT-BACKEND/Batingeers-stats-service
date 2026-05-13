@@ -9,9 +9,7 @@ _engine = (
 )
 
 _session_factory: async_sessionmaker | None = (
-    async_sessionmaker(_engine, expire_on_commit=False)
-    if _engine is not None
-    else None
+    async_sessionmaker(_engine, expire_on_commit=False) if _engine is not None else None
 )
 
 
@@ -26,6 +24,9 @@ async def get_db():
 async def init_db() -> None:
     if _engine is None:
         return
-    from app.infrastructure.adapters.persistence.entity.stats_snapshot_entity import Base
+    from app.infrastructure.adapters.persistence.entity.stats_snapshot_entity import (
+        Base,
+    )
+
     async with _engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)

@@ -21,7 +21,9 @@ class SubjectStats:
     grade_history: list[GradeEntry]
     current_average: float
     max_possible_grade: float
-    minimum_needed: float | None  # Nota mínima requerida en evaluaciones pendientes para pasar
+    minimum_needed: (
+        float | None
+    )  # Nota mínima requerida en evaluaciones pendientes para pasar
     trend: str  # "improving" | "declining" | "stable"
     tasks_total: int
     tasks_completed: int
@@ -30,6 +32,10 @@ class SubjectStats:
     task_completion_rate: float
     status: str  # "passing" | "at_risk" | "failing"
     projected_grade: float = 0.0
-    related_tasks: list = field(default_factory=list)  # list[dict] — raw task objects from task-service
-    chart_data: list = field(default_factory=list)  # list[ChartPoint] — importación circular evitada
+    related_tasks: list = field(
+        default_factory=list
+    )  # list[dict] — raw task objects from task-service
+    chart_data: list = field(
+        default_factory=list
+    )  # list[ChartPoint] — importación circular evitada
     generated_at: datetime = field(default_factory=datetime.utcnow)

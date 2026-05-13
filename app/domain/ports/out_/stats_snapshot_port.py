@@ -10,7 +10,9 @@ class StatsSnapshotPort(ABC):
         pass
 
     @abstractmethod
-    async def get_latest_dashboard_snapshot(self, user_id: str) -> DashboardStats | None:
+    async def get_latest_dashboard_snapshot(
+        self, user_id: str
+    ) -> DashboardStats | None:
         pass
 
     @abstractmethod

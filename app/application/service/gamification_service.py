@@ -98,7 +98,9 @@ class GamificationService(GamificationUseCase):
     def __init__(self, task_client: TaskClient) -> None:
         self._tasks = task_client
 
-    async def get_gamification_profile(self, user_id: str, token: str) -> GamificationProfile:
+    async def get_gamification_profile(
+        self, user_id: str, token: str
+    ) -> GamificationProfile:
         tasks = await self._tasks.get_tasks(user_id, token)
         active = [t for t in tasks if t.get("status") != "CANCELLED"]
 

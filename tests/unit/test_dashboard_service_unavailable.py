@@ -36,7 +36,9 @@ def _make_cached_dashboard(user_id: str = "user-1") -> DashboardStats:
 @pytest.fixture
 def academic_unavailable():
     client = MagicMock()
-    client.get_subjects = AsyncMock(side_effect=ServiceUnavailableError("academic-service"))
+    client.get_subjects = AsyncMock(
+        side_effect=ServiceUnavailableError("academic-service")
+    )
     return client
 
 
@@ -63,6 +65,7 @@ def ok_task():
 
 # ── R20: servicio externo no disponible ────────────────────────────────────────
 
+
 @pytest.mark.asyncio
 async def test_academic_unavailable_without_repo_raises(academic_unavailable, ok_task):
     svc = DashboardService(academic_unavailable, ok_task, repo=None)
@@ -78,7 +81,9 @@ async def test_task_unavailable_without_repo_raises(ok_academic, task_unavailabl
 
 
 @pytest.mark.asyncio
-async def test_academic_unavailable_returns_cached_snapshot(academic_unavailable, ok_task):
+async def test_academic_unavailable_returns_cached_snapshot(
+    academic_unavailable, ok_task
+):
     cached = _make_cached_dashboard("user-1")
     repo = MagicMock()
     repo.get_latest_dashboard_snapshot = AsyncMock(return_value=cached)

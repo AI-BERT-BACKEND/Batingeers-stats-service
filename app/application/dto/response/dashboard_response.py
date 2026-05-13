@@ -7,7 +7,9 @@ class SubjectSummaryDto(BaseModel):
     name: str
     code: str
     credits: int
-    current_average: float = Field(..., description="Current average on a 0.0 – 5.0 scale")
+    current_average: float = Field(
+        ..., description="Current average on a 0.0 – 5.0 scale"
+    )
     status: str = Field(..., description="passing | at_risk | failing")
 
 
@@ -16,7 +18,9 @@ class TaskSummaryDto(BaseModel):
     completed: int
     pending: int
     overdue: int
-    completion_rate: float = Field(..., description="Completion rate as a percentage (0.0 – 100.0)")
+    completion_rate: float = Field(
+        ..., description="Completion rate as a percentage (0.0 – 100.0)"
+    )
 
 
 class DashboardResponseDto(BaseModel):

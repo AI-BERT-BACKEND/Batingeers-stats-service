@@ -5,7 +5,9 @@ from app.domain.model.subject_stats import SubjectStats
 
 class SubjectStatsUseCase(ABC):
     @abstractmethod
-    async def get_all_subjects_stats(self, user_id: str, token: str) -> list[SubjectStats]:
+    async def get_all_subjects_stats(
+        self, user_id: str, token: str
+    ) -> list[SubjectStats]:
         pass
 
     @abstractmethod
