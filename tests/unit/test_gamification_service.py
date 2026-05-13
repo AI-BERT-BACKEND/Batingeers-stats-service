@@ -16,15 +16,11 @@ def _task(task_id, status, completed_at=None, due_date=None):
 
 
 def _on_time(n):
-    return [
-        _task(f"t{i}", "COMPLETED", "2026-01-15", "2026-01-15") for i in range(n)
-    ]
+    return [_task(f"t{i}", "COMPLETED", "2026-01-15", "2026-01-15") for i in range(n)]
 
 
 def _late(n):
-    return [
-        _task(f"lt{i}", "COMPLETED", "2026-01-20", "2026-01-15") for i in range(n)
-    ]
+    return [_task(f"lt{i}", "COMPLETED", "2026-01-20", "2026-01-15") for i in range(n)]
 
 
 def _make_service(tasks):

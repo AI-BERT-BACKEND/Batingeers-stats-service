@@ -12,7 +12,13 @@ _SUBJECT_MIXED = {
     "code": "MAT101",
     "credits": 4,
     "evaluations": [
-        {"id": "e1", "name": "Parcial 1", "weight": 0.4, "grade": 4.0, "date": "2026-03-15"},
+        {
+            "id": "e1",
+            "name": "Parcial 1",
+            "weight": 0.4,
+            "grade": 4.0,
+            "date": "2026-03-15",
+        },
         {"id": "e2", "name": "Final", "weight": 0.6, "grade": None, "date": None},
     ],
 }
@@ -49,8 +55,20 @@ async def test_projected_grade_equals_average_when_all_graded():
     subject_all_graded = {
         **_SUBJECT_MIXED,
         "evaluations": [
-            {"id": "e1", "name": "P1", "weight": 0.5, "grade": 4.0, "date": "2026-03-15"},
-            {"id": "e2", "name": "P2", "weight": 0.5, "grade": 3.0, "date": "2026-04-15"},
+            {
+                "id": "e1",
+                "name": "P1",
+                "weight": 0.5,
+                "grade": 4.0,
+                "date": "2026-03-15",
+            },
+            {
+                "id": "e2",
+                "name": "P2",
+                "weight": 0.5,
+                "grade": 3.0,
+                "date": "2026-04-15",
+            },
         ],
     }
     svc = _make_subject_service(subject_all_graded, [])
@@ -124,7 +142,13 @@ _SUBJECTS_UNORDERED = [
         "code": "LOW101",
         "credits": 3,
         "evaluations": [
-            {"id": "e1", "name": "P1", "weight": 1.0, "grade": 2.0, "date": "2026-03-01"},
+            {
+                "id": "e1",
+                "name": "P1",
+                "weight": 1.0,
+                "grade": 2.0,
+                "date": "2026-03-01",
+            },
         ],
     },
     {
@@ -133,7 +157,13 @@ _SUBJECTS_UNORDERED = [
         "code": "HIGH101",
         "credits": 3,
         "evaluations": [
-            {"id": "e2", "name": "P1", "weight": 1.0, "grade": 4.8, "date": "2026-03-01"},
+            {
+                "id": "e2",
+                "name": "P1",
+                "weight": 1.0,
+                "grade": 4.8,
+                "date": "2026-03-01",
+            },
         ],
     },
     {
@@ -142,7 +172,13 @@ _SUBJECTS_UNORDERED = [
         "code": "MID101",
         "credits": 3,
         "evaluations": [
-            {"id": "e3", "name": "P1", "weight": 1.0, "grade": 3.5, "date": "2026-03-01"},
+            {
+                "id": "e3",
+                "name": "P1",
+                "weight": 1.0,
+                "grade": 3.5,
+                "date": "2026-03-01",
+            },
         ],
     },
 ]
