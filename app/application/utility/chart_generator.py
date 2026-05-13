@@ -1,6 +1,5 @@
 from collections import defaultdict
 from dataclasses import dataclass
-from datetime import date
 
 from app.domain.model.subject_stats import GradeEntry
 
@@ -20,10 +19,7 @@ def generate_weekly_evolution(grade_history: list[GradeEntry]) -> list[ChartPoin
     ponderado acumulado hasta cada semana, reflejando cómo ha evolucionado
     el rendimiento del estudiante a lo largo del semestre.
     """
-    graded = [
-        e for e in grade_history
-        if e.grade is not None and e.date is not None
-    ]
+    graded = [e for e in grade_history if e.grade is not None and e.date is not None]
     if not graded:
         return []
 
@@ -44,10 +40,12 @@ def generate_weekly_evolution(grade_history: list[GradeEntry]) -> list[ChartPoin
             if weight_sum > 0
             else 0.0
         )
-        points.append(ChartPoint(
-            week_label=week_key,
-            average=round(avg, 2),
-            evaluations_count=len(cumulative),
-        ))
+        points.append(
+            ChartPoint(
+                week_label=week_key,
+                average=round(avg, 2),
+                evaluations_count=len(cumulative),
+            )
+        )
 
     return points

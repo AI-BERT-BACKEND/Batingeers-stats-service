@@ -21,7 +21,9 @@ class SubjectStats:
     grade_history: list[GradeEntry]
     current_average: float
     max_possible_grade: float
-    minimum_needed: float | None  # Nota mínima requerida en evaluaciones pendientes para pasar
+    minimum_needed: (
+        float | None
+    )  # Nota mínima requerida en evaluaciones pendientes para pasar
     trend: str  # "improving" | "declining" | "stable"
     tasks_total: int
     tasks_completed: int

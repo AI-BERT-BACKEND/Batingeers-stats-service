@@ -20,6 +20,7 @@ async def _get_dashboard_service(
         from app.infrastructure.adapters.persistence.repository.stats_repository import (
             StatsSnapshotRepository,
         )
+
         repo = StatsSnapshotRepository(db)
     return DashboardService(AcademicClient(), TaskClient(), repo)
 

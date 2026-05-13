@@ -15,6 +15,7 @@ from app.entrypoints.rest.controller.subject_stats_controller import (
 @asynccontextmanager
 async def lifespan(application: FastAPI):
     from app.infrastructure.db import init_db
+
     await init_db()
     yield
 

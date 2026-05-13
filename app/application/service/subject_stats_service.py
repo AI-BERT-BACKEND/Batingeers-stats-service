@@ -2,7 +2,10 @@ import asyncio
 from datetime import date, datetime
 
 from app.application.utility.chart_generator import generate_weekly_evolution
-from app.domain.exceptions.stats_exceptions import SubjectNotFoundError, ServiceUnavailableError
+from app.domain.exceptions.stats_exceptions import (
+    SubjectNotFoundError,
+    ServiceUnavailableError,
+)
 from app.domain.model.subject_stats import GradeEntry, SubjectStats
 from app.domain.ports.in_.subject_stats_use_case import SubjectStatsUseCase
 from app.domain.ports.out_.stats_snapshot_port import StatsSnapshotPort
@@ -29,15 +32,17 @@ def _build_grade_history(evaluations: list[dict]) -> list[GradeEntry]:
     for e in evaluations:
         grade = e.get("grade")
         contribution = round(grade * e["weight"], 4) if grade is not None else 0.0
-        entries.append(GradeEntry(
-            evaluation_id=e["id"],
-            evaluation_name=e["name"],
-            weight=e["weight"],
-            grade=grade,
-            date=_parse_date(e.get("date")),
-            contribution=contribution,
-        ))
-    return sorted(entries, key=lambda x: (x.date or date.min))
+        entries.append(
+            GradeEntry(
+                evaluation_id=e["id"],
+                evaluation_name=e["name"],
+                weight=e["weight"],
+                grade=grade,
+                date=_parse_date(e.get("date")),
+                contribution=contribution,
+            )
+        )
+    return sorted(entries, key=lambda x: x.date or date.min)
 
 
 def _current_average(evaluations: list[dict]) -> float:
@@ -183,7 +188,9 @@ class SubjectStatsService(SubjectStatsUseCase):
         self._tasks = task_client
         self._repo = repo
 
-    async def get_all_subjects_stats(self, user_id: str, token: str) -> list[SubjectStats]:
+    async def get_all_subjects_stats(
+        self, user_id: str, token: str
+    ) -> list[SubjectStats]:
         try:
             subjects_data, tasks_data = await asyncio.gather(
                 self._academic.get_subjects(user_id, token),
@@ -216,7 +223,9 @@ class SubjectStatsService(SubjectStatsUseCase):
             )
         except ServiceUnavailableError:
             if self._repo:
-                cached = await self._repo.get_latest_subject_snapshot(user_id, subject_id)
+                cached = await self._repo.get_latest_subject_snapshot(
+                    user_id, subject_id
+                )
                 if cached:
                     return cached
             raise

@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date as Date
 from pydantic import BaseModel, Field
 
 
