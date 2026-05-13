@@ -1,6 +1,5 @@
 from collections import defaultdict
 from dataclasses import dataclass
-from datetime import date
 
 from app.domain.model.subject_stats import GradeEntry
 

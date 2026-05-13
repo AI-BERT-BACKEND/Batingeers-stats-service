@@ -1,6 +1,6 @@
 import pytest
 from datetime import datetime
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock
 
 from app.domain.model.dashboard import DashboardStats, SubjectSummary, TaskSummary
 from app.domain.model.subject_stats import GradeEntry, SubjectStats

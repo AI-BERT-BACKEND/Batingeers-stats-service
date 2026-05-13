@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from datetime import date
 
 from app.application.utility.chart_generator import ChartPoint
 from app.domain.model.dashboard import DashboardStats, SubjectSummary, TaskSummary

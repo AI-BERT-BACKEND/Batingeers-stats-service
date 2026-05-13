@@ -1,10 +1,7 @@
 import pytest
 from datetime import date
 
-from app.application.utility.chart_generator import (
-    ChartPoint,
-    generate_weekly_evolution,
-)
+from app.application.utility.chart_generator import generate_weekly_evolution
 from app.domain.model.subject_stats import GradeEntry
 
 
