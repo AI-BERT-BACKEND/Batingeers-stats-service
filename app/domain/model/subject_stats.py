@@ -29,5 +29,7 @@ class SubjectStats:
     tasks_overdue: int
     task_completion_rate: float
     status: str  # "passing" | "at_risk" | "failing"
+    projected_grade: float = 0.0
+    related_tasks: list = field(default_factory=list)  # list[dict] — raw task objects from task-service
     chart_data: list = field(default_factory=list)  # list[ChartPoint] — importación circular evitada
     generated_at: datetime = field(default_factory=datetime.utcnow)

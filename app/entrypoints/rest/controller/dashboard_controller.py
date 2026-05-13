@@ -27,16 +27,16 @@ async def _get_dashboard_service(
 @router.get(
     "/dashboard",
     response_model=DashboardResponseDto,
-    summary="R20 — Dashboard de estadísticas académicas",
+    summary="R20 — Academic statistics dashboard",
     description=(
-        "Retorna el dashboard completo con estadísticas académicas del usuario autenticado: "
-        "promedio general (GPA), tendencia, resumen por materia y estado de tareas. "
-        "Agrega datos de **academic-service** y **task-service** en una sola respuesta. "
-        "Si los servicios externos no están disponibles, retorna el último snapshot cacheado en BD."
+        "Returns the full dashboard with academic statistics for the authenticated user: "
+        "overall GPA, trend, subject summary, and task status. "
+        "Aggregates data from **academic-service** and **task-service** in a single response. "
+        "If external services are unavailable, returns the last snapshot cached in the DB."
     ),
     responses={
-        401: {"description": "Token JWT inválido o expirado"},
-        503: {"description": "Servicios dependientes no disponibles y sin caché en BD"},
+        401: {"description": "Invalid or expired JWT token"},
+        503: {"description": "Dependent services unavailable and no cached data in DB"},
     },
 )
 async def get_dashboard(

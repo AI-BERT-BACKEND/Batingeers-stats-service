@@ -7,6 +7,7 @@ from app.application.dto.response.subject_stats_response import (
     ChartPointDto,
     GradeEntryDto,
     SubjectStatsResponseDto,
+    TaskDetailDto,
 )
 from app.application.utility.chart_generator import ChartPoint
 from app.domain.model.dashboard import DashboardStats, SubjectSummary, TaskSummary
@@ -60,6 +61,16 @@ def _grade_entry_to_dto(entry: GradeEntry) -> GradeEntryDto:
     )
 
 
+def _task_detail_to_dto(task: dict) -> TaskDetailDto:
+    return TaskDetailDto(
+        task_id=task.get("id") or task.get("taskId", ""),
+        title=task.get("title", ""),
+        status=task.get("status", ""),
+        due_date=task.get("dueDate") or task.get("due_date"),
+        subject_id=task.get("subjectId") or task.get("subject_id"),
+    )
+
+
 def _chart_point_to_dto(cp: ChartPoint) -> ChartPointDto:
     return ChartPointDto(
         week_label=cp.week_label,
@@ -78,6 +89,7 @@ def subject_stats_to_dto(stats: SubjectStats) -> SubjectStatsResponseDto:
         current_average=stats.current_average,
         max_possible_grade=stats.max_possible_grade,
         minimum_needed=stats.minimum_needed,
+        projected_grade=stats.projected_grade,
         trend=stats.trend,
         tasks_total=stats.tasks_total,
         tasks_completed=stats.tasks_completed,
@@ -85,5 +97,6 @@ def subject_stats_to_dto(stats: SubjectStats) -> SubjectStatsResponseDto:
         tasks_overdue=stats.tasks_overdue,
         task_completion_rate=stats.task_completion_rate,
         status=stats.status,
+        related_tasks=[_task_detail_to_dto(t) for t in stats.related_tasks],
         chart_data=[_chart_point_to_dto(cp) for cp in stats.chart_data],
     )

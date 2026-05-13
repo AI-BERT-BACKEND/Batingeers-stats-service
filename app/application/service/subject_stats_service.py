@@ -112,6 +112,15 @@ def _compute_trend(evaluations: list[dict]) -> str:
     return "stable"
 
 
+def _projected_grade(evaluations: list[dict]) -> float:
+    """Nota proyectada asumiendo 0.0 en evaluaciones no registradas."""
+    total_weight = sum(e["weight"] for e in evaluations)
+    if total_weight == 0:
+        return 0.0
+    earned = sum(e["grade"] * e["weight"] for e in evaluations if e.get("grade") is not None)
+    return round(earned / total_weight, 2)
+
+
 def _classify_status(average: float) -> str:
     if average >= _AT_RISK_THRESHOLD:
         return "passing"
@@ -131,6 +140,12 @@ def _build_subject_stats(subject: dict, subject_tasks: list[dict]) -> SubjectSta
     total = len(active)
     rate = round((completed / total * 100) if total > 0 else 0.0, 2)
 
+    related_tasks = sorted(
+        active,
+        key=lambda t: t.get("dueDate") or t.get("due_date") or "",
+        reverse=True,
+    )
+
     grade_history = _build_grade_history(evaluations)
     chart_data = generate_weekly_evolution(grade_history)
 
@@ -143,6 +158,7 @@ def _build_subject_stats(subject: dict, subject_tasks: list[dict]) -> SubjectSta
         current_average=avg,
         max_possible_grade=_max_possible_grade(evaluations),
         minimum_needed=_minimum_needed(evaluations),
+        projected_grade=_projected_grade(evaluations),
         trend=_compute_trend(evaluations),
         tasks_total=total,
         tasks_completed=completed,
@@ -150,6 +166,7 @@ def _build_subject_stats(subject: dict, subject_tasks: list[dict]) -> SubjectSta
         tasks_overdue=overdue,
         task_completion_rate=rate,
         status=_classify_status(avg),
+        related_tasks=related_tasks,
         chart_data=chart_data,
         generated_at=datetime.utcnow(),
     )
