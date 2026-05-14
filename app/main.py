@@ -8,6 +8,9 @@ from app.entrypoints.advice.exception_handler import register_exception_handlers
 from app.entrypoints.rest.controller.dashboard_controller import (
     router as dashboard_router,
 )
+from app.entrypoints.rest.controller.gamification_controller import (
+    router as gamification_router,
+)
 from app.entrypoints.rest.controller.subject_stats_controller import (
     router as subject_stats_router,
 )
@@ -24,18 +27,18 @@ async def lifespan(application: FastAPI):
 app = FastAPI(
     title="Stats Service — Batingeers",
     description=(
-        "Microservicio de estadísticas académicas del proyecto **AI.BERT / Batingeers**.\n\n"
-        "### Requerimientos cubiertos\n"
-        "- **R20**: Dashboard de estadísticas académicas\n"
-        "- **R21**: Estadísticas y evolución por materia\n\n"
-        "### Integración\n"
-        "Consume **academic-service** (materias y notas) y **task-service** (tareas) "
-        "mediante llamadas HTTP REST. El token JWT del usuario se reenvía a cada servicio.\n\n"
-        "### Persistencia\n"
-        "Los resultados se cachean en PostgreSQL. Si los servicios externos no están disponibles, "
-        "se retorna el último snapshot almacenado.\n\n"
-        "### Autenticación\n"
-        "Todos los endpoints requieren un token `Bearer` en el header `Authorization`."
+        "Academic statistics microservice for the **AI.BERT / Batingeers** project.\n\n"
+        "### Covered Requirements\n"
+        "- **R20**: Academic statistics dashboard\n"
+        "- **R21**: Statistics and evolution per subject\n\n"
+        "### Integration\n"
+        "Consumes **academic-service** (subjects and grades) and **task-service** (tasks) "
+        "via HTTP REST calls. The user's JWT token is forwarded to each service.\n\n"
+        "### Persistence\n"
+        "Results are cached in PostgreSQL. If external services are unavailable, "
+        "the last stored snapshot is returned.\n\n"
+        "### Authentication\n"
+        "All endpoints require a `Bearer` token in the `Authorization` header."
     ),
     version="1.0.0",
     contact={"name": "Batingeers Team", "email": "juandavidvaleroa@gmail.com"},
@@ -55,8 +58,9 @@ register_exception_handlers(app)
 
 app.include_router(dashboard_router)
 app.include_router(subject_stats_router)
+app.include_router(gamification_router)
 
 
-@app.get("/health", tags=["Health"], summary="Health check del servicio")
+@app.get("/health", tags=["Health"], summary="Service health check")
 async def health_check() -> dict:
     return {"status": "UP", "service": settings.app_name, "version": "1.0.0"}

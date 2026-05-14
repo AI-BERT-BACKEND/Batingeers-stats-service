@@ -126,6 +126,7 @@ def subject_to_entity(user_id: str, stats: SubjectStats) -> SubjectSnapshotEntit
         current_average=stats.current_average,
         max_possible_grade=stats.max_possible_grade,
         minimum_needed=stats.minimum_needed,
+        projected_grade=stats.projected_grade,
         trend=stats.trend,
         tasks_total=stats.tasks_total,
         tasks_completed=stats.tasks_completed,
@@ -134,6 +135,7 @@ def subject_to_entity(user_id: str, stats: SubjectStats) -> SubjectSnapshotEntit
         task_completion_rate=stats.task_completion_rate,
         status=stats.status,
         grade_history_data=[_grade_entry_to_dict(g) for g in stats.grade_history],
+        related_tasks_data=stats.related_tasks,
         chart_data=[_chart_point_to_dict(cp) for cp in stats.chart_data],
         generated_at=stats.generated_at,
     )
@@ -148,6 +150,7 @@ def entity_to_subject(entity: SubjectSnapshotEntity) -> SubjectStats:
         current_average=entity.current_average,
         max_possible_grade=entity.max_possible_grade,
         minimum_needed=entity.minimum_needed,
+        projected_grade=entity.projected_grade or 0.0,
         trend=entity.trend,
         tasks_total=entity.tasks_total,
         tasks_completed=entity.tasks_completed,
@@ -158,6 +161,7 @@ def entity_to_subject(entity: SubjectSnapshotEntity) -> SubjectStats:
         grade_history=[
             _dict_to_grade_entry(d) for d in (entity.grade_history_data or [])
         ],
+        related_tasks=entity.related_tasks_data or [],
         chart_data=[_dict_to_chart_point(d) for d in (entity.chart_data or [])],
         generated_at=entity.generated_at,
     )

@@ -36,6 +36,16 @@ def register_exception_handlers(app: FastAPI) -> None:
             content={"error": "FORBIDDEN", "message": str(exc)},
         )
 
+    @app.exception_handler(RuntimeError)
+    async def handle_runtime_error(request: Request, exc: RuntimeError) -> JSONResponse:
+        return JSONResponse(
+            status_code=500,
+            content={
+                "error": "INTERNAL_SERVER_ERROR",
+                "message": "Error interno del servidor",
+            },
+        )
+
     @app.exception_handler(Exception)
     async def handle_generic(request: Request, exc: Exception) -> JSONResponse:
         return JSONResponse(

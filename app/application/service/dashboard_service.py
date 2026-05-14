@@ -130,6 +130,8 @@ class DashboardService(DashboardUseCase):
             (completed / total_tasks * 100) if total_tasks > 0 else 0.0, 2
         )
 
+        subject_summaries.sort(key=lambda s: s.current_average, reverse=True)
+
         stats = DashboardStats(
             user_id=user_id,
             overall_gpa=overall_gpa,
