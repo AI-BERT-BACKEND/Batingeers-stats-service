@@ -56,7 +56,7 @@ def _grade_entry_to_dto(entry: GradeEntry) -> GradeEntryDto:
         evaluation_name=entry.evaluation_name,
         weight=entry.weight,
         grade=entry.grade,
-        date=entry.date,
+        evaluation_date=entry.date,
         contribution=entry.contribution,
     )
 

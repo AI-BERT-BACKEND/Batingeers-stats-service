@@ -1,3 +1,4 @@
+from pydantic import ConfigDict
 from pydantic_settings import BaseSettings
 
 
@@ -18,9 +19,7 @@ class Settings(BaseSettings):
     # PostgreSQL — asyncpg driver: postgresql+asyncpg://user:pass@host:port/db
     database_url: str | None = None
 
-    class Config:
-        env_file = ".env"
-        case_sensitive = False
+    model_config = ConfigDict(env_file=".env", case_sensitive=False, extra="ignore")
 
 
 settings = Settings()

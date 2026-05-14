@@ -17,7 +17,7 @@ class GradeEntryDto(BaseModel):
     grade: float | None = Field(
         None, description="Grade obtained (0.0 – 5.0), null if not yet recorded"
     )
-    date: date | None = None
+    evaluation_date: date | None = None
     contribution: float = Field(
         ..., description="Contribution to the final average (grade × weight)"
     )

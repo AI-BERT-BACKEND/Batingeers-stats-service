@@ -186,7 +186,7 @@ def test_subject_dto_grade_history():
 def test_subject_dto_grade_history_null_grade():
     dto = subject_stats_to_dto(_make_subject_stats())
     assert dto.grade_history[2].grade is None
-    assert dto.grade_history[2].date is None
+    assert dto.grade_history[2].evaluation_date is None
 
 
 def test_subject_dto_chart_data():
