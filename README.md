@@ -346,7 +346,7 @@ El microservicio implementa un **mecanismo centralizado de manejo de errores** a
 ## 9. Evidencia de Pruebas y Ejecución
 
 El proyecto incluye pruebas unitarias orientadas a validar los casos de uso y la lógica de negocio del microservicio.
-https://aibert-notification-service-qa.yellowwave-cb2d91fc.centralus.azurecontainerapps.io/swagger-ui/index.html
+https://aibert-stats-service-qa.yellowwave-cb2d91fc.centralus.azurecontainerapps.io/docs#/
 
 
 ### Cómo ejecutar las pruebas
