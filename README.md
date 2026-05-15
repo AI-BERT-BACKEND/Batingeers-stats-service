@@ -297,13 +297,56 @@ Esta sección muestra los flujos de interacción entre los componentes del micro
 
 ### Diagrama de Secuencia — `POST /api/v1/stats/grades`
 
-> *(Espacio reservado — agregar diagrama de secuencia del flujo de registro de calificación)*
+<div align="center">
+
+> *(Espacio reservado — agregar diagrama de secuencia)*
+</div>
 
 ---
 
 ### Diagrama de Secuencia — `GET /api/v1/stats/{studentId}`
 
-> *(Espacio reservado — agregar diagrama de secuencia del flujo de consulta de estadísticas)*
+<div align="center">
+
+> *(Espacio reservado — agregar diagrama de secuencia)*
+
+</div>
+
+---
+
+### Diagrama de clases — `Dominio`
+
+El dominio tiene tres contextos — Dashboard (resumen general del usuario con GPA, tareas y materias), Gamification (perfil de puntos y badges), y Stats (estadísticas detalladas por materia con historial de notas y proyecciones).
+
+<div align="center">
+
+![DiagramaDeClasesDominioStats.jpeg](docs/uml/diagramas/DiagramaDeClasesDominioStats.jpeg)
+
+</div>
+
+---
+
+### Diagrama de Entidad Relacion
+
+Dos tablas principales en BD — dashboard_snapshots (snapshot general del usuario) y subject_snapshots (detalle por materia), relacionadas 1 a muchos, ambas usando JSONB para datos complejos anidados.
+
+<div align="center">
+
+![DiagramaER.jpeg](docs/uml/diagramas/DiagramaER.jpeg)
+
+</div>
+
+---
+
+### Diagrama componentes Especificos
+
+El flujo va User → Stats Controller → Use Cases → (SQLAlchemy Repository a la Stats DB) y (HTTPx Client → microservicios externos como Academic, Task y Gamification).
+
+<div align="center">
+
+![DiagramaDeComponentesEspecificos.jpeg](docs/uml/diagramas/DiagramaDeComponentesEspecificos.jpeg)
+
+</div>
 
 ---
 
