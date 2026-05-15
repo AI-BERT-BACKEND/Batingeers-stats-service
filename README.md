@@ -295,21 +295,30 @@ Retorna el resumen de rendimiento académico de un estudiante en un período dad
 
 Esta sección muestra los flujos de interacción entre los componentes del microservicio.
 
-### Diagrama de Secuencia — `POST /api/v1/stats/grades`
+### Diagrama de Secuencia — View Dashboard
 
 <div align="center">
 
-> *(Espacio reservado — agregar diagrama de secuencia)*
+<img width="8192" height="6207" alt="View Dashboard Sequence Diagram - stats" src="https://github.com/user-attachments/assets/24ec1311-8c93-4de6-be6b-f48e286f18e1" />
 </div>
 
 ---
 
-### Diagrama de Secuencia — `GET /api/v1/stats/{studentId}`
+### Diagrama de Secuencia — View Stats and Progress
 
 <div align="center">
 
-> *(Espacio reservado — agregar diagrama de secuencia)*
+<img width="8191" height="5450" alt="View stats and progress Sequence Diagram - stats" src="https://github.com/user-attachments/assets/808b441e-29b4-4cf7-be18-89ee2fe87979" />
 
+</div>
+
+---
+
+### Diagrama de Secuencia — View gamification progress
+
+<div align="center">
+
+<img width="8192" height="5588" alt="Gamification progress Sequence Diagram - stats" src="https://github.com/user-attachments/assets/f0ca09a1-b430-47f1-a6aa-48672bb83f6c" />
 </div>
 
 ---
