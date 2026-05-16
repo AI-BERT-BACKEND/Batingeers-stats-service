@@ -101,7 +101,7 @@ async def test_single_grade_trend_is_stable(service_single_grade):
 async def test_single_grade_generates_one_chart_point(service_single_grade):
     result = await service_single_grade.get_subject_stats("u1", "sub-x", "tok")
     assert len(result.chart_data) == 1
-    assert result.chart_data[0].average == pytest.approx(4.2, rel=0.01)
+    assert result.chart_data[0].accumulated_grade == pytest.approx(4.2, rel=0.01)
 
 
 @pytest.mark.asyncio

@@ -25,6 +25,7 @@ def _make_dashboard(user_id="u-1") -> DashboardStats:
                 credits=4,
                 current_average=4.2,
                 status="passing",
+                teacher_name="Juan García",
             ),
             SubjectSummary(
                 subject_id="sub-2",
@@ -33,6 +34,7 @@ def _make_dashboard(user_id="u-1") -> DashboardStats:
                 credits=3,
                 current_average=3.1,
                 status="at_risk",
+                teacher_name=None,
             ),
         ],
         tasks=TaskSummary(
@@ -74,19 +76,25 @@ def _make_subject_stats() -> SubjectStats:
                 "title": "Tarea 1",
                 "status": "COMPLETED",
                 "dueDate": "2026-04-01",
-                "subject_id": "sub-1",
+                "priority": "Alta",
+                "estimatedHours": 2.0,
             },
             {
                 "id": "t2",
                 "title": "Tarea 2",
                 "status": "PENDING",
                 "due_date": "2026-03-15",
-                "subjectId": "sub-1",
+                "priority": None,
+                "estimated_hours": None,
             },
         ],
         chart_data=[
-            ChartPoint(week_label="2026-W11", average=4.5, evaluations_count=1),
-            ChartPoint(week_label="2026-W16", average=3.75, evaluations_count=2),
+            ChartPoint(
+                week=11, accumulated_grade=4.5, registered_date=date(2026, 3, 15)
+            ),
+            ChartPoint(
+                week=16, accumulated_grade=3.75, registered_date=date(2026, 4, 15)
+            ),
         ],
         generated_at=datetime(2026, 4, 10, 12, 0),
     )
@@ -100,9 +108,10 @@ def test_dashboard_dto_user_id():
     assert dto.user_id == "u-99"
 
 
-def test_dashboard_dto_gpa():
+def test_dashboard_dto_gpa_is_int():
     dto = dashboard_to_dto(_make_dashboard())
-    assert dto.overall_gpa == pytest.approx(3.9, rel=0.001)
+    assert isinstance(dto.overall_gpa, int)
+    assert dto.overall_gpa == 4  # round(3.9) == 4
 
 
 def test_dashboard_dto_gpa_trend():
@@ -118,12 +127,19 @@ def test_dashboard_dto_subjects_count():
     assert dto.failing_subjects == 0
 
 
-def test_dashboard_dto_subjects_list():
+def test_dashboard_dto_subjects_list_status_in_spanish():
     dto = dashboard_to_dto(_make_dashboard())
     assert len(dto.subjects) == 2
     assert dto.subjects[0].subject_id == "sub-1"
     assert dto.subjects[0].current_average == pytest.approx(4.2, rel=0.01)
-    assert dto.subjects[0].status == "passing"
+    assert dto.subjects[0].status == "Aprobada"
+    assert dto.subjects[1].status == "En riesgo"
+
+
+def test_dashboard_dto_subjects_teacher_name():
+    dto = dashboard_to_dto(_make_dashboard())
+    assert dto.subjects[0].teacher_name == "Juan García"
+    assert dto.subjects[1].teacher_name is None
 
 
 def test_dashboard_dto_tasks():
@@ -174,51 +190,64 @@ def test_subject_dto_task_counts():
     assert dto.task_completion_rate == pytest.approx(33.33, rel=0.01)
 
 
-def test_subject_dto_grade_history():
+def test_subject_dto_grades_by_period_field_names():
     dto = subject_stats_to_dto(_make_subject_stats())
-    assert len(dto.grade_history) == 3
-    assert dto.grade_history[0].evaluation_id == "e1"
-    assert dto.grade_history[0].grade == pytest.approx(4.5)
-    assert dto.grade_history[0].weight == pytest.approx(0.3)
-    assert dto.grade_history[0].contribution == pytest.approx(1.35, rel=0.01)
+    assert len(dto.grades_by_period) == 3
+    first = dto.grades_by_period[0]
+    assert first.period_id == "e1"
+    assert first.period_name == "Parcial 1"
+    assert first.obtained_grade == pytest.approx(4.5)
+    assert first.contribution == pytest.approx(1.35, rel=0.01)
 
 
-def test_subject_dto_grade_history_null_grade():
+def test_subject_dto_grades_by_period_weight_as_percentage():
     dto = subject_stats_to_dto(_make_subject_stats())
-    assert dto.grade_history[2].grade is None
-    assert dto.grade_history[2].evaluation_date is None
+    # weight 0.3 → weight_percentage 30.0
+    assert dto.grades_by_period[0].weight_percentage == pytest.approx(30.0, rel=0.01)
+    assert dto.grades_by_period[2].weight_percentage == pytest.approx(40.0, rel=0.01)
 
 
-def test_subject_dto_chart_data():
+def test_subject_dto_grades_by_period_projected_grade_propagated():
     dto = subject_stats_to_dto(_make_subject_stats())
-    assert len(dto.chart_data) == 2
-    assert dto.chart_data[0].week_label == "2026-W11"
-    assert dto.chart_data[0].average == pytest.approx(4.5)
-    assert dto.chart_data[0].evaluations_count == 1
+    # projected_grade from SubjectStats (2.25) must be in every period entry
+    for period in dto.grades_by_period:
+        assert period.projected_grade == pytest.approx(2.25, rel=0.01)
 
 
-def test_subject_dto_related_tasks_with_camel_case_keys():
+def test_subject_dto_grades_by_period_null_grade():
+    dto = subject_stats_to_dto(_make_subject_stats())
+    assert dto.grades_by_period[2].obtained_grade is None
+
+
+def test_subject_dto_grade_evolution_field_names():
+    dto = subject_stats_to_dto(_make_subject_stats())
+    assert len(dto.grade_evolution) == 2
+    assert dto.grade_evolution[0].week == 11
+    assert dto.grade_evolution[0].accumulated_grade == pytest.approx(4.5)
+    assert dto.grade_evolution[0].registered_date == date(2026, 3, 15)
+
+
+def test_subject_dto_related_tasks_field_names():
     dto = subject_stats_to_dto(_make_subject_stats())
     assert len(dto.related_tasks) == 2
-    # First task uses camelCase keys
     t1 = dto.related_tasks[0]
     assert t1.task_id == "t1"
-    assert t1.status == "COMPLETED"
-    assert t1.due_date == "2026-04-01"
+    assert t1.task_name == "Tarea 1"
+    assert t1.status == "Completada"
+    assert t1.due_date == date(2026, 4, 1)
+    assert t1.priority == "Alta"
+    assert t1.estimated_hours == pytest.approx(2.0)
 
 
-def test_subject_dto_related_tasks_with_snake_case_keys():
+def test_subject_dto_related_tasks_null_fields():
     dto = subject_stats_to_dto(_make_subject_stats())
     t2 = dto.related_tasks[1]
     assert t2.task_id == "t2"
-    assert t2.due_date == "2026-03-15"
-
-
-def test_subject_dto_related_tasks_subject_id_camel():
-    dto = subject_stats_to_dto(_make_subject_stats())
-    t2 = dto.related_tasks[1]
-    # second task has subjectId (camelCase)
-    assert t2.subject_id == "sub-1"
+    assert t2.task_name == "Tarea 2"
+    assert t2.status == "Pendiente"
+    assert t2.due_date == date(2026, 3, 15)
+    assert t2.priority is None
+    assert t2.estimated_hours is None
 
 
 def test_subject_dto_no_related_tasks():
@@ -228,8 +257,8 @@ def test_subject_dto_no_related_tasks():
     assert dto.related_tasks == []
 
 
-def test_subject_dto_empty_chart_data():
+def test_subject_dto_empty_grade_evolution():
     stats = _make_subject_stats()
     stats.chart_data = []
     dto = subject_stats_to_dto(stats)
-    assert dto.chart_data == []
+    assert dto.grade_evolution == []

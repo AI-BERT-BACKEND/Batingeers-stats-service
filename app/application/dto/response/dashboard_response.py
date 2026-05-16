@@ -10,7 +10,10 @@ class SubjectSummaryDto(BaseModel):
     current_average: float = Field(
         ..., description="Current average on a 0.0 – 5.0 scale"
     )
-    status: str = Field(..., description="passing | at_risk | failing")
+    status: str = Field(..., description="Aprobada | En riesgo | Sin información")
+    teacher_name: str | None = Field(
+        None, description="Teacher name if registered in academic-service"
+    )
 
 
 class TaskSummaryDto(BaseModel):
@@ -25,7 +28,9 @@ class TaskSummaryDto(BaseModel):
 
 class DashboardResponseDto(BaseModel):
     user_id: str
-    overall_gpa: float = Field(..., description="Weighted academic GPA (0.0 – 5.0)")
+    overall_gpa: int = Field(
+        ..., description="Weighted academic GPA rounded to integer (0 – 5)"
+    )
     gpa_trend: str = Field(..., description="improving | declining | stable")
     total_subjects: int
     passing_subjects: int

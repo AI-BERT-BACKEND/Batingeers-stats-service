@@ -1,0 +1,82 @@
+### Batingeers Stats Service — HTTP Request Collection
+### Base URLs:
+###   Local:  http://localhost:8000
+###   QA:     https://aibert-stats-service-qa.yellowwave-cb2d91fc.centralus.azurecontainerapps.io
+###
+### Usage: set the @baseUrl and @token variables below before running.
+
+@baseUrl = http://localhost:8000
+@token = <paste_your_jwt_here>
+@subjectId = 3fa85f64-5717-4562-b3fc-2c963f66afa6
+
+# ─────────────────────────────────────────────────────────────────────────────
+# AIB-31 | GET /api/v1/stats/dashboard
+# Returns: currentGPA (integer), completionRate (float), subjectList (array)
+# userId is extracted from the JWT — no param needed in the request.
+# ─────────────────────────────────────────────────────────────────────────────
+
+### Get academic dashboard — happy path
+GET {{baseUrl}}/api/v1/stats/dashboard
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###
+
+### Get dashboard — without token (expect 401 Unauthorized)
+GET {{baseUrl}}/api/v1/stats/dashboard
+Accept: application/json
+
+###
+
+### Get dashboard — QA environment
+GET https://aibert-stats-service-qa.yellowwave-cb2d91fc.centralus.azurecontainerapps.io/api/v1/stats/dashboard
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###
+
+# ─────────────────────────────────────────────────────────────────────────────
+# AIB-32 | GET /api/v1/stats/subjects/{subject_id}
+# Returns: gradesByPeriod, relatedTasks, gradeEvolution
+# subject_id must belong to the authenticated student (from JWT).
+# gradeEvolution is empty if fewer than 2 periods have grades (RN-02).
+# ─────────────────────────────────────────────────────────────────────────────
+
+### Get subject statistics — happy path
+GET {{baseUrl}}/api/v1/stats/subjects/{{subjectId}}
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###
+
+### Get subject statistics — subject does not belong to student (expect 403 Forbidden)
+GET {{baseUrl}}/api/v1/stats/subjects/00000000-0000-0000-0000-000000000000
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###
+
+### Get subject statistics — non-existent subject (expect 404 Not Found)
+GET {{baseUrl}}/api/v1/stats/subjects/ffffffff-ffff-ffff-ffff-ffffffffffff
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###
+
+### Get subject statistics — malformed UUID (expect 400 Bad Request)
+GET {{baseUrl}}/api/v1/stats/subjects/not-a-valid-uuid
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###
+
+### Get subject statistics — without token (expect 401 Unauthorized)
+GET {{baseUrl}}/api/v1/stats/subjects/{{subjectId}}
+Accept: application/json
+
+###
+
+### Get subject statistics — QA environment
+GET https://aibert-stats-service-qa.yellowwave-cb2d91fc.centralus.azurecontainerapps.io/api/v1/stats/subjects/{{subjectId}}
+Authorization: Bearer {{token}}
+Accept: application/json

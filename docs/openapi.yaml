@@ -1,0 +1,404 @@
+openapi: 3.0.3
+info:
+  title: Batingeers Stats Service
+  description: >
+    Academic statistics microservice for the AIBERT platform.
+    Provides dashboard statistics (AIB-31) and per-subject detailed analytics
+    including grades by period, projected grade, related tasks, and grade evolution (AIB-32).
+    All endpoints require a valid JWT Bearer token; the userId is extracted automatically from it.
+  version: 1.0.0
+  contact:
+    name: Batingeers Team — AIBERT
+
+servers:
+  - url: http://localhost:8000
+    description: Local development
+  - url: https://aibert-stats-service-qa.yellowwave-cb2d91fc.centralus.azurecontainerapps.io
+    description: Azure Container Apps — QA
+
+tags:
+  - name: Stats
+    description: Academic statistics endpoints
+
+security:
+  - bearerAuth: []
+
+paths:
+
+  /api/v1/stats/dashboard:
+    get:
+      tags:
+        - Stats
+      summary: Get academic statistics dashboard (AIB-31)
+      description: >
+        Returns the authenticated student's academic dashboard for the active semester:
+        weighted GPA, task completion rate, and subject list with current grade and academic status.
+        The userId is extracted from the JWT — no path or body parameter needed.
+      operationId: getDashboard
+      responses:
+        "200":
+          description: Dashboard data retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardResponse"
+              example:
+                currentGPA: 4
+                completionRate: 75.5
+                subjectList:
+                  - subjectId: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+                    subjectName: "Cálculo Diferencial"
+                    credits: 4
+                    currentGrade: 4.2
+                    academicStatus: "Aprobada"
+                    teacherName: "Juan García"
+                  - subjectId: "7cb9e2a1-8821-4312-c4de-3d874f77bfe9"
+                    subjectName: "Estructuras de Datos"
+                    credits: 3
+                    currentGrade: 2.8
+                    academicStatus: "En riesgo"
+                    teacherName: null
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+
+  /api/v1/stats/subjects/{subject_id}:
+    get:
+      tags:
+        - Stats
+      summary: Get subject statistics and grade evolution (AIB-32)
+      description: >
+        Returns detailed analytics for a specific subject belonging to the authenticated student:
+        grades by evaluation period with weight and projected grade, related tasks fetched from
+        task-service, and weekly grade evolution. gradeEvolution is only returned when at least
+        2 periods have a registered grade (RN-02).
+      operationId: getSubjectStats
+      parameters:
+        - name: subject_id
+          in: path
+          required: true
+          description: UUID of the subject. Must belong to the authenticated student.
+          schema:
+            type: string
+            format: uuid
+          example: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+      responses:
+        "200":
+          description: Subject statistics retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SubjectStatsResponse"
+              example:
+                gradesByPeriod:
+                  - periodId: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+                    periodName: "Corte 1"
+                    weightPercentage: 30.0
+                    obtainedGrade: 4.0
+                    contribution: 1.2
+                    projectedGrade: 3.5
+                  - periodId: "9ab12cd3-4567-89ef-0000-1234567890ab"
+                    periodName: "Corte 2"
+                    weightPercentage: 30.0
+                    obtainedGrade: null
+                    contribution: 0.0
+                    projectedGrade: 3.5
+                  - periodId: "7de34fg5-6789-01hi-0000-2345678901cd"
+                    periodName: "Corte final"
+                    weightPercentage: 40.0
+                    obtainedGrade: null
+                    contribution: 0.0
+                    projectedGrade: 3.5
+                relatedTasks:
+                  - taskId: "1ab2cd34-ef56-7890-abcd-ef1234567890"
+                    taskName: "Taller de integrales"
+                    dueDate: "2026-05-20"
+                    status: "Pendiente"
+                    priority: "Alta"
+                    estimatedHours: 3.0
+                gradeEvolution:
+                  - week: 4
+                    accumulatedGrade: 4.0
+                    registeredDate: "2026-03-14"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+
+components:
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token issued by the AIBERT authentication service. The userId claim is extracted server-side.
+
+  responses:
+    Unauthorized:
+      description: Missing, invalid, or expired JWT token.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            detail: "Could not validate credentials."
+    Forbidden:
+      description: The requested subject does not belong to the authenticated student.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            detail: "Subject does not belong to the authenticated user."
+    NotFound:
+      description: Student or subject not found.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            detail: "Subject not found."
+    ServiceUnavailable:
+      description: An upstream service (academic-service or task-service) is unreachable.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            detail: "Upstream service unavailable. Please try again later."
+
+  schemas:
+
+    ErrorResponse:
+      type: object
+      properties:
+        detail:
+          type: string
+          description: Human-readable error message.
+
+    # ─── AIB-31: Dashboard ────────────────────────────────────────────────────
+
+    DashboardResponse:
+      type: object
+      required:
+        - currentGPA
+        - completionRate
+        - subjectList
+      properties:
+        currentGPA:
+          type: integer
+          description: >
+            Weighted GPA for the active semester. Credits of each subject are used as weights.
+            Only subjects from the active semester are included (RN-02).
+          example: 4
+        completionRate:
+          type: number
+          format: float
+          description: >
+            Task completion percentage: (completed tasks / total tasks) × 100.
+            Sourced from task-service.
+          minimum: 0.0
+          maximum: 100.0
+          example: 75.5
+        subjectList:
+          type: array
+          description: List of active-semester subjects, ordered by currentGrade descending.
+          items:
+            $ref: "#/components/schemas/SubjectSummary"
+
+    SubjectSummary:
+      type: object
+      required:
+        - subjectId
+        - subjectName
+        - credits
+        - currentGrade
+        - academicStatus
+      properties:
+        subjectId:
+          type: string
+          format: uuid
+          description: Unique identifier of the subject.
+          example: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+        subjectName:
+          type: string
+          description: Subject name, sourced from academic-service.
+          example: "Cálculo Diferencial"
+        credits:
+          type: integer
+          description: Number of academic credits. Used as weight for the GPA calculation.
+          example: 4
+        currentGrade:
+          type: number
+          format: float
+          description: Current grade for the subject (scale 0.0 – 5.0).
+          minimum: 0.0
+          maximum: 5.0
+          example: 4.2
+        academicStatus:
+          type: string
+          description: Academic status of the subject.
+          enum:
+            - Aprobada
+            - En riesgo
+            - Sin información
+          example: "Aprobada"
+        teacherName:
+          type: string
+          nullable: true
+          description: Name of the teacher associated with the subject. Null if not registered in academic-service.
+          example: "Juan García"
+
+    # ─── AIB-32: Subject Stats ────────────────────────────────────────────────
+
+    SubjectStatsResponse:
+      type: object
+      required:
+        - gradesByPeriod
+        - relatedTasks
+        - gradeEvolution
+      properties:
+        gradesByPeriod:
+          type: array
+          description: List of evaluation periods with their grades and contributions.
+          items:
+            $ref: "#/components/schemas/PeriodGrade"
+        relatedTasks:
+          type: array
+          description: Tasks associated with the subject, ordered by dueDate descending. Sourced from task-service.
+          items:
+            $ref: "#/components/schemas/RelatedTask"
+        gradeEvolution:
+          type: array
+          description: >
+            Weekly accumulated grade evolution points. Only populated when at least
+            2 periods have a registered grade (RN-02). Empty list otherwise.
+          items:
+            $ref: "#/components/schemas/GradeEvolutionPoint"
+
+    PeriodGrade:
+      type: object
+      required:
+        - periodId
+        - periodName
+        - weightPercentage
+        - contribution
+        - projectedGrade
+      properties:
+        periodId:
+          type: string
+          format: uuid
+          description: Unique identifier of the evaluation period.
+          example: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+        periodName:
+          type: string
+          description: "Period name (e.g., Corte 1, Corte 2, Corte final)."
+          example: "Corte 1"
+        weightPercentage:
+          type: number
+          format: float
+          description: Percentage weight of this period. All periods must sum to 100.
+          minimum: 0.0
+          maximum: 100.0
+          example: 30.0
+        obtainedGrade:
+          type: number
+          format: float
+          nullable: true
+          description: Grade obtained in this period (0.0 – 5.0). Null if no grade has been registered yet.
+          minimum: 0.0
+          maximum: 5.0
+          example: 4.0
+        contribution:
+          type: number
+          format: float
+          description: "Period contribution to the final grade: obtainedGrade × weightPercentage. Zero when obtainedGrade is null."
+          example: 1.2
+        projectedGrade:
+          type: number
+          format: float
+          description: >
+            Projected final grade for the subject (RN-01):
+            sum of (obtainedGrade × weightPercentage) for registered periods,
+            assuming zero for unregistered ones.
+          minimum: 0.0
+          maximum: 5.0
+          example: 3.5
+
+    RelatedTask:
+      type: object
+      required:
+        - taskId
+        - taskName
+        - dueDate
+        - status
+      properties:
+        taskId:
+          type: string
+          format: uuid
+          description: Task identifier from task-service.
+          example: "1ab2cd34-ef56-7890-abcd-ef1234567890"
+        taskName:
+          type: string
+          description: Name of the task.
+          example: "Taller de integrales"
+        dueDate:
+          type: string
+          format: date
+          description: Task due date (YYYY-MM-DD).
+          example: "2026-05-20"
+        status:
+          type: string
+          description: Current status of the task.
+          enum:
+            - Pendiente
+            - Completada
+            - Vencida
+          example: "Pendiente"
+        priority:
+          type: string
+          nullable: true
+          description: Task priority level.
+          enum:
+            - Alta
+            - Media
+            - Baja
+          example: "Alta"
+        estimatedHours:
+          type: number
+          format: float
+          nullable: true
+          description: Estimated hours to complete the task.
+          example: 3.0
+
+    GradeEvolutionPoint:
+      type: object
+      required:
+        - week
+        - accumulatedGrade
+        - registeredDate
+      properties:
+        week:
+          type: integer
+          description: Academic week number within the semester.
+          example: 4
+        accumulatedGrade:
+          type: number
+          format: float
+          description: Accumulated grade up to this week (scale 0.0 – 5.0).
+          minimum: 0.0
+          maximum: 5.0
+          example: 4.0
+        registeredDate:
+          type: string
+          format: date
+          description: Date when this evolution point was registered (YYYY-MM-DD).
+          example: "2026-03-14"

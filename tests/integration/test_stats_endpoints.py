@@ -133,7 +133,7 @@ def test_get_specific_subject_returns_200(MockTask, MockAcademic, client, auth_h
     assert response.status_code == 200
     data = response.json()
     assert data["subject_id"] == "sub-1"
-    assert "grade_history" in data
+    assert "grades_by_period" in data
     assert "minimum_needed" in data
     assert "max_possible_grade" in data
     assert data["status"] in ("passing", "at_risk", "failing")
