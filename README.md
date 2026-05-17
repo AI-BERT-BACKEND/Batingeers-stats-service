@@ -8,15 +8,15 @@
 
 ### Stack Tecnológico
 
-![Java](https://img.shields.io/badge/Java-21-007396?style=for-the-badge&logo=openjdk&logoColor=white)
-![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.4.3-6DB33F?style=for-the-badge&logo=spring-boot&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.110-009688?style=for-the-badge&logo=fastapi&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Relacional-336791?style=for-the-badge&logo=postgresql&logoColor=white)
 
 ### Infraestructura & Calidad
 
 ![Azure](https://img.shields.io/badge/Azure-Cloud-0078D4?style=for-the-badge&logo=microsoft-azure&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-Container-2496ED?style=for-the-badge&logo=docker&logoColor=white)
-![Maven](https://img.shields.io/badge/Maven-Build-C71A36?style=for-the-badge&logo=apache-maven&logoColor=white)
+![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-ORM-CC0000?style=for-the-badge&logo=sqlalchemy&logoColor=white)
 
 ### Arquitectura
 
@@ -45,6 +45,7 @@
 11. [Ejecución del Proyecto](#11-ejecución-del-proyecto)
 12. [CI/CD y Despliegue en Azure](#12-cicd-y-despliegue-en-azure)
 13. [Contribuciones](#13-contribuciones)
+14. [Referencia de API — Endpoints](#14-referencia-de-api--endpoints)
 
 ---
 
@@ -59,7 +60,9 @@
 
 ## 2. Objetivo del Microservicio
 
-El microservicio de Estadísticas Académicas tiene como objetivo gestionar y exponer el rendimiento académico de los estudiantes dentro de la plataforma AIBERT. Este servicio centraliza el registro de calificaciones, el cálculo de promedios y el seguimiento del progreso académico a lo largo del tiempo. Además, se integra con un módulo de notificaciones por correo electrónico para mantener informados a los usuarios sobre cambios relevantes en su historial académico. El servicio opera sobre una base de datos relacional (PostgreSQL) y expone una API REST protegida mediante JWT, siguiendo los principios de arquitectura hexagonal.
+El microservicio de Estadísticas Académicas es el responsable de calcular, consolidar y exponer el rendimiento académico de los estudiantes dentro de la plataforma AIBERT. Provee dos funcionalidades principales: un **dashboard general** con el promedio ponderado, el porcentaje de tareas completadas y el listado de materias del semestre activo (AIB-31), y una vista de **detalle por materia** con notas por corte, nota proyectada, tareas asociadas y evolución histórica del rendimiento (AIB-32).
+
+El servicio está construido con **FastAPI** y **SQLAlchemy** sobre **PostgreSQL**, y se comunica con `academic-service` y `task-service` mediante **HTTPx** para enriquecer las respuestas con datos académicos y de tareas. Todos los endpoints están protegidos mediante JWT y la API está documentada con OpenAPI 3 (Swagger disponible en `/docs`).
 
 ---
 
@@ -71,29 +74,30 @@ El microservicio de Estadísticas Académicas tiene como objetivo gestionar y ex
   <thead>
     <tr>
       <th>Funcionalidad</th>
+      <th>Código</th>
       <th>Descripción</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td><strong>Registro de Calificaciones</strong></td>
-      <td>Permite ingresar y actualizar notas académicas de los estudiantes mediante el DTO <code>GradeEntryDto</code>, validando la estructura antes de persistir.</td>
+      <td><strong>Dashboard de Estadísticas Académicas</strong></td>
+      <td>AIB-31</td>
+      <td>Retorna el promedio ponderado actual (<code>currentGPA</code>), porcentaje de tareas completadas (<code>completionRate</code>) y el listado de materias del semestre activo con su nota y estado académico.</td>
     </tr>
     <tr>
-      <td><strong>Consulta de Estadísticas</strong></td>
-      <td>Expone endpoints para obtener el rendimiento académico de un estudiante: promedios, historial de notas y métricas de desempeño.</td>
+      <td><strong>Estadísticas y Evolución por Materia</strong></td>
+      <td>AIB-32</td>
+      <td>Retorna el detalle de una materia: notas por corte con su peso porcentual, nota proyectada asumiendo cero en cortes sin nota, tareas asociadas con su estado, y la curva de evolución semanal del rendimiento.</td>
     </tr>
     <tr>
-      <td><strong>Gestión de Usuarios</strong></td>
-      <td>Administración del modelo de usuario asociado a las estadísticas, incluyendo su perfil académico y objetos de valor relacionados.</td>
-    </tr>
-    <tr>
-      <td><strong>Notificaciones por Correo</strong></td>
-      <td>Integración con un servicio de correo externo para enviar alertas o confirmaciones relacionadas con eventos académicos relevantes.</td>
+      <td><strong>Integración con Servicios Externos</strong></td>
+      <td>—</td>
+      <td>Consulta <code>academic-service</code> para obtener materias, créditos y docentes, y <code>task-service</code> para obtener tareas y calcular <code>completionRate</code>, usando HTTPx como cliente HTTP.</td>
     </tr>
     <tr>
       <td><strong>Autenticación y Autorización</strong></td>
-      <td>Protección de los endpoints mediante Spring Security y validación de tokens JWT para garantizar acceso controlado a los datos académicos.</td>
+      <td>—</td>
+      <td>Protección de los endpoints mediante JWT; el <code>userId</code> se extrae automáticamente del token activo sin necesidad de enviarlo en el cuerpo o en la URL.</td>
     </tr>
   </tbody>
 </table>
@@ -136,7 +140,7 @@ Se utiliza **GitFlow** como modelo de ramificación para el control de versiones
 - **Propósito:** Corregir un bug **crítico** detectado en `main`.
 - **Base:** `main`.
 - **Cierre:** Merge a `main` (crear **tag** de **PATCH**) **y** merge a `develop` para mantener paridad.
-- **Ejemplo:** `hotfix/fix-grade-calculation-bug`
+- **Ejemplo:** `hotfix/fix-gpa-calculation-bug`
 
 ---
 
@@ -149,8 +153,8 @@ feature/[nombre-funcionalidad]-AIBERT_[codigo-jira]
 ```
 
 **Ejemplos:**
-- `feature/grade-entry-endpoint-AIBERT-15`
-- `feature/email-notification-service-AIBERT-22`
+- `feature/dashboard-stats-endpoint-AIBERT-31`
+- `feature/subject-evolution-endpoint-AIBERT-32`
 
 **Reglas de nomenclatura:**
 - Usar **kebab-case** (palabras separadas por guiones)
@@ -195,30 +199,29 @@ hotfix/[descripcion-breve-del-fix]
 
 | **Tecnología / Herramienta** | **Uso principal en el proyecto** |
 |------------------------------|----------------------------------|
-| **Java OpenJDK 21** | Lenguaje de programación base del microservicio. |
-| **Spring Boot 3.4.3** | Framework base; expone la API REST y gestiona inyección de dependencias. |
-| **Spring Web** | Exposición de endpoints REST mediante controladores HTTP. |
-| **Spring Data JPA** | Acceso a la base de datos relacional mediante el patrón Repository y mapeo objeto-relacional. |
-| **PostgreSQL** | Base de datos relacional para persistir calificaciones, usuarios y estadísticas académicas. |
-| **Spring Security & JWT** | Autenticación y validación de tokens JWT en las solicitudes a la API. |
-| **MapStruct & Lombok** | Mapeo automático entre entidades y DTOs, y reducción de código boilerplate. |
-| **Springdoc OpenAPI 3** | Documentación interactiva de la API disponible en Swagger UI. |
-| **Apache Maven** | Gestión de dependencias y empaquetado del proyecto. |
-| **JUnit 5** | Framework de pruebas unitarias incluido vía `spring-boot-starter-test`. |
-| **Mockito** | Librería de mocking para simular dependencias en las pruebas unitarias. |
-| **Spring Boot Test** | Soporte de integración para pruebas de contexto Spring y slices de la aplicación. |
-| **Docker** | Contenerización del microservicio para despliegue en Azure. |
+| **Python 3.11** | Lenguaje de programación base del microservicio. |
+| **FastAPI** | Framework web; expone los endpoints REST y genera automáticamente la documentación OpenAPI 3 en `/docs`. |
+| **Pydantic v2** | Validación y serialización de los esquemas de entrada y salida (request/response models). |
+| **SQLAlchemy** | ORM para el acceso a PostgreSQL, siguiendo el patrón Repository en la capa de infraestructura. |
+| **PostgreSQL** | Base de datos relacional para persistir snapshots de estadísticas académicas. |
+| **HTTPx** | Cliente HTTP asíncrono para la comunicación con `academic-service` y `task-service`. |
+| **JWT (python-jose)** | Autenticación y extracción del `userId` desde el token Bearer en cada solicitud. |
+| **pytest** | Framework de pruebas unitarias e de integración. |
+| **pytest-asyncio** | Soporte para pruebas de endpoints y servicios asíncronos con FastAPI. |
+| **httpx (TestClient)** | Cliente de pruebas HTTP para los tests de integración de los routers FastAPI. |
+| **Docker** | Contenerización del microservicio para despliegue en Azure Container Apps. |
 
 ---
 
 ## 6. Funcionalidad
 
-### 1. Registro de Calificación
+### 1. Ver Dashboard de Estadísticas Académicas (AIB-31)
 
-Permite registrar una nueva entrada de calificación para un estudiante.
+Retorna el resumen del rendimiento académico del estudiante: promedio ponderado del semestre activo, porcentaje de tareas completadas y listado de materias con su nota y estado.
 
-**Endpoint:**
-`POST /api/v1/stats/grades`
+**Endpoint:** `GET /api/v1/stats/dashboard`
+
+**Autenticación:** `Authorization: Bearer <JWT>` — el `userId` se extrae automáticamente del token.
 
 ---
 
@@ -226,12 +229,9 @@ Permite registrar una nueva entrada de calificación para un estudiante.
 
 <div align="center">
 
-| Campo | Tipo | Restricciones | Descripción |
+| Campo | Tipo | Origen | Descripción |
 |---|---|:---:|---|
-| studentId | Long | Obligatorio | Identificador único del estudiante. |
-| subject | String | Obligatorio | Nombre de la materia evaluada. |
-| grade | Double | Obligatorio, 0.0–5.0 | Calificación obtenida. |
-| period | String | Obligatorio | Período académico (ej. `2026-1`). |
+| userId | UUID | JWT (automático) | Identificador del estudiante autenticado. No se envía en la URL. |
 
 </div>
 
@@ -243,23 +243,31 @@ Permite registrar una nueva entrada de calificación para un estudiante.
 
 | Campo | Tipo | Descripción |
 |---|---|---|
-| id | Long | Identificador de la entrada registrada. |
-| studentId | Long | Identificador del estudiante. |
-| subject | String | Materia evaluada. |
-| grade | Double | Calificación registrada. |
-| period | String | Período académico. |
-| createdAt | LocalDateTime | Fecha y hora del registro. |
+| currentGPA | Integer | Promedio ponderado actual del semestre (usa créditos de cada materia como peso). |
+| completionRate | Float | Porcentaje de tareas completadas: `completadas / totales × 100`. Calculado consultando `task-service`. |
+| subjectList | List\[SubjectSummary\] | Listado de materias del semestre activo, ordenado de mayor a menor nota. |
+| subjectList[].subjectId | UUID | Identificador único de la materia. |
+| subjectList[].subjectName | String | Nombre de la materia, obtenido desde `academic-service`. |
+| subjectList[].credits | Integer | Créditos académicos de la materia, usados para el cálculo del promedio ponderado. |
+| subjectList[].currentGrade | Float | Nota actual de la materia (escala 0.0 – 5.0). |
+| subjectList[].academicStatus | String | Estado académico: `Aprobada`, `En riesgo` o `Sin información`. |
+| subjectList[].teacherName | String \| null | Nombre del docente asociado a la materia (puede ser nulo). |
 
 </div>
 
+**Reglas de negocio:**
+- **RN-01:** El promedio ponderado usa los créditos de cada materia como factor de peso.
+- **RN-02:** Solo se incluyen materias del semestre activo en el cálculo.
+
 ---
 
-### 2. Consulta de Estadísticas por Estudiante
+### 2. Ver Estadísticas y Evolución por Materia (AIB-32)
 
-Retorna el resumen de rendimiento académico de un estudiante en un período dado.
+Retorna el detalle analítico de una materia: notas por corte evaluativo con su peso, nota proyectada, tareas asociadas y la curva de evolución del rendimiento semana a semana.
 
-**Endpoint:**
-`GET /api/v1/stats/{studentId}`
+**Endpoint:** `GET /api/v1/stats/subjects/{subject_id}`
+
+**Autenticación:** `Authorization: Bearer <JWT>` — el `userId` se extrae automáticamente del token.
 
 ---
 
@@ -267,10 +275,10 @@ Retorna el resumen de rendimiento académico de un estudiante en un período dad
 
 <div align="center">
 
-| Campo | Tipo | Restricciones | Descripción |
+| Campo | Tipo | Origen | Descripción |
 |---|---|:---:|---|
-| studentId | Long | Obligatorio (Path) | Identificador del estudiante a consultar. |
-| period | String | Opcional (Query) | Filtra por período académico. |
+| subject_id | UUID | Path (obligatorio) | Identificador de la materia. Debe pertenecer al estudiante autenticado. |
+| userId | UUID | JWT (automático) | Identificador del estudiante autenticado. No se envía en la URL. |
 
 </div>
 
@@ -280,22 +288,47 @@ Retorna el resumen de rendimiento académico de un estudiante en un período dad
 
 <div align="center">
 
+**gradesByPeriod** — Notas por corte evaluativo:
+
 | Campo | Tipo | Descripción |
 |---|---|---|
-| studentId | Long | Identificador del estudiante. |
-| averageGrade | Double | Promedio general del estudiante en el período. |
-| grades | List\<GradeEntryDto\> | Listado de calificaciones por materia. |
-| period | String | Período académico consultado. |
+| gradesByPeriod[].periodId | UUID | Identificador único del corte evaluativo. |
+| gradesByPeriod[].periodName | String | Nombre del corte (ej. `Corte 1`, `Corte 2`, `Corte final`). |
+| gradesByPeriod[].weightPercentage | Float | Peso porcentual del corte. La suma de todos los cortes debe ser 100. |
+| gradesByPeriod[].obtainedGrade | Float \| null | Nota obtenida en el corte (0.0 – 5.0). Nulo si aún no hay nota registrada. |
+| gradesByPeriod[].contribution | Float | Aporte del corte a la nota final: `obtainedGrade × weightPercentage`. |
+| gradesByPeriod[].projectedGrade | Float | Nota proyectada final, asumiendo cero en cortes sin nota registrada. |
+
+**relatedTasks** — Tareas de la materia, ordenadas por fecha de entrega descendente (desde `task-service`):
+
+| Campo | Tipo | Descripción |
+|---|---|---|
+| relatedTasks[].taskId | UUID | Identificador de la tarea en `task-service`. |
+| relatedTasks[].taskName | String | Nombre de la tarea. |
+| relatedTasks[].dueDate | date | Fecha límite de entrega (formato `YYYY-MM-DD`). |
+| relatedTasks[].status | String | Estado de la tarea: `Pendiente`, `Completada` o `Vencida`. |
+| relatedTasks[].priority | String \| null | Prioridad de la tarea: `Alta`, `Media` o `Baja`. Puede ser nulo. |
+| relatedTasks[].estimatedHours | Float \| null | Horas estimadas para completar la tarea. Puede ser nulo. |
+
+**gradeEvolution** — Evolución acumulada de la nota semana a semana:
+
+| Campo | Tipo | Descripción |
+|---|---|---|
+| gradeEvolution[].week | Integer | Número de semana académica dentro del semestre. |
+| gradeEvolution[].accumulatedGrade | Float | Nota acumulada hasta esa semana (0.0 – 5.0). |
+| gradeEvolution[].registeredDate | date | Fecha en que se registró el punto de evolución (formato `YYYY-MM-DD`). |
 
 </div>
+
+**Reglas de negocio:**
+- **RN-01:** `projectedGrade` = suma de `(obtainedGrade × weightPercentage)` para los cortes ya registrados.
+- **RN-02:** `gradeEvolution` solo se devuelve si hay mínimo 2 cortes con nota registrada.
 
 ---
 
 ## 7. Diagramas
 
-Esta sección muestra los flujos de interacción entre los componentes del microservicio.
-
-### Diagrama de Secuencia — View Dashboard
+### Diagrama de Secuencia — View Dashboard (AIB-31)
 
 <div align="center">
 
@@ -304,7 +337,7 @@ Esta sección muestra los flujos de interacción entre los componentes del micro
 
 ---
 
-### Diagrama de Secuencia — View Stats and Progress
+### Diagrama de Secuencia — View Stats and Progress (AIB-32)
 
 <div align="center">
 
@@ -314,7 +347,7 @@ Esta sección muestra los flujos de interacción entre los componentes del micro
 
 ---
 
-### Diagrama de Secuencia — View gamification progress
+### Diagrama de Secuencia — View Gamification Progress
 
 <div align="center">
 
@@ -323,9 +356,9 @@ Esta sección muestra los flujos de interacción entre los componentes del micro
 
 ---
 
-### Diagrama de clases — `Dominio`
+### Diagrama de Clases — Dominio
 
-El dominio tiene tres contextos — Dashboard (resumen general del usuario con GPA, tareas y materias), Gamification (perfil de puntos y badges), y Stats (estadísticas detalladas por materia con historial de notas y proyecciones).
+El dominio tiene tres contextos: **Dashboard** (resumen general del usuario con GPA, tareas y materias), **Gamification** (perfil de puntos y badges), y **Stats** (estadísticas detalladas por materia con historial de notas y proyecciones).
 
 <div align="center">
 
@@ -335,9 +368,9 @@ El dominio tiene tres contextos — Dashboard (resumen general del usuario con G
 
 ---
 
-### Diagrama de Entidad Relacion
+### Diagrama de Entidad Relación
 
-Dos tablas principales en BD — dashboard_snapshots (snapshot general del usuario) y subject_snapshots (detalle por materia), relacionadas 1 a muchos, ambas usando JSONB para datos complejos anidados.
+Dos tablas principales: `dashboard_snapshots` (snapshot general del usuario) y `subject_snapshots` (detalle por materia), relacionadas 1 a muchos. Ambas usan JSONB para datos complejos anidados.
 
 <div align="center">
 
@@ -347,9 +380,9 @@ Dos tablas principales en BD — dashboard_snapshots (snapshot general del usuar
 
 ---
 
-### Diagrama componentes Especificos
+### Diagrama de Componentes
 
-El flujo va User → Stats Controller → Use Cases → (SQLAlchemy Repository a la Stats DB) y (HTTPx Client → microservicios externos como Academic, Task y Gamification).
+El flujo va: `User → Stats Router → Use Cases → (SQLAlchemy Repository → Stats DB)` y `(HTTPx Client → academic-service, task-service, gamification-service)`.
 
 <div align="center">
 
@@ -359,24 +392,9 @@ El flujo va User → Stats Controller → Use Cases → (SQLAlchemy Repository a
 
 ---
 
-### Arquitectura Hexagonal — Componentes Clave
-
-> *(Espacio reservado — agregar diagrama de arquitectura hexagonal del microservicio)*
-
-El microservicio de estadísticas separa sus responsabilidades de la siguiente manera:
-
-- **Entrypoints (REST Controllers):** Reciben peticiones HTTP y delegan al caso de uso correspondiente.
-- **Application (Use Cases & Services):** Orquestan la lógica de negocio; coordinan repositorios y servicios externos.
-- **Domain:** Contiene las entidades puras (`User`, value objects) y las interfaces de puertos de entrada.
-- **Infrastructure:**
-  - `persistence/`: Adaptadores JPA para PostgreSQL (entidades, repositorios, mappers).
-  - `external/email/`: Adaptador para el envío de notificaciones por correo.
-
----
-
 ## 8. Manejo de Errores
 
-El microservicio implementa un **mecanismo centralizado de manejo de errores** a través de un `GlobalExceptionHandler` (`@ControllerAdvice`) ubicado en la capa `entrypoints/advice/`. Captura excepciones de validación y del dominio de negocio, garantizando respuestas uniformes y seguras.
+El microservicio implementa un **mecanismo centralizado de manejo de errores** mediante exception handlers de FastAPI (`@app.exception_handler`). Captura excepciones de validación (Pydantic) y de dominio de negocio, garantizando respuestas uniformes y seguras.
 
 ### Tipos de errores manejados
 
@@ -384,11 +402,11 @@ El microservicio implementa un **mecanismo centralizado de manejo de errores** a
 
 | **Código HTTP** | **Escenario** |
 |:---:|:---|
-| ![400](https://img.shields.io/badge/400-Bad_Request-red?style=flat) | Datos inválidos en la petición, campos obligatorios faltantes o formato incorrecto. |
+| ![400](https://img.shields.io/badge/400-Bad_Request-red?style=flat) | UUID inválido, formato de fecha incorrecto o campo obligatorio faltante. |
 | ![401](https://img.shields.io/badge/401-Unauthorized-orange?style=flat) | Token JWT ausente, inválido o expirado. |
-| ![403](https://img.shields.io/badge/403-Forbidden-orange?style=flat) | El usuario autenticado no tiene permisos sobre el recurso solicitado. |
-| ![404](https://img.shields.io/badge/404-Not_Found-orange?style=flat) | Estudiante o recurso académico no encontrado. |
-| ![409](https://img.shields.io/badge/409-Conflict-yellow?style=flat) | Conflicto de negocio, por ejemplo, calificación ya registrada para el mismo período y materia. |
+| ![403](https://img.shields.io/badge/403-Forbidden-orange?style=flat) | La materia solicitada no pertenece al estudiante autenticado. |
+| ![404](https://img.shields.io/badge/404-Not_Found-orange?style=flat) | Estudiante o materia no encontrada en los servicios consultados. |
+| ![503](https://img.shields.io/badge/503-Service_Unavailable-critical?style=flat) | `academic-service` o `task-service` no responde. |
 | ![500](https://img.shields.io/badge/500-Internal_Server_Error-critical?style=flat) | Error inesperado en el servidor. |
 
 </div>
@@ -397,25 +415,45 @@ El microservicio implementa un **mecanismo centralizado de manejo de errores** a
 
 ## 9. Evidencia de Pruebas y Ejecución
 
-El proyecto incluye pruebas unitarias orientadas a validar los casos de uso y la lógica de negocio del microservicio.
+El proyecto incluye pruebas unitarias con **pytest** orientadas a validar los casos de uso, la lógica de cálculo (GPA ponderado, nota proyectada, `completionRate`) y los routers FastAPI.
+
+**Swagger desplegado (QA):**
 https://aibert-stats-service-qa.yellowwave-cb2d91fc.centralus.azurecontainerapps.io/docs#/
 
+### Escenarios de prueba relevantes
+
+| Escenario | Tipo | Resultado esperado |
+|---|---|---|
+| Dashboard con materias registradas | Unitario | `currentGPA` calculado con créditos como peso; `subjectList` ordenado de mayor a menor nota. |
+| Dashboard sin materias en semestre activo | Unitario | `subjectList` vacío, `currentGPA = 0`, `completionRate = 0.0`. |
+| Dashboard con `task-service` no disponible | Integración | HTTP 503, mensaje de servicio no disponible. |
+| Detalle de materia con todos los cortes registrados | Unitario | `projectedGrade` = suma real de contribuciones; `gradeEvolution` retorna puntos. |
+| Detalle de materia con menos de 2 cortes con nota | Unitario | `gradeEvolution` retorna lista vacía (RN-02). |
+| Detalle de materia con cortes sin nota | Unitario | `obtainedGrade = null`; `projectedGrade` asume 0 en esos cortes. |
+| Materia que no pertenece al estudiante autenticado | Integración | HTTP 403 Forbidden. |
+| Token JWT ausente o expirado | Integración | HTTP 401 Unauthorized. |
 
 ### Cómo ejecutar las pruebas
 
-#### 1. Ejecutar todas las pruebas
+#### 1. Instalar dependencias de prueba
 
 ```bash
-mvn clean test
+pip install pytest pytest-asyncio httpx
 ```
 
-#### 2. Generar reporte de cobertura con JaCoCo
+#### 2. Ejecutar todas las pruebas
 
 ```bash
-mvn clean test jacoco:report
+pytest
 ```
 
-El reporte HTML se generará en `target/site/jacoco/index.html`.
+#### 3. Ejecutar con reporte de cobertura
+
+```bash
+pytest --cov=app --cov-report=html
+```
+
+El reporte HTML se generará en `htmlcov/index.html`.
 
 > *(Espacio reservado — agregar capturas de pantalla o evidencia de pruebas ejecutadas)*
 
@@ -428,49 +466,51 @@ El microservicio sigue una **arquitectura hexagonal (puertos y adaptadores)**:
 ```
 batingeers-stats-service/
 │
-├── src/
-│   ├── main/
-│   │   ├── java/com/aibert/dosw/
-│   │   │   ├── application/                        # CAPA DE APLICACIÓN
-│   │   │   │   ├── dto/
-│   │   │   │   │   ├── request/                    # DTOs de entrada (ej. GradeEntryDto)
-│   │   │   │   │   └── response/                   # DTOs de salida
-│   │   │   │   ├── mapper/                         # Mappers de aplicación
-│   │   │   │   ├── service/                        # Servicios de aplicación
-│   │   │   │   └── usecase/                        # Casos de uso
-│   │   │   │       └── user/                       # Casos de uso relacionados con usuario
-│   │   │   │
-│   │   │   ├── config/                             # Configuraciones (Security, Swagger, etc.)
-│   │   │   │
-│   │   │   ├── domain/                             # CAPA DE DOMINIO
-│   │   │   │   ├── exceptions/                     # Excepciones de dominio
-│   │   │   │   ├── model/
-│   │   │   │   │   ├── user/                       # Entidad User
-│   │   │   │   │   └── valueObjects/               # Objetos de valor del dominio
-│   │   │   │   └── ports/
-│   │   │   │       └── in/                         # Puertos de entrada (interfaces de casos de uso)
-│   │   │   │
-│   │   │   ├── entrypoints/                        # CAPA DE ENTRADA (Infraestructura In)
-│   │   │   │   ├── advice/                         # GlobalExceptionHandler
-│   │   │   │   └── rest/
-│   │   │   │       ├── controller/                 # Controladores REST
-│   │   │   │       └── mapper/                     # Mappers de entrypoint
-│   │   │   │
-│   │   │   └── infrastructure/                     # CAPA DE INFRAESTRUCTURA
-│   │   │       ├── adapters/
-│   │   │       │   ├── adapter/                    # Adaptadores de puertos de salida
-│   │   │       │   └── persistence/
-│   │   │       │       ├── entity/                 # Entidades JPA
-│   │   │       │       ├── mapper/                 # Mappers de persistencia
-│   │   │       │       └── repository/             # Repositorios JPA (Spring Data)
-│   │   │       └── external/
-│   │   │           └── email/                      # Adaptador de envío de correos
-│   │   │
-│   │   └── resources/                              # application.yml / application-dev.yml
+├── app/
+│   ├── application/                        # CAPA DE APLICACIÓN
+│   │   ├── dto/
+│   │   │   ├── request/                    # Schemas Pydantic de entrada
+│   │   │   └── response/                   # Schemas Pydantic de salida
+│   │   ├── mapper/                         # Conversión entre modelos de dominio y DTOs
+│   │   ├── service/                        # Servicios de aplicación (orquestadores)
+│   │   └── use_case/                       # Casos de uso (AIB-31, AIB-32)
 │   │
-│   └── test/                                       # PRUEBAS UNITARIAS
+│   ├── config/                             # Configuraciones (JWT, DB, HTTPx clients)
+│   │
+│   ├── domain/                             # CAPA DE DOMINIO
+│   │   ├── exceptions/                     # Excepciones de dominio
+│   │   ├── model/                          # Entidades y value objects puros
+│   │   └── ports/
+│   │       └── in_/                        # Interfaces de puertos de entrada (contratos de casos de uso)
+│   │
+│   ├── entrypoints/                        # CAPA DE ENTRADA
+│   │   ├── exception_handler/              # Handlers globales de excepciones FastAPI
+│   │   └── rest/
+│   │       ├── router/                     # Routers FastAPI (stats_router.py)
+│   │       └── mapper/                     # Mappers de entrypoint
+│   │
+│   └── infrastructure/                     # CAPA DE INFRAESTRUCTURA
+│       ├── adapters/
+│       │   ├── adapter/                    # Implementaciones de puertos de salida
+│       │   └── persistence/
+│       │       ├── entity/                 # Modelos SQLAlchemy
+│       │       ├── mapper/                 # Mappers de persistencia
+│       │       └── repository/             # Repositorios (SQLAlchemy)
+│       └── external/
+│           ├── academic_client.py          # HTTPx client → academic-service
+│           └── task_client.py              # HTTPx client → task-service
 │
-└── pom.xml                                         # Configuración Maven
+├── tests/                                  # PRUEBAS (pytest)
+│   ├── unit/                               # Pruebas unitarias de casos de uso
+│   └── integration/                        # Pruebas de integración de routers
+│
+├── docs/
+│   ├── openapi.yaml                        # Especificación OpenAPI 3 del servicio
+│   └── requests.http                       # Peticiones HTTP de prueba
+│
+├── main.py                                 # Punto de entrada de la aplicación FastAPI
+├── requirements.txt                        # Dependencias del proyecto
+└── Dockerfile                              # Imagen Docker del servicio
 ```
 
 ---
@@ -479,33 +519,28 @@ batingeers-stats-service/
 
 ### Prerrequisitos
 
-- **Java 21**
-- **Maven 3.8+**
-- **PostgreSQL** (instancia local o remota configurada en `application.yml`)
+- **Python 3.11+**
+- **PostgreSQL** (instancia local o remota)
 - **Docker** (opcional)
 
 ### Variables de Entorno requeridas
 
-Antes de ejecutar el proyecto, asegúrate de definir las siguientes variables de entorno (o configurarlas en tu `application.yml`/`.env`):
-
 | Variable | Descripción |
 |---|---|
-| `DB_URL` | URL de conexión a PostgreSQL |
-| `DB_USERNAME` | Usuario de la base de datos |
-| `DB_PASSWORD` | Contraseña de la base de datos |
-| `JWT_SECRET` | Clave secreta para firma de tokens JWT |
-| `MAIL_HOST` | Host del servidor SMTP |
-| `MAIL_USERNAME` | Usuario de correo para notificaciones |
-| `MAIL_PASSWORD` | Contraseña del correo |
+| `DATABASE_URL` | URL de conexión a PostgreSQL (ej. `postgresql+asyncpg://user:pass@host/db`) |
+| `JWT_SECRET` | Clave secreta para validación de tokens JWT |
+| `ACADEMIC_SERVICE_URL` | URL base de `academic-service` |
+| `TASK_SERVICE_URL` | URL base de `task-service` |
 
-### Opción 1: Ejecución Local (Maven)
+### Opción 1: Ejecución Local
 
 ```bash
-mvn spring-boot:run
+pip install -r requirements.txt
+uvicorn main:app --reload --port 8000
 ```
 
-URL Local: `http://localhost:8080`
-Documentación API (Swagger): `http://localhost:8080/swagger-ui/index.html`
+URL Local: `http://localhost:8000`
+Documentación API (Swagger): `http://localhost:8000/docs`
 
 ### Opción 2: Ejecución con Docker
 
@@ -517,16 +552,16 @@ docker-compose up --build -d
 
 ## 12. CI/CD y Despliegue en Azure
 
-El proyecto se despliega mediante **GitHub Actions** hacia **Azure App Service** o un entorno contenedorizado en la nube. El pipeline de CI/CD ejecuta las siguientes etapas:
+El proyecto se despliega mediante **GitHub Actions** hacia **Azure Container Apps**. El pipeline de CI/CD ejecuta las siguientes etapas:
 
-1. Compilación y empaquetado con Maven.
-2. Ejecución de pruebas unitarias.
-3. Análisis estático de calidad con SonarQube.
+1. Instalación de dependencias Python.
+2. Ejecución de pruebas con `pytest`.
+3. Análisis estático con `ruff` y `mypy`.
 4. Construcción de imagen Docker.
-5. Push de la imagen al registro de contenedores de Azure.
-6. Despliegue en Azure App Service o Azure Container Apps.
+5. Push de la imagen al Azure Container Registry.
+6. Despliegue en Azure Container Apps.
 
-Se definen perfiles `dev` y `prod` en `application.yml` para gestionar cadenas de conexión a PostgreSQL y demás configuraciones de entorno.
+Se utilizan variables de entorno por ambiente (`dev`, `qa`, `prod`) configuradas en los secrets de GitHub Actions para gestionar las URLs de servicios externos y la cadena de conexión a PostgreSQL.
 
 > *(Espacio reservado — agregar capturas del pipeline de CI/CD y evidencia de despliegue en Azure)*
 
@@ -536,7 +571,7 @@ Se definen perfiles `dev` y `prod` en `application.yml` para gestionar cadenas d
 
 ### Metodología
 
-Se utiliza **Scrum** con iteraciones cortas, asegurando entregas continuas y mejora de valor. Las ramas principales son protegidas y todos los PRs deben cumplir validación estática (SonarQube) y ejecutar los pipelines de CI antes de ser mergeados.
+Se utiliza **Scrum** con iteraciones cortas, asegurando entregas continuas y mejora de valor. Las ramas principales son protegidas y todos los PRs deben pasar el pipeline de CI (pruebas + análisis estático) antes de ser mergeados.
 
 <div align="center">
 
@@ -546,3 +581,154 @@ Se utiliza **Scrum** con iteraciones cortas, asegurando entregas continuas y mej
 ![Year](https://img.shields.io/badge/Year-2026-blue?style=for-the-badge)
 
 </div>
+
+---
+
+## 14. Referencia de API — Endpoints
+
+Esta sección es la referencia rápida de los contratos del microservicio, orientada a la integración con otros servicios de la plataforma AIBERT.
+
+> Documentación interactiva completa (QA): https://aibert-stats-service-qa.yellowwave-cb2d91fc.centralus.azurecontainerapps.io/docs#/
+> Especificación OpenAPI: [`docs/openapi.yaml`](docs/openapi.yaml)
+
+---
+
+### `GET /api/v1/stats/dashboard`
+
+**Descripción:** Dashboard de estadísticas académicas del estudiante autenticado (AIB-31).
+
+**Headers requeridos:**
+
+| Header | Valor |
+|---|---|
+| `Authorization` | `Bearer <JWT>` |
+
+**Entrada:** No requiere parámetros en URL ni cuerpo. El `userId` se extrae del JWT.
+
+**Salida — HTTP 200:**
+
+```json
+{
+  "currentGPA": 4,
+  "completionRate": 75.5,
+  "subjectList": [
+    {
+      "subjectId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+      "subjectName": "Cálculo Diferencial",
+      "credits": 4,
+      "currentGrade": 4.2,
+      "academicStatus": "Aprobada",
+      "teacherName": "Juan García"
+    },
+    {
+      "subjectId": "7cb9e2a1-8821-4312-c4de-3d874f77bfe9",
+      "subjectName": "Estructuras de Datos",
+      "credits": 3,
+      "currentGrade": 2.8,
+      "academicStatus": "En riesgo",
+      "teacherName": null
+    }
+  ]
+}
+```
+
+| Campo | Tipo | Notas |
+|---|---|---|
+| `currentGPA` | `integer` | Promedio ponderado por créditos. Solo materias del semestre activo. |
+| `completionRate` | `float` | `completadas / totales × 100`. Dato obtenido de `task-service`. |
+| `subjectList[].subjectId` | `uuid` | |
+| `subjectList[].subjectName` | `string` | Dato obtenido de `academic-service`. |
+| `subjectList[].credits` | `integer` | |
+| `subjectList[].currentGrade` | `float` | Escala 0.0 – 5.0. |
+| `subjectList[].academicStatus` | `string` | `"Aprobada"` \| `"En riesgo"` \| `"Sin información"` |
+| `subjectList[].teacherName` | `string \| null` | |
+
+**Errores posibles:** `401`, `404`, `503`.
+
+---
+
+### `GET /api/v1/stats/subjects/{subject_id}`
+
+**Descripción:** Detalle de estadísticas y evolución de una materia (AIB-32).
+
+**Headers requeridos:**
+
+| Header | Valor |
+|---|---|
+| `Authorization` | `Bearer <JWT>` |
+
+**Parámetros de ruta:**
+
+| Parámetro | Tipo | Descripción |
+|---|---|---|
+| `subject_id` | `uuid` | Identificador de la materia. Debe pertenecer al estudiante autenticado. |
+
+**Salida — HTTP 200:**
+
+```json
+{
+  "gradesByPeriod": [
+    {
+      "periodId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+      "periodName": "Corte 1",
+      "weightPercentage": 30.0,
+      "obtainedGrade": 4.0,
+      "contribution": 1.2,
+      "projectedGrade": 3.5
+    },
+    {
+      "periodId": "9ab12cd3-4567-89ef-ghij-1234567890kl",
+      "periodName": "Corte 2",
+      "weightPercentage": 30.0,
+      "obtainedGrade": null,
+      "contribution": 0.0,
+      "projectedGrade": 3.5
+    },
+    {
+      "periodId": "7de34fg5-6789-01hi-jklm-2345678901no",
+      "periodName": "Corte final",
+      "weightPercentage": 40.0,
+      "obtainedGrade": null,
+      "contribution": 0.0,
+      "projectedGrade": 3.5
+    }
+  ],
+  "relatedTasks": [
+    {
+      "taskId": "1ab2cd34-ef56-7890-abcd-ef1234567890",
+      "taskName": "Taller de integrales",
+      "dueDate": "2026-05-20",
+      "status": "Pendiente",
+      "priority": "Alta",
+      "estimatedHours": 3.0
+    }
+  ],
+  "gradeEvolution": [
+    {
+      "week": 4,
+      "accumulatedGrade": 4.0,
+      "registeredDate": "2026-03-14"
+    }
+  ]
+}
+```
+
+| Campo | Tipo | Notas |
+|---|---|---|
+| `gradesByPeriod[].periodId` | `uuid` | |
+| `gradesByPeriod[].periodName` | `string` | |
+| `gradesByPeriod[].weightPercentage` | `float` | Suma de todos los cortes = 100. |
+| `gradesByPeriod[].obtainedGrade` | `float \| null` | 0.0 – 5.0. Nulo si no hay nota registrada. |
+| `gradesByPeriod[].contribution` | `float` | `obtainedGrade × weightPercentage`. |
+| `gradesByPeriod[].projectedGrade` | `float` | Proyección asumiendo 0 en cortes sin nota. |
+| `relatedTasks[].taskId` | `uuid` | Dato obtenido de `task-service`. |
+| `relatedTasks[].taskName` | `string` | |
+| `relatedTasks[].dueDate` | `date` | Formato `YYYY-MM-DD`. |
+| `relatedTasks[].status` | `string` | `"Pendiente"` \| `"Completada"` \| `"Vencida"` |
+| `relatedTasks[].priority` | `string \| null` | `"Alta"` \| `"Media"` \| `"Baja"` |
+| `relatedTasks[].estimatedHours` | `float \| null` | |
+| `gradeEvolution[].week` | `integer` | Número de semana en el semestre. |
+| `gradeEvolution[].accumulatedGrade` | `float` | 0.0 – 5.0. |
+| `gradeEvolution[].registeredDate` | `date` | Formato `YYYY-MM-DD`. |
+
+**Errores posibles:** `401`, `403`, `404`, `503`.

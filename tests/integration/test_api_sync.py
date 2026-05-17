@@ -196,8 +196,8 @@ def test_subject_specific_sync_returns_200():
     assert response.status_code == 200
     data = response.json()
     assert data["subject_id"] == "sub-1"
-    assert "grade_history" in data
-    assert "chart_data" in data
+    assert "grades_by_period" in data
+    assert "grade_evolution" in data
 
 
 def test_subject_not_found_sync_returns_404():
@@ -253,6 +253,9 @@ def test_gamification_sync_returns_200():
     assert "badges" in data
     assert "progress_to_next" in data
     assert data["total_points"] == 10
+    assert len(data["badges"]) == 4
+    assert all("badge_name" in b for b in data["badges"])
+    assert all("unlocked" in b for b in data["badges"])
 
 
 def test_gamification_no_token_returns_403():
@@ -286,7 +289,8 @@ def test_gamification_empty_tasks_returns_level_1():
     data = response.json()
     assert data["total_points"] == 0
     assert data["current_level"] == 1
-    assert data["badges"] == []
+    assert len(data["badges"]) == 4
+    assert all(not b["unlocked"] for b in data["badges"])
 
 
 # ── Exception handlers ─────────────────────────────────────────────────────────

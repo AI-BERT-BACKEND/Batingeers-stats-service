@@ -10,6 +10,7 @@ class SubjectSummary:
     credits: int
     current_average: float
     status: str  # "passing" | "at_risk" | "failing"
+    teacher_name: str | None = None
 
 
 @dataclass

@@ -19,9 +19,9 @@ def _entry(
 
 
 _HISTORY = [
-    _entry("e1", 0.3, 4.5, "2026-03-15"),  # Semana 2026-W11
-    _entry("e2", 0.3, 3.0, "2026-04-15"),  # Semana 2026-W16
-    _entry("e3", 0.4, None, None),  # Sin fecha — no debe aparecer en chart
+    _entry("e1", 0.3, 4.5, "2026-03-15"),  # Week 2026-W11
+    _entry("e2", 0.3, 3.0, "2026-04-15"),  # Week 2026-W16
+    _entry("e3", 0.4, None, None),  # No date — must not appear in chart
 ]
 
 
@@ -40,61 +40,63 @@ def test_single_graded_entry_returns_one_point():
     history = [_entry("e1", 1.0, 4.0, "2026-03-15")]
     result = generate_weekly_evolution(history)
     assert len(result) == 1
-    assert result[0].average == 4.0
-    assert result[0].evaluations_count == 1
+    assert result[0].accumulated_grade == 4.0
+
+
+def test_single_entry_week_is_integer():
+    history = [_entry("e1", 1.0, 4.0, "2026-03-15")]
+    result = generate_weekly_evolution(history)
+    assert isinstance(result[0].week, int)
+    assert result[0].week == 11
+
+
+def test_single_entry_registered_date():
+    history = [_entry("e1", 1.0, 4.0, "2026-03-15")]
+    result = generate_weekly_evolution(history)
+    assert result[0].registered_date == date(2026, 3, 15)
 
 
 def test_two_entries_same_week_produce_one_point():
     history = [
         _entry("e1", 0.5, 4.0, "2026-03-16"),
-        _entry("e2", 0.5, 2.0, "2026-03-17"),  # misma semana
+        _entry("e2", 0.5, 2.0, "2026-03-17"),  # same week
     ]
     result = generate_weekly_evolution(history)
     assert len(result) == 1
-    assert result[0].evaluations_count == 2
-    assert result[0].average == pytest.approx(3.0, rel=0.01)
+    assert result[0].accumulated_grade == pytest.approx(3.0, rel=0.01)
+
+
+def test_two_entries_same_week_registered_date_is_last():
+    history = [
+        _entry("e1", 0.5, 4.0, "2026-03-16"),
+        _entry("e2", 0.5, 2.0, "2026-03-17"),
+    ]
+    result = generate_weekly_evolution(history)
+    assert result[0].registered_date == date(2026, 3, 17)
 
 
 def test_two_different_weeks_produce_two_points():
     result = generate_weekly_evolution(_HISTORY)
-    # Solo e1 y e2 tienen fecha y nota
     assert len(result) == 2
 
 
 def test_points_are_sorted_by_week_ascending():
     result = generate_weekly_evolution(_HISTORY)
-    assert result[0].week_label < result[1].week_label
+    assert result[0].week < result[1].week
 
 
 def test_running_average_is_cumulative():
     result = generate_weekly_evolution(_HISTORY)
-    # Primera semana: 4.5 (solo e1, peso 0.3 sobre 0.3 evaluado)
-    assert result[0].average == pytest.approx(4.5, rel=0.01)
-    # Segunda semana: (4.5*0.3 + 3.0*0.3) / (0.3+0.3) = 3.75
-    assert result[1].average == pytest.approx(3.75, rel=0.01)
-
-
-def test_evaluations_count_increases_cumulatively():
-    result = generate_weekly_evolution(_HISTORY)
-    assert result[0].evaluations_count == 1
-    assert result[1].evaluations_count == 2
-
-
-def test_week_label_format_is_iso():
-    history = [_entry("e1", 1.0, 3.5, "2026-03-15")]
-    result = generate_weekly_evolution(history)
-    label = result[0].week_label
-    # Debe ser "YYYY-WNN"
-    assert label.startswith("2026-W")
-    week_num = int(label.split("W")[1])
-    assert 1 <= week_num <= 53
+    # Week 1: 4.5 (only e1, weight 0.3 over 0.3 graded)
+    assert result[0].accumulated_grade == pytest.approx(4.5, rel=0.01)
+    # Week 2: (4.5*0.3 + 3.0*0.3) / (0.3+0.3) = 3.75
+    assert result[1].accumulated_grade == pytest.approx(3.75, rel=0.01)
 
 
 def test_entry_without_date_is_ignored():
     history = [
         _entry("e1", 0.5, 4.0, "2026-03-15"),
-        _entry("e2", 0.5, 2.0, None),  # sin fecha — ignorado
+        _entry("e2", 0.5, 2.0, None),  # no date — ignored
     ]
     result = generate_weekly_evolution(history)
     assert len(result) == 1
-    assert result[0].evaluations_count == 1

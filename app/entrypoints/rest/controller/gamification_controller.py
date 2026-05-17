@@ -46,9 +46,11 @@ async def get_gamification_profile(
         badges=[
             BadgeDto(
                 badge_id=b.badge_id,
-                name=b.name,
+                badge_name=b.name,
                 icon=b.icon,
                 description=b.description,
+                unlocked=b.unlocked,
+                unlocked_date=b.unlocked_date,
             )
             for b in profile.badges
         ],

@@ -1,17 +1,32 @@
+from datetime import date
+
 from app.application.dto.response.dashboard_response import (
     DashboardResponseDto,
     SubjectSummaryDto,
     TaskSummaryDto,
 )
 from app.application.dto.response.subject_stats_response import (
-    ChartPointDto,
     GradeEntryDto,
+    GradeEvolutionPointDto,
     SubjectStatsResponseDto,
     TaskDetailDto,
 )
 from app.application.utility.chart_generator import ChartPoint
 from app.domain.model.dashboard import DashboardStats, SubjectSummary, TaskSummary
 from app.domain.model.subject_stats import GradeEntry, SubjectStats
+
+_SUBJECT_STATUS_MAP: dict[str, str] = {
+    "passing": "Aprobada",
+    "at_risk": "En riesgo",
+    "failing": "Sin información",
+}
+
+_TASK_STATUS_MAP: dict[str, str] = {
+    "COMPLETED": "Completada",
+    "PENDING": "Pendiente",
+    "IN_PROGRESS": "Pendiente",
+    "OVERDUE": "Vencida",
+}
 
 
 def _subject_summary_to_dto(summary: SubjectSummary) -> SubjectSummaryDto:
@@ -21,7 +36,8 @@ def _subject_summary_to_dto(summary: SubjectSummary) -> SubjectSummaryDto:
         code=summary.code,
         credits=summary.credits,
         current_average=summary.current_average,
-        status=summary.status,
+        status=_SUBJECT_STATUS_MAP.get(summary.status, summary.status),
+        teacher_name=summary.teacher_name,
     )
 
 
@@ -38,7 +54,7 @@ def _task_summary_to_dto(task: TaskSummary) -> TaskSummaryDto:
 def dashboard_to_dto(stats: DashboardStats) -> DashboardResponseDto:
     return DashboardResponseDto(
         user_id=stats.user_id,
-        overall_gpa=stats.overall_gpa,
+        overall_gpa=int(round(stats.overall_gpa)),
         gpa_trend=stats.gpa_trend,
         total_subjects=stats.total_subjects,
         passing_subjects=stats.passing_subjects,
@@ -50,32 +66,44 @@ def dashboard_to_dto(stats: DashboardStats) -> DashboardResponseDto:
     )
 
 
-def _grade_entry_to_dto(entry: GradeEntry) -> GradeEntryDto:
+def _grade_entry_to_dto(entry: GradeEntry, projected_grade: float) -> GradeEntryDto:
     return GradeEntryDto(
-        evaluation_id=entry.evaluation_id,
-        evaluation_name=entry.evaluation_name,
-        weight=entry.weight,
-        grade=entry.grade,
-        evaluation_date=entry.date,
+        period_id=entry.evaluation_id,
+        period_name=entry.evaluation_name,
+        weight_percentage=round(entry.weight * 100, 2),
+        obtained_grade=entry.grade,
         contribution=entry.contribution,
+        projected_grade=projected_grade,
     )
+
+
+def _parse_due_date(raw: str | None) -> date | None:
+    if not raw:
+        return None
+    try:
+        return date.fromisoformat(raw)
+    except (ValueError, TypeError):
+        return None
 
 
 def _task_detail_to_dto(task: dict) -> TaskDetailDto:
+    raw_due = task.get("dueDate") or task.get("due_date")
+    raw_status = task.get("status", "")
     return TaskDetailDto(
         task_id=task.get("id") or task.get("taskId", ""),
-        title=task.get("title", ""),
-        status=task.get("status", ""),
-        due_date=task.get("dueDate") or task.get("due_date"),
-        subject_id=task.get("subjectId") or task.get("subject_id"),
+        task_name=task.get("title") or task.get("name") or task.get("taskName", ""),
+        status=_TASK_STATUS_MAP.get(raw_status, raw_status),
+        due_date=_parse_due_date(raw_due),
+        priority=task.get("priority"),
+        estimated_hours=task.get("estimatedHours") or task.get("estimated_hours"),
     )
 
 
-def _chart_point_to_dto(cp: ChartPoint) -> ChartPointDto:
-    return ChartPointDto(
-        week_label=cp.week_label,
-        average=cp.average,
-        evaluations_count=cp.evaluations_count,
+def _chart_point_to_dto(cp: ChartPoint) -> GradeEvolutionPointDto:
+    return GradeEvolutionPointDto(
+        week=cp.week,
+        accumulated_grade=cp.accumulated_grade,
+        registered_date=cp.registered_date,
     )
 
 
@@ -85,7 +113,9 @@ def subject_stats_to_dto(stats: SubjectStats) -> SubjectStatsResponseDto:
         subject_name=stats.subject_name,
         subject_code=stats.subject_code,
         credits=stats.credits,
-        grade_history=[_grade_entry_to_dto(g) for g in stats.grade_history],
+        grades_by_period=[
+            _grade_entry_to_dto(g, stats.projected_grade) for g in stats.grade_history
+        ],
         current_average=stats.current_average,
         max_possible_grade=stats.max_possible_grade,
         minimum_needed=stats.minimum_needed,
@@ -98,5 +128,5 @@ def subject_stats_to_dto(stats: SubjectStats) -> SubjectStatsResponseDto:
         task_completion_rate=stats.task_completion_rate,
         status=stats.status,
         related_tasks=[_task_detail_to_dto(t) for t in stats.related_tasks],
-        chart_data=[_chart_point_to_dto(cp) for cp in stats.chart_data],
+        grade_evolution=[_chart_point_to_dto(cp) for cp in stats.chart_data],
     )

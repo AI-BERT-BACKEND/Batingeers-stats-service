@@ -77,7 +77,7 @@ def _calculate_badges(tasks: list[dict], points: int) -> list[Badge]:
     completed = [t for t in tasks if t.get("status") == "COMPLETED"]
     on_time_count = sum(1 for t in completed if _is_on_time(t))
 
-    earned: list[Badge] = []
+    results: list[Badge] = []
     for cfg in _ALL_BADGES:
         badge_id = cfg["badge_id"]
         unlocked = False
@@ -89,9 +89,16 @@ def _calculate_badges(tasks: list[dict], points: int) -> list[Badge]:
             unlocked = True
         elif badge_id == "overachiever" and points >= 300:
             unlocked = True
-        if unlocked:
-            earned.append(Badge(**cfg))
-    return earned
+        results.append(
+            Badge(
+                badge_id=cfg["badge_id"],
+                name=cfg["name"],
+                icon=cfg["icon"],
+                description=cfg["description"],
+                unlocked=unlocked,
+            )
+        )
+    return results
 
 
 class GamificationService(GamificationUseCase):

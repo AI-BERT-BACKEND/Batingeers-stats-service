@@ -4,32 +4,40 @@ from pydantic import BaseModel, Field
 
 class TaskDetailDto(BaseModel):
     task_id: str
-    title: str
-    status: str = Field(..., description="PENDING | IN_PROGRESS | COMPLETED | OVERDUE")
-    due_date: str | None = Field(None, description="Due date in ISO format")
-    subject_id: str | None = None
+    task_name: str
+    status: str = Field(..., description="Pendiente | Completada | Vencida")
+    due_date: date | None = Field(None, description="Due date (YYYY-MM-DD)")
+    priority: str | None = Field(None, description="Alta | Media | Baja")
+    estimated_hours: float | None = Field(
+        None, description="Estimated hours to complete the task"
+    )
 
 
 class GradeEntryDto(BaseModel):
-    evaluation_id: str
-    evaluation_name: str
-    weight: float = Field(..., description="Evaluation weight (0.0 – 1.0)")
-    grade: float | None = Field(
+    period_id: str
+    period_name: str
+    weight_percentage: float = Field(
+        ..., description="Period weight as a percentage (all periods sum to 100)"
+    )
+    obtained_grade: float | None = Field(
         None, description="Grade obtained (0.0 – 5.0), null if not yet recorded"
     )
-    evaluation_date: date | None = None
     contribution: float = Field(
-        ..., description="Contribution to the final average (grade × weight)"
+        ...,
+        description="Contribution to the final grade (obtained_grade × weight_percentage / 100)",
+    )
+    projected_grade: float = Field(
+        ..., description="Projected final grade assuming 0 on all ungraded periods"
     )
 
 
-class ChartPointDto(BaseModel):
-    week_label: str = Field(..., description="Week in ISO format: YYYY-WNN")
-    average: float = Field(
+class GradeEvolutionPointDto(BaseModel):
+    week: int = Field(..., description="Academic week number within the semester")
+    accumulated_grade: float = Field(
         ..., description="Cumulative weighted average up to this week (0.0 – 5.0)"
     )
-    evaluations_count: int = Field(
-        ..., description="Cumulative number of graded evaluations"
+    registered_date: date = Field(
+        ..., description="Date when this evolution point was registered (YYYY-MM-DD)"
     )
 
 
@@ -38,7 +46,7 @@ class SubjectStatsResponseDto(BaseModel):
     subject_name: str
     subject_code: str
     credits: int
-    grade_history: list[GradeEntryDto]
+    grades_by_period: list[GradeEntryDto]
     current_average: float = Field(..., description="Current average (0.0 – 5.0)")
     max_possible_grade: float = Field(
         ...,
@@ -64,9 +72,9 @@ class SubjectStatsResponseDto(BaseModel):
         default_factory=list,
         description="Tasks for this subject sorted by due date descending",
     )
-    chart_data: list[ChartPointDto] = Field(
+    grade_evolution: list[GradeEvolutionPointDto] = Field(
         default_factory=list,
-        description="Weekly average evolution points for performance charts",
+        description="Weekly accumulated grade evolution. Populated only when at least 2 periods have a grade (RN-02)",
     )
 
     model_config = {"from_attributes": True}

@@ -146,83 +146,93 @@ async def test_progress_within_valid_range():
 # ── Badges ────────────────────────────────────────────────────────────────────
 
 
+def _unlocked(badges):
+    return {b.badge_id for b in badges if b.unlocked}
+
+
+def _locked(badges):
+    return {b.badge_id for b in badges if not b.unlocked}
+
+
 @pytest.mark.asyncio
-async def test_no_tasks_no_badges():
+async def test_no_tasks_all_badges_locked():
     result = await _make_service([]).get_gamification_profile("u1", "tok")
-    assert result.badges == []
+    assert len(result.badges) == 4
+    assert all(not b.unlocked for b in result.badges)
 
 
 @pytest.mark.asyncio
-async def test_first_steps_badge_with_one_completed():
+async def test_first_steps_badge_unlocked_with_one_completed():
     tasks = [_task("t1", "COMPLETED", "2026-01-15", "2026-01-15")]
     result = await _make_service(tasks).get_gamification_profile("u1", "tok")
-    badge_ids = [b.badge_id for b in result.badges]
-    assert "first_steps" in badge_ids
+    assert "first_steps" in _unlocked(result.badges)
 
 
 @pytest.mark.asyncio
-async def test_first_steps_badge_not_earned_without_completed():
+async def test_first_steps_badge_locked_without_completed():
     tasks = [_task("t1", "PENDING"), _task("t2", "IN_PROGRESS")]
     result = await _make_service(tasks).get_gamification_profile("u1", "tok")
-    badge_ids = [b.badge_id for b in result.badges]
-    assert "first_steps" not in badge_ids
+    assert "first_steps" in _locked(result.badges)
 
 
 @pytest.mark.asyncio
-async def test_punctual_badge_requires_5_on_time():
+async def test_punctual_badge_unlocked_with_5_on_time():
     tasks = _on_time(5)
     result = await _make_service(tasks).get_gamification_profile("u1", "tok")
-    badge_ids = [b.badge_id for b in result.badges]
-    assert "punctual" in badge_ids
+    assert "punctual" in _unlocked(result.badges)
 
 
 @pytest.mark.asyncio
-async def test_punctual_badge_not_earned_with_4_on_time():
+async def test_punctual_badge_locked_with_4_on_time():
     tasks = _on_time(4)
     result = await _make_service(tasks).get_gamification_profile("u1", "tok")
-    badge_ids = [b.badge_id for b in result.badges]
-    assert "punctual" not in badge_ids
+    assert "punctual" in _locked(result.badges)
 
 
 @pytest.mark.asyncio
-async def test_consistent_badge_requires_10_completed():
+async def test_consistent_badge_unlocked_with_10_completed():
     tasks = _on_time(10)
     result = await _make_service(tasks).get_gamification_profile("u1", "tok")
-    badge_ids = [b.badge_id for b in result.badges]
-    assert "consistent" in badge_ids
+    assert "consistent" in _unlocked(result.badges)
 
 
 @pytest.mark.asyncio
-async def test_consistent_badge_not_earned_with_9_completed():
+async def test_consistent_badge_locked_with_9_completed():
     tasks = _on_time(9)
     result = await _make_service(tasks).get_gamification_profile("u1", "tok")
-    badge_ids = [b.badge_id for b in result.badges]
-    assert "consistent" not in badge_ids
+    assert "consistent" in _locked(result.badges)
 
 
 @pytest.mark.asyncio
-async def test_overachiever_badge_requires_300_points():
+async def test_overachiever_badge_unlocked_at_300_points():
     tasks = _on_time(30)  # 300 puntos
     result = await _make_service(tasks).get_gamification_profile("u1", "tok")
-    badge_ids = [b.badge_id for b in result.badges]
-    assert "overachiever" in badge_ids
+    assert "overachiever" in _unlocked(result.badges)
 
 
 @pytest.mark.asyncio
-async def test_overachiever_badge_not_earned_below_300_points():
+async def test_overachiever_badge_locked_below_300_points():
     tasks = _on_time(29)  # 290 puntos
     result = await _make_service(tasks).get_gamification_profile("u1", "tok")
-    badge_ids = [b.badge_id for b in result.badges]
-    assert "overachiever" not in badge_ids
+    assert "overachiever" in _locked(result.badges)
 
 
 @pytest.mark.asyncio
-async def test_all_badges_earned_with_enough_activity():
-    # 30 on-time → 300 pts (overachiever), 30 completed (consistent), 5+ on-time (punctual), 1+ (first_steps)
+async def test_all_badges_unlocked_with_enough_activity():
     tasks = _on_time(30)
     result = await _make_service(tasks).get_gamification_profile("u1", "tok")
-    badge_ids = {b.badge_id for b in result.badges}
-    assert {"first_steps", "punctual", "consistent", "overachiever"} == badge_ids
+    assert _unlocked(result.badges) == {
+        "first_steps",
+        "punctual",
+        "consistent",
+        "overachiever",
+    }
+
+
+@pytest.mark.asyncio
+async def test_badges_have_unlocked_field():
+    result = await _make_service([]).get_gamification_profile("u1", "tok")
+    assert all(hasattr(b, "unlocked") for b in result.badges)
 
 
 # ── Profile metadata ──────────────────────────────────────────────────────────

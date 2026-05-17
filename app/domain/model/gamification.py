@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import date, datetime
 
 
 @dataclass
@@ -8,6 +8,8 @@ class Badge:
     name: str
     icon: str
     description: str
+    unlocked: bool = False
+    unlocked_date: date | None = None
 
 
 @dataclass
