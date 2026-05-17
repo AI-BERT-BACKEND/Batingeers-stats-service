@@ -162,83 +162,104 @@ def test_progress_level_3_quarter():
 # ── _calculate_badges ─────────────────────────────────────────────────────────
 
 
-def test_badges_empty_tasks():
-    assert _calculate_badges([], 0) == []
+def _unlocked_ids(badges):
+    return {b.badge_id for b in badges if b.unlocked}
 
 
-def test_badges_pending_only():
-    assert _calculate_badges([{"status": "PENDING"}], 0) == []
+def _locked_ids(badges):
+    return {b.badge_id for b in badges if not b.unlocked}
 
 
-def test_first_steps_badge_one_completed():
+def test_badges_always_returns_all_four():
+    assert len(_calculate_badges([], 0)) == 4
+
+
+def test_badges_empty_tasks_all_locked():
+    badges = _calculate_badges([], 0)
+    assert all(not b.unlocked for b in badges)
+
+
+def test_badges_pending_only_all_locked():
+    badges = _calculate_badges([{"status": "PENDING"}], 0)
+    assert all(not b.unlocked for b in badges)
+
+
+def test_first_steps_badge_one_completed_is_unlocked():
     tasks = [
         {"status": "COMPLETED", "completedAt": "2026-01-15", "dueDate": "2026-01-15"}
     ]
-    ids = [b.badge_id for b in _calculate_badges(tasks, 10)]
-    assert "first_steps" in ids
+    assert "first_steps" in _unlocked_ids(_calculate_badges(tasks, 10))
 
 
-def test_punctual_badge_five_on_time():
+def test_first_steps_badge_no_completed_is_locked():
+    badges = _calculate_badges([], 0)
+    assert "first_steps" in _locked_ids(badges)
+
+
+def test_punctual_badge_five_on_time_is_unlocked():
     tasks = [
         {"status": "COMPLETED", "completedAt": "2026-01-15", "dueDate": "2026-01-20"}
         for _ in range(5)
     ]
-    ids = [b.badge_id for b in _calculate_badges(tasks, 50)]
-    assert "punctual" in ids
+    assert "punctual" in _unlocked_ids(_calculate_badges(tasks, 50))
 
 
-def test_punctual_badge_not_earned_with_four():
+def test_punctual_badge_not_earned_with_four_is_locked():
     tasks = [
         {"status": "COMPLETED", "completedAt": "2026-01-15", "dueDate": "2026-01-20"}
         for _ in range(4)
     ]
-    ids = [b.badge_id for b in _calculate_badges(tasks, 40)]
-    assert "punctual" not in ids
+    assert "punctual" in _locked_ids(_calculate_badges(tasks, 40))
 
 
-def test_consistent_badge_ten_completed():
+def test_consistent_badge_ten_completed_is_unlocked():
     tasks = [
         {"status": "COMPLETED", "completedAt": "2026-01-15", "dueDate": "2026-01-20"}
         for _ in range(10)
     ]
-    ids = [b.badge_id for b in _calculate_badges(tasks, 100)]
-    assert "consistent" in ids
+    assert "consistent" in _unlocked_ids(_calculate_badges(tasks, 100))
 
 
-def test_consistent_badge_not_earned_with_nine():
+def test_consistent_badge_not_earned_with_nine_is_locked():
     tasks = [
         {"status": "COMPLETED", "completedAt": "2026-01-15", "dueDate": "2026-01-20"}
         for _ in range(9)
     ]
-    ids = [b.badge_id for b in _calculate_badges(tasks, 90)]
-    assert "consistent" not in ids
+    assert "consistent" in _locked_ids(_calculate_badges(tasks, 90))
 
 
-def test_overachiever_badge_300_points():
+def test_overachiever_badge_300_points_is_unlocked():
     tasks = [
         {"status": "COMPLETED", "completedAt": "2026-01-15", "dueDate": "2026-01-20"}
         for _ in range(30)
     ]
-    ids = [b.badge_id for b in _calculate_badges(tasks, 300)]
-    assert "overachiever" in ids
+    assert "overachiever" in _unlocked_ids(_calculate_badges(tasks, 300))
 
 
-def test_overachiever_not_earned_below_300():
+def test_overachiever_not_earned_below_300_is_locked():
     tasks = [
         {"status": "COMPLETED", "completedAt": "2026-01-15", "dueDate": "2026-01-20"}
         for _ in range(29)
     ]
-    ids = [b.badge_id for b in _calculate_badges(tasks, 290)]
-    assert "overachiever" not in ids
+    assert "overachiever" in _locked_ids(_calculate_badges(tasks, 290))
 
 
-def test_all_badges_earned():
+def test_all_badges_unlocked_with_enough_activity():
     tasks = [
         {"status": "COMPLETED", "completedAt": "2026-01-15", "dueDate": "2026-01-20"}
         for _ in range(30)
     ]
-    ids = {b.badge_id for b in _calculate_badges(tasks, 300)}
-    assert ids == {"first_steps", "punctual", "consistent", "overachiever"}
+    assert _unlocked_ids(_calculate_badges(tasks, 300)) == {
+        "first_steps",
+        "punctual",
+        "consistent",
+        "overachiever",
+    }
+
+
+def test_locked_badges_have_no_unlocked_date():
+    badges = _calculate_badges([], 0)
+    assert all(b.unlocked_date is None for b in badges if not b.unlocked)
 
 
 # ── GamificationService (via asyncio.run) ─────────────────────────────────────

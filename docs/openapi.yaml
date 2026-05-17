@@ -3,8 +3,9 @@ info:
   title: Batingeers Stats Service
   description: >
     Academic statistics microservice for the AIBERT platform.
-    Provides dashboard statistics (AIB-31) and per-subject detailed analytics
-    including grades by period, projected grade, related tasks, and grade evolution (AIB-32).
+    Provides dashboard statistics (AIB-31), per-subject detailed analytics
+    including grades by period, projected grade, related tasks, and grade evolution (AIB-32),
+    and the student gamification profile with points, levels, and badges (AIB-35).
     All endpoints require a valid JWT Bearer token; the userId is extracted automatically from it.
   version: 1.0.0
   contact:
@@ -19,6 +20,8 @@ servers:
 tags:
   - name: Stats
     description: Academic statistics endpoints
+  - name: Gamification
+    description: Student gamification profile (AIB-35)
 
 security:
   - bearerAuth: []
@@ -129,6 +132,62 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+
+  /api/stats/gamification:
+    get:
+      tags:
+        - Gamification
+      summary: Get student gamification profile (AIB-35)
+      description: >
+        Returns the authenticated student's gamification profile: total accumulated points,
+        current level, all system badges (both locked and unlocked), and progress toward
+        the next level. Points are awarded automatically upon task completion:
+        +10 points for tasks completed on or before the due date, +3 points for late completions.
+        All 4 badges are always returned — each badge includes an unlocked flag indicating
+        whether the student has earned it. If the student has no prior activity,
+        returns level 1 with 0 points and all badges locked.
+      operationId: getGamificationProfile
+      responses:
+        "200":
+          description: Gamification profile retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GamificationResponse"
+              example:
+                userId: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+                totalPoints: 130
+                currentLevel: 2
+                badges:
+                  - badgeId: "first_steps"
+                    badgeName: "First Steps"
+                    icon: "🎯"
+                    description: "Complete your first task"
+                    unlocked: true
+                    unlockedDate: "2026-03-01"
+                  - badgeId: "punctual"
+                    badgeName: "Punctual"
+                    icon: "⏰"
+                    description: "Complete 5 tasks on or before the due date"
+                    unlocked: true
+                    unlockedDate: null
+                  - badgeId: "consistent"
+                    badgeName: "Consistent"
+                    icon: "🔥"
+                    description: "Complete 10 tasks"
+                    unlocked: false
+                    unlockedDate: null
+                  - badgeId: "overachiever"
+                    badgeName: "Overachiever"
+                    icon: "🏆"
+                    description: "Reach Level 3 (300+ points)"
+                    unlocked: false
+                    unlockedDate: null
+                progressToNext: 15.0
+        "401":
+          $ref: "#/components/responses/Unauthorized"
         "503":
           $ref: "#/components/responses/ServiceUnavailable"
 
@@ -402,3 +461,86 @@ components:
           format: date
           description: Date when this evolution point was registered (YYYY-MM-DD).
           example: "2026-03-14"
+
+    # ─── AIB-35: Gamification ────────────────────────────────────────────────
+
+    GamificationResponse:
+      type: object
+      required:
+        - userId
+        - totalPoints
+        - currentLevel
+        - badges
+        - progressToNext
+      properties:
+        userId:
+          type: string
+          description: Identifier of the student. Extracted from the JWT.
+          example: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+        totalPoints:
+          type: integer
+          description: >
+            Total points accumulated by the student. Awarded automatically upon task completion:
+            +10 points if completed on or before the due date, +3 points if completed late.
+          example: 130
+        currentLevel:
+          type: integer
+          description: >
+            Current level determined by the system level table.
+            Level 1: 0–99 pts · Level 2: 100–299 pts · Level 3: 300–599 pts · Level 4: 600+ pts.
+          minimum: 1
+          maximum: 4
+          example: 2
+        badges:
+          type: array
+          description: >
+            All system badges. Each entry shows whether the student has earned it (unlocked = true)
+            or not yet (unlocked = false). Always contains all defined badges.
+          items:
+            $ref: "#/components/schemas/Badge"
+        progressToNext:
+          type: number
+          format: float
+          description: >
+            Percentage of progress toward the next level:
+            (points in current level / points needed for next level) × 100.
+            Returns 100.0 when the student is at the maximum level.
+          minimum: 0.0
+          maximum: 100.0
+          example: 15.0
+
+    Badge:
+      type: object
+      required:
+        - badgeId
+        - badgeName
+        - icon
+        - description
+        - unlocked
+      properties:
+        badgeId:
+          type: string
+          description: Unique identifier of the badge. Generated by the gamification logic.
+          example: "first_steps"
+        badgeName:
+          type: string
+          description: "Display name of the badge (e.g., Constante, Cumplido, Enfoque)."
+          example: "First Steps"
+        icon:
+          type: string
+          description: "URL, filename, or visual key associated with the badge."
+          example: "🎯"
+        description:
+          type: string
+          description: Explains how the badge is obtained.
+          example: "Complete your first task"
+        unlocked:
+          type: boolean
+          description: "true = badge earned by the student, false = badge still locked."
+          example: true
+        unlockedDate:
+          type: string
+          format: date
+          nullable: true
+          description: "Date when the badge was unlocked (YYYY-MM-DD). Only populated when unlocked = true."
+          example: "2026-03-01"
