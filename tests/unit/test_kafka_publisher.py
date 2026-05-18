@@ -121,6 +121,23 @@ async def test_start_producer_handles_connection_failure_gracefully():
             assert kp._producer is None
 
 
+@pytest.mark.asyncio
+async def test_start_producer_creates_and_starts_producer():
+    """When configured, start_producer creates and starts the AIOKafkaProducer."""
+    mock_producer = MagicMock()
+    mock_producer.start = AsyncMock()
+
+    with patch("app.infrastructure.messaging.kafka_producer.settings") as mock_settings:
+        mock_settings.kafka_bootstrap_servers = "localhost:9092"
+        with patch(
+            "app.infrastructure.messaging.kafka_producer.AIOKafkaProducer",
+            return_value=mock_producer,
+        ):
+            await start_producer()
+            assert kp._producer is mock_producer
+            mock_producer.start.assert_called_once()
+
+
 # ── stop_producer ─────────────────────────────────────────────────────────────
 
 

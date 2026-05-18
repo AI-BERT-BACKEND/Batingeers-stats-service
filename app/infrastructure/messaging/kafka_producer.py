@@ -2,6 +2,11 @@ import json
 import logging
 from dataclasses import asdict
 
+try:
+    from aiokafka import AIOKafkaProducer
+except ImportError:  # pragma: no cover
+    AIOKafkaProducer = None  # type: ignore[assignment,misc]
+
 from app.config import settings
 
 logger = logging.getLogger(__name__)
@@ -15,8 +20,6 @@ async def start_producer() -> None:
         logger.info("Kafka not configured — event publishing is disabled")
         return
     try:
-        from aiokafka import AIOKafkaProducer
-
         _producer = AIOKafkaProducer(
             bootstrap_servers=settings.kafka_bootstrap_servers,
             value_serializer=lambda v: json.dumps(v).encode(),
