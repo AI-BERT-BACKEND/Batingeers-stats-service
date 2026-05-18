@@ -56,7 +56,7 @@ def _current_average(evaluations: list[dict]) -> float:
 
 
 def _max_possible_grade(evaluations: list[dict]) -> float:
-    """Nota máxima alcanzable si el estudiante saca 5.0 en todas las evaluaciones pendientes."""
+    """Maximum achievable grade if the student scores 5.0 on all remaining evaluations."""
     graded = [e for e in evaluations if e.get("grade") is not None]
     pending = [e for e in evaluations if e.get("grade") is None]
 
@@ -73,7 +73,7 @@ def _max_possible_grade(evaluations: list[dict]) -> float:
 
 
 def _minimum_needed(evaluations: list[dict]) -> float | None:
-    """Nota mínima requerida en evaluaciones pendientes para aprobar con _PASSING_GRADE."""
+    """Minimum grade required in pending evaluations to pass with _PASSING_GRADE."""
     graded = [e for e in evaluations if e.get("grade") is not None]
     pending = [e for e in evaluations if e.get("grade") is None]
 
@@ -87,13 +87,13 @@ def _minimum_needed(evaluations: list[dict]) -> float | None:
     if pending_weight == 0:
         return None
 
-    # Despejando: _PASSING_GRADE = (earned + min_needed * pending_weight) / total_weight
+    # Solving: _PASSING_GRADE = (earned + min_needed * pending_weight) / total_weight
     min_needed = (_PASSING_GRADE * total_weight - earned) / pending_weight
 
     if min_needed <= 0:
         return 0.0
     if min_needed > _MAX_GRADE:
-        return None  # Imposible pasar
+        return None  # Impossible to pass
     return round(min_needed, 2)
 
 
@@ -118,7 +118,7 @@ def _compute_trend(evaluations: list[dict]) -> str:
 
 
 def _projected_grade(evaluations: list[dict]) -> float:
-    """Nota proyectada asumiendo 0.0 en evaluaciones no registradas."""
+    """Projected final grade assuming 0.0 on all ungraded evaluations."""
     total_weight = sum(e["weight"] for e in evaluations)
     if total_weight == 0:
         return 0.0
@@ -240,4 +240,23 @@ class SubjectStatsService(SubjectStatsUseCase):
         if self._repo:
             await self._repo.save_subject_snapshot(user_id, stats)
 
+        await self._publish_events(user_id, stats)
+
         return stats
+
+    async def _publish_events(self, user_id: str, stats: SubjectStats) -> None:
+        from app.config import settings as cfg
+        from app.infrastructure.messaging.events import StudySuggestionEvent
+        from app.infrastructure.messaging.kafka_producer import publish_event
+
+        if stats.trend == "declining":
+            await publish_event(
+                cfg.kafka_topic_study_suggestion,
+                StudySuggestionEvent(
+                    user_id=user_id,
+                    subject_id=stats.subject_id,
+                    subject_name=stats.subject_name,
+                    trend=stats.trend,
+                    current_average=stats.current_average,
+                ),
+            )

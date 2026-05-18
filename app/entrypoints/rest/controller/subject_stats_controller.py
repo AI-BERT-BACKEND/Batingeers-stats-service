@@ -28,15 +28,28 @@ async def _get_subject_stats_service(
 @router.get(
     "/subjects",
     response_model=list[SubjectStatsResponseDto],
-    summary="R21 — Statistics for all subjects",
+    summary="Statistics for all subjects (R21)",
     description=(
-        "Returns detailed statistics and evolution curve for all subjects "
-        "of the authenticated user: current average, maximum achievable grade, minimum grade "
-        "to pass, trend, task status, and weekly evolution points for charts."
+        "Returns detailed statistics for every subject belonging to the authenticated student. "
+        "Each entry contains the full grade breakdown, projection calculations, task metrics, "
+        "and chart data.\n\n"
+        "**Fields per subject:**\n"
+        "- `grades_by_period` — each evaluation period with its weight, obtained grade, "
+        "contribution to final grade, and the projected final grade\n"
+        "- `current_average` — weighted average computed only from graded evaluations so far\n"
+        "- `max_possible_grade` — best achievable final grade if the student scores 5.0 "
+        "on every remaining evaluation\n"
+        "- `minimum_needed` — minimum grade required in pending evaluations to reach the "
+        "passing threshold (3.0); `null` if already passing or mathematically impossible\n"
+        "- `projected_grade` — expected final grade assuming 0.0 on all ungraded evaluations\n"
+        "- `trend` — performance direction: `improving`, `stable`, or `declining`\n"
+        "- `grade_evolution` — weekly cumulative grade chart points; populated only when "
+        "at least 2 periods have a recorded grade (RN-02)\n"
+        "- `related_tasks` — tasks associated with this subject, sorted by due date descending"
     ),
     responses={
         401: {"description": "Invalid or expired JWT token"},
-        503: {"description": "One of the dependent services is unavailable"},
+        503: {"description": "One of the upstream services is unavailable"},
     },
 )
 async def get_all_subjects_stats(
@@ -53,17 +66,25 @@ async def get_all_subjects_stats(
 @router.get(
     "/subjects/{subject_id}",
     response_model=SubjectStatsResponseDto,
-    summary="R21 — Statistics for a specific subject",
+    summary="Statistics for a specific subject (R21)",
     description=(
-        "Returns detailed statistics for a single subject: grade history sorted "
-        "chronologically, trend, minimum grade needed to pass, task metrics, "
-        "and weekly evolution points for charts. "
-        "If the external service fails, returns the last snapshot cached in the DB."
+        "Returns the full analytics profile for a single subject. Equivalent to one item "
+        "from `GET /api/stats/subjects`, but fetches only the requested subject — "
+        "more efficient when the frontend only needs to display one subject detail view.\n\n"
+        "**Grade evolution rule (RN-02):** `grade_evolution` is only populated when at least "
+        "2 evaluation periods have a recorded grade. If the student has fewer graded periods, "
+        "the array is returned empty and should be treated as 'not enough data yet'.\n\n"
+        "**Kafka events published:**\n"
+        "- `stats.study-suggestion` — when the subject's grade trend is `declining`\n\n"
+        "**Fallback behavior:** if the upstream service fails, the last cached snapshot "
+        "is returned. A 503 is raised only when no cached data exists at all."
     ),
     responses={
         401: {"description": "Invalid or expired JWT token"},
         404: {"description": "Subject not found"},
-        503: {"description": "External service unavailable and no cached data in DB"},
+        503: {
+            "description": "Upstream service unreachable and no cached snapshot available"
+        },
     },
 )
 async def get_subject_stats(

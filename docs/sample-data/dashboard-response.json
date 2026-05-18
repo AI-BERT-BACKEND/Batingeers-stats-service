@@ -1,0 +1,46 @@
+{
+  "user_id": "user-mock-01",
+  "overall_gpa": 4,
+  "gpa_trend": "declining",
+  "total_subjects": 3,
+  "passing_subjects": 2,
+  "at_risk_subjects": 0,
+  "failing_subjects": 1,
+  "subjects": [
+    {
+      "subject_id": "sub-calculo",
+      "name": "Cálculo Diferencial",
+      "code": "MAT201",
+      "credits": 4,
+      "current_average": 4.0,
+      "status": "Passing",
+      "teacher_name": null
+    },
+    {
+      "subject_id": "sub-estructuras",
+      "name": "Estructuras de Datos",
+      "code": "SIS301",
+      "credits": 3,
+      "current_average": 3.83,
+      "status": "Passing",
+      "teacher_name": null
+    },
+    {
+      "subject_id": "sub-fisica",
+      "name": "Física I",
+      "code": "FIS101",
+      "credits": 3,
+      "current_average": 2.8,
+      "status": "Failing",
+      "teacher_name": null
+    }
+  ],
+  "tasks": {
+    "total": 13,
+    "completed": 9,
+    "pending": 3,
+    "overdue": 1,
+    "completion_rate": 69.23
+  },
+  "generated_at": "2026-05-18T10:00:00"
+}

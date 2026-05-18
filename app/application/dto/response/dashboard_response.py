@@ -10,7 +10,7 @@ class SubjectSummaryDto(BaseModel):
     current_average: float = Field(
         ..., description="Current average on a 0.0 – 5.0 scale"
     )
-    status: str = Field(..., description="Aprobada | En riesgo | Sin información")
+    status: str = Field(..., description="Passing | At Risk | Failing")
     teacher_name: str | None = Field(
         None, description="Teacher name if registered in academic-service"
     )

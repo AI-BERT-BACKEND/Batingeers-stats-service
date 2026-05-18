@@ -9,7 +9,7 @@ class GradeEntry:
     weight: float
     grade: float | None
     date: date | None
-    contribution: float  # grade * weight sobre el total de peso evaluado
+    contribution: float  # grade × weight normalized to the evaluated weight
 
 
 @dataclass
@@ -23,7 +23,7 @@ class SubjectStats:
     max_possible_grade: float
     minimum_needed: (
         float | None
-    )  # Nota mínima requerida en evaluaciones pendientes para pasar
+    )  # Minimum grade required in pending evaluations to pass the subject
     trend: str  # "improving" | "declining" | "stable"
     tasks_total: int
     tasks_completed: int
@@ -37,5 +37,5 @@ class SubjectStats:
     )  # list[dict] — raw task objects from task-service
     chart_data: list = field(
         default_factory=list
-    )  # list[ChartPoint] — importación circular evitada
+    )  # list[ChartPoint] — circular import avoided by using list
     generated_at: datetime = field(default_factory=datetime.utcnow)

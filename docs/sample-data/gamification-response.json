@@ -1,0 +1,41 @@
+{
+  "user_id": "user-mock-01",
+  "total_points": 69,
+  "current_level": 1,
+  "badges": [
+    {
+      "badge_id": "first_steps",
+      "badge_name": "First Steps",
+      "icon": "🎯",
+      "description": "Complete your first task",
+      "unlocked": true,
+      "unlocked_date": null
+    },
+    {
+      "badge_id": "punctual",
+      "badge_name": "Punctual",
+      "icon": "⏰",
+      "description": "Complete 5 tasks on or before the due date",
+      "unlocked": true,
+      "unlocked_date": null
+    },
+    {
+      "badge_id": "consistent",
+      "badge_name": "Consistent",
+      "icon": "🔥",
+      "description": "Complete 10 tasks",
+      "unlocked": false,
+      "unlocked_date": null
+    },
+    {
+      "badge_id": "overachiever",
+      "badge_name": "Overachiever",
+      "icon": "🏆",
+      "description": "Reach Level 3 (300+ points)",
+      "unlocked": false,
+      "unlocked_date": null
+    }
+  ],
+  "progress_to_next": 69.0,
+  "generated_at": "2026-05-18T10:00:00"
+}

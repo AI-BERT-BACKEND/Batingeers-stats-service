@@ -16,6 +16,15 @@ class Settings(BaseSettings):
     http_timeout: float = 10.0
     http_max_retries: int = 3
 
+    # CORS — comma-separated list of allowed origins. Use ["*"] to allow all (development only).
+    cors_allowed_origins: list[str] = ["*"]
+
+    # Kafka — leave unset to disable event publishing entirely
+    kafka_bootstrap_servers: str | None = None
+    kafka_topic_performance: str = "stats.academic-performance-alert"
+    kafka_topic_overload: str = "stats.academic-overload-alert"
+    kafka_topic_study_suggestion: str = "stats.study-suggestion"
+
     # PostgreSQL — asyncpg driver: postgresql+asyncpg://user:pass@host:port/db
     database_url: str | None = None
 

@@ -20,7 +20,7 @@ async def get_current_user(
         if user_id is None:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Token inválido: campo 'sub' ausente",
+                detail="Invalid token: missing 'sub' claim",
             )
         return {
             "user_id": user_id,
@@ -30,6 +30,6 @@ async def get_current_user(
     except JWTError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token inválido o expirado",
+            detail="Invalid or expired token",
             headers={"WWW-Authenticate": "Bearer"},
         )
