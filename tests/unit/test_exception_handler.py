@@ -1,6 +1,5 @@
 """Tests for FastAPI global exception handlers."""
 
-import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
