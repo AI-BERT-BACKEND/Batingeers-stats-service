@@ -18,17 +18,38 @@ def _get_gamification_service() -> GamificationService:
 @router.get(
     "/gamification",
     response_model=GamificationResponseDto,
-    summary="R24 — Student gamification profile",
+    summary="Student gamification profile (R24)",
     description=(
-        "Returns the gamification profile of the authenticated student: "
-        "total accumulated points, current level, earned badges, and progress toward "
-        "the next level. Points are awarded automatically upon task completion: "
-        "+10 points for tasks completed on or before the due date, +3 points for late completions. "
-        "If the student has no prior activity, returns level 1 with 0 points."
+        "Returns the full gamification profile for the authenticated student, computed "
+        "in real time from their task completion history retrieved from task-service.\n\n"
+        "**Point system:**\n"
+        "- **+10 points** for each task completed on or before its due date\n"
+        "- **+3 points** for each task completed after its due date\n"
+        "- Cancelled tasks are fully excluded from all calculations\n\n"
+        "**Level table:**\n"
+        "| Level | Points required |\n"
+        "|---|---|\n"
+        "| 1 | 0 – 99 |\n"
+        "| 2 | 100 – 299 |\n"
+        "| 3 | 300 – 599 |\n"
+        "| 4 | 600+ |\n\n"
+        "**Badges (all 4 are always returned):**\n"
+        "| Badge ID | Name | Unlock condition |\n"
+        "|---|---|---|\n"
+        "| `first_steps` | 🎯 First Steps | Complete at least 1 task |\n"
+        "| `punctual` | ⏰ Punctual | Complete 5 or more tasks on or before the due date |\n"
+        "| `consistent` | 🔥 Consistent | Complete 10 or more tasks (any timing) |\n"
+        "| `overachiever` | 🏆 Overachiever | Accumulate 300 or more points (reach Level 3) |\n\n"
+        "Each badge object includes an `unlocked` boolean (`true` = earned, `false` = locked) "
+        "and an `unlocked_date` that is set when the badge was earned.\n\n"
+        "**`progress_to_next`** represents progress toward the next level as a percentage "
+        "(0.0 – 100.0). Returns 100.0 when the student is already at the maximum level (4).\n\n"
+        "**Default state:** a student with no task activity receives 0 points, level 1, "
+        "0% progress, and all 4 badges locked."
     ),
     responses={
         401: {"description": "Invalid or expired JWT token"},
-        503: {"description": "task-service unavailable"},
+        503: {"description": "task-service is unreachable"},
     },
 )
 async def get_gamification_profile(

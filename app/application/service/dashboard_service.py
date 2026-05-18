@@ -8,9 +8,11 @@ from app.domain.ports.out_.stats_snapshot_port import StatsSnapshotPort
 from app.infrastructure.external.academic_client import AcademicClient
 from app.infrastructure.external.task_client import TaskClient
 
-_PASSING_THRESHOLD = 3.0  # Nota mínima aprobatoria (escala colombiana 0–5)
-_AT_RISK_THRESHOLD = 3.5  # Por debajo de este valor se considera en riesgo
-_TREND_THRESHOLD = 0.2  # Diferencia mínima para considerar mejora o caída
+_PASSING_THRESHOLD = 3.0  # Minimum passing grade (Colombian scale 0–5)
+_AT_RISK_THRESHOLD = 3.5  # Below this value a subject is considered at risk
+_TREND_THRESHOLD = (
+    0.2  # Minimum difference to classify a trend as improving or declining
+)
 
 
 def _classify_status(average: float) -> str:
@@ -42,7 +44,7 @@ def _compute_overall_gpa(subjects: list[dict]) -> float:
 
 
 def _compute_gpa_trend(subjects: list[dict]) -> str:
-    """Compara el promedio de evaluaciones tempranas vs recientes de todas las materias."""
+    """Compares the average of early vs recent graded evaluations across all subjects."""
     all_graded = [
         e
         for s in subjects
@@ -154,4 +156,47 @@ class DashboardService(DashboardUseCase):
         if self._repo:
             await self._repo.save_dashboard_snapshot(stats)
 
+        await self._publish_events(user_id, stats)
+
         return stats
+
+    async def _publish_events(self, user_id: str, stats: DashboardStats) -> None:
+        from app.config import settings as cfg
+        from app.infrastructure.messaging.events import (
+            AcademicOverloadAlertEvent,
+            AcademicPerformanceAlertEvent,
+        )
+        from app.infrastructure.messaging.kafka_producer import publish_event
+
+        if stats.at_risk_subjects > 0 or stats.failing_subjects > 0:
+            subjects_at_risk = [
+                {
+                    "subject_id": s.subject_id,
+                    "subject_name": s.name,
+                    "status": s.status,
+                    "current_average": s.current_average,
+                }
+                for s in stats.subjects
+                if s.status in ("at_risk", "failing")
+            ]
+            await publish_event(
+                cfg.kafka_topic_performance,
+                AcademicPerformanceAlertEvent(
+                    user_id=user_id,
+                    overall_gpa=stats.overall_gpa,
+                    failing_subjects=stats.failing_subjects,
+                    at_risk_subjects=stats.at_risk_subjects,
+                    subjects_at_risk=subjects_at_risk,
+                ),
+            )
+
+        if stats.gpa_trend == "declining" and stats.tasks.overdue > 0:
+            await publish_event(
+                cfg.kafka_topic_overload,
+                AcademicOverloadAlertEvent(
+                    user_id=user_id,
+                    overdue_tasks=stats.tasks.overdue,
+                    gpa_trend=stats.gpa_trend,
+                    failing_subjects=stats.failing_subjects,
+                ),
+            )

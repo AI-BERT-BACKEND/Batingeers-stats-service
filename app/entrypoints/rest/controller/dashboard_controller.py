@@ -28,16 +28,31 @@ async def _get_dashboard_service(
 @router.get(
     "/dashboard",
     response_model=DashboardResponseDto,
-    summary="R20 — Academic statistics dashboard",
+    summary="Academic statistics dashboard (R20)",
     description=(
-        "Returns the full dashboard with academic statistics for the authenticated user: "
-        "overall GPA, trend, subject summary, and task status. "
-        "Aggregates data from **academic-service** and **task-service** in a single response. "
-        "If external services are unavailable, returns the last snapshot cached in the DB."
+        "Returns the complete academic dashboard for the authenticated student, "
+        "aggregating data from **academic-service** and **task-service** in a single response.\n\n"
+        "**What is included:**\n"
+        "- `overall_gpa` — weighted GPA across all active subjects (credits used as weights), "
+        "rounded to the nearest integer\n"
+        "- `gpa_trend` — direction of grade change: `improving`, `stable`, or `declining`, "
+        "computed by comparing early vs recent evaluation scores\n"
+        "- `subjects` — list of all subjects sorted by current average (descending), each with "
+        "status: `Passing`, `At Risk`, or `Failing`\n"
+        "- `tasks` — aggregated task metrics: total, completed, pending (includes in-progress), "
+        "overdue, and completion rate as a percentage\n\n"
+        "**Fallback behavior:** if either upstream service is unreachable, the last snapshot "
+        "cached in the database is returned. A 503 is raised only when there is no cached "
+        "data available at all.\n\n"
+        "**Kafka events published after each call:**\n"
+        "- `stats.academic-performance-alert` — when at least one subject is At Risk or Failing\n"
+        "- `stats.academic-overload-alert` — when GPA trend is declining AND there are overdue tasks"
     ),
     responses={
         401: {"description": "Invalid or expired JWT token"},
-        503: {"description": "Dependent services unavailable and no cached data in DB"},
+        503: {
+            "description": "Upstream services unreachable and no cached snapshot available"
+        },
     },
 )
 async def get_dashboard(

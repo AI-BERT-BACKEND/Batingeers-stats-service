@@ -5,9 +5,9 @@ from pydantic import BaseModel, Field
 class TaskDetailDto(BaseModel):
     task_id: str
     task_name: str
-    status: str = Field(..., description="Pendiente | Completada | Vencida")
+    status: str = Field(..., description="Pending | Completed | Overdue")
     due_date: date | None = Field(None, description="Due date (YYYY-MM-DD)")
-    priority: str | None = Field(None, description="Alta | Media | Baja")
+    priority: str | None = Field(None, description="High | Medium | Low")
     estimated_hours: float | None = Field(
         None, description="Estimated hours to complete the task"
     )

@@ -1,0 +1,73 @@
+{
+  "subject_id": "sub-calculo",
+  "subject_name": "Cálculo Diferencial",
+  "subject_code": "MAT201",
+  "credits": 4,
+  "grades_by_period": [
+    {
+      "period_id": "eval-1",
+      "period_name": "Corte 1",
+      "weight_percentage": 30.0,
+      "obtained_grade": 4.2,
+      "contribution": 1.26,
+      "projected_grade": 2.4
+    },
+    {
+      "period_id": "eval-2",
+      "period_name": "Corte 2",
+      "weight_percentage": 30.0,
+      "obtained_grade": 3.8,
+      "contribution": 1.14,
+      "projected_grade": 2.4
+    },
+    {
+      "period_id": "eval-3",
+      "period_name": "Corte Final",
+      "weight_percentage": 40.0,
+      "obtained_grade": null,
+      "contribution": 0.0,
+      "projected_grade": 2.4
+    }
+  ],
+  "current_average": 4.0,
+  "max_possible_grade": 4.4,
+  "minimum_needed": 1.5,
+  "projected_grade": 2.4,
+  "trend": "stable",
+  "tasks_total": 5,
+  "tasks_completed": 4,
+  "tasks_pending": 1,
+  "tasks_overdue": 0,
+  "task_completion_rate": 80.0,
+  "status": "passing",
+  "related_tasks": [
+    {
+      "task_id": "task-5",
+      "task_name": "",
+      "status": "Pending",
+      "due_date": "2026-05-25",
+      "priority": null,
+      "estimated_hours": null
+    },
+    {
+      "task_id": "task-4",
+      "task_name": "",
+      "status": "Completed",
+      "due_date": "2026-04-22",
+      "priority": null,
+      "estimated_hours": null
+    }
+  ],
+  "grade_evolution": [
+    {
+      "week": 9,
+      "accumulated_grade": 4.2,
+      "registered_date": "2026-03-01"
+    },
+    {
+      "week": 16,
+      "accumulated_grade": 4.0,
+      "registered_date": "2026-04-15"
+    }
+  ]
+}

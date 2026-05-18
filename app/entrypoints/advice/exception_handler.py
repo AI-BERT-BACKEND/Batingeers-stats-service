@@ -42,7 +42,7 @@ def register_exception_handlers(app: FastAPI) -> None:
             status_code=500,
             content={
                 "error": "INTERNAL_SERVER_ERROR",
-                "message": "Error interno del servidor",
+                "message": "An unexpected error occurred on the server",
             },
         )
 
@@ -52,6 +52,6 @@ def register_exception_handlers(app: FastAPI) -> None:
             status_code=500,
             content={
                 "error": "INTERNAL_SERVER_ERROR",
-                "message": "Error interno del servidor",
+                "message": "An unexpected error occurred on the server",
             },
         )

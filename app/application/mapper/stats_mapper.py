@@ -16,16 +16,16 @@ from app.domain.model.dashboard import DashboardStats, SubjectSummary, TaskSumma
 from app.domain.model.subject_stats import GradeEntry, SubjectStats
 
 _SUBJECT_STATUS_MAP: dict[str, str] = {
-    "passing": "Aprobada",
-    "at_risk": "En riesgo",
-    "failing": "Sin información",
+    "passing": "Passing",
+    "at_risk": "At Risk",
+    "failing": "Failing",
 }
 
 _TASK_STATUS_MAP: dict[str, str] = {
-    "COMPLETED": "Completada",
-    "PENDING": "Pendiente",
-    "IN_PROGRESS": "Pendiente",
-    "OVERDUE": "Vencida",
+    "COMPLETED": "Completed",
+    "PENDING": "Pending",
+    "IN_PROGRESS": "In Progress",
+    "OVERDUE": "Overdue",
 }
 
 
