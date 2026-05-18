@@ -127,13 +127,13 @@ def test_dashboard_dto_subjects_count():
     assert dto.failing_subjects == 0
 
 
-def test_dashboard_dto_subjects_list_status_in_spanish():
+def test_dashboard_dto_subjects_list_status_in_english():
     dto = dashboard_to_dto(_make_dashboard())
     assert len(dto.subjects) == 2
     assert dto.subjects[0].subject_id == "sub-1"
     assert dto.subjects[0].current_average == pytest.approx(4.2, rel=0.01)
-    assert dto.subjects[0].status == "Aprobada"
-    assert dto.subjects[1].status == "En riesgo"
+    assert dto.subjects[0].status == "Passing"
+    assert dto.subjects[1].status == "At Risk"
 
 
 def test_dashboard_dto_subjects_teacher_name():
@@ -233,7 +233,7 @@ def test_subject_dto_related_tasks_field_names():
     t1 = dto.related_tasks[0]
     assert t1.task_id == "t1"
     assert t1.task_name == "Tarea 1"
-    assert t1.status == "Completada"
+    assert t1.status == "Completed"
     assert t1.due_date == date(2026, 4, 1)
     assert t1.priority == "Alta"
     assert t1.estimated_hours == pytest.approx(2.0)
@@ -244,7 +244,7 @@ def test_subject_dto_related_tasks_null_fields():
     t2 = dto.related_tasks[1]
     assert t2.task_id == "t2"
     assert t2.task_name == "Tarea 2"
-    assert t2.status == "Pendiente"
+    assert t2.status == "Pending"
     assert t2.due_date == date(2026, 3, 15)
     assert t2.priority is None
     assert t2.estimated_hours is None
