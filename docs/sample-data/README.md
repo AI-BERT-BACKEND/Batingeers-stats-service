@@ -1,7 +1,7 @@
 # Sample Data for Swagger Testing
 
 This folder contains ready-to-use data for testing the Stats Service through the Swagger UI
-at `http://localhost:8085/docs` (local) or the Azure URL.
+at `http://localhost:1506/docs` (local) or the Azure URL.
 
 ---
 
