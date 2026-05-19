@@ -4,7 +4,7 @@ from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
     app_name: str = "stats-service"
-    app_port: int = 8085
+    app_port: int = 1506
     app_env: str = "development"
 
     jwt_secret: str = "default-secret-change-in-production"
