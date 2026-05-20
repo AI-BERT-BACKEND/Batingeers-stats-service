@@ -3,7 +3,7 @@ import asyncio
 import pytest
 from unittest.mock import AsyncMock, MagicMock
 
-from app.application.service.gamification_service import (
+from com.aibert.dosw.application.service.gamification_service import (
     GamificationService,
     _calculate_badges,
     _calculate_level,

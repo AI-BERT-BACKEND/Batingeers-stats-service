@@ -4,7 +4,7 @@ from datetime import date
 import pytest
 from unittest.mock import AsyncMock, MagicMock
 
-from app.application.service.subject_stats_service import (
+from com.aibert.dosw.application.service.subject_stats_service import (
     SubjectStatsService,
     _build_grade_history,
     _classify_status,
@@ -327,7 +327,7 @@ def test_get_subject_stats_status_valid():
 
 
 def test_get_subject_stats_not_found_raises():
-    from app.domain.exceptions.stats_exceptions import SubjectNotFoundError
+    from com.aibert.dosw.domain.exceptions.stats_exceptions import SubjectNotFoundError
 
     academic = MagicMock()
     academic.get_subject = AsyncMock(return_value=None)
@@ -339,7 +339,7 @@ def test_get_subject_stats_not_found_raises():
 
 
 def test_get_subject_stats_service_unavailable_no_repo():
-    from app.domain.exceptions.stats_exceptions import ServiceUnavailableError
+    from com.aibert.dosw.domain.exceptions.stats_exceptions import ServiceUnavailableError
 
     academic = MagicMock()
     academic.get_subject = AsyncMock(side_effect=ServiceUnavailableError("academic"))
@@ -352,8 +352,8 @@ def test_get_subject_stats_service_unavailable_no_repo():
 
 def test_get_subject_stats_service_unavailable_with_cache():
     from datetime import datetime
-    from app.domain.exceptions.stats_exceptions import ServiceUnavailableError
-    from app.domain.model.subject_stats import SubjectStats
+    from com.aibert.dosw.domain.exceptions.stats_exceptions import ServiceUnavailableError
+    from com.aibert.dosw.domain.model.subject_stats import SubjectStats
 
     cached = SubjectStats(
         subject_id="sub-1",
@@ -385,7 +385,7 @@ def test_get_subject_stats_service_unavailable_with_cache():
 
 
 def test_get_subject_stats_service_unavailable_no_cache_raises():
-    from app.domain.exceptions.stats_exceptions import ServiceUnavailableError
+    from com.aibert.dosw.domain.exceptions.stats_exceptions import ServiceUnavailableError
 
     academic = MagicMock()
     academic.get_subject = AsyncMock(side_effect=ServiceUnavailableError("academic"))
@@ -422,7 +422,7 @@ def test_get_all_subjects_stats_with_repo_saves():
 
 
 def test_get_all_subjects_stats_service_unavailable():
-    from app.domain.exceptions.stats_exceptions import ServiceUnavailableError
+    from com.aibert.dosw.domain.exceptions.stats_exceptions import ServiceUnavailableError
 
     academic = MagicMock()
     academic.get_subjects = AsyncMock(side_effect=ServiceUnavailableError("academic"))

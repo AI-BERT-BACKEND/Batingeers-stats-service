@@ -1,12 +1,12 @@
 import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
 
-import app.infrastructure.messaging.kafka_producer as kp
-from app.infrastructure.messaging.events import (
+import com.aibert.dosw.infrastructure.messaging.kafka_producer as kp
+from com.aibert.dosw.infrastructure.messaging.events import (
     AcademicPerformanceAlertEvent,
     StudySuggestionEvent,
 )
-from app.infrastructure.messaging.kafka_producer import (
+from com.aibert.dosw.infrastructure.messaging.kafka_producer import (
     publish_event,
     start_producer,
     stop_producer,

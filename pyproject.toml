@@ -8,11 +8,11 @@ requires-python = ">=3.12"
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
 testpaths = ["tests"]
-addopts = "--cov=app --cov-report=xml --cov-report=term-missing --cov-fail-under=80"
+addopts = "--cov=src/main/com/aibert/dosw --cov-report=xml --cov-report=term-missing --cov-fail-under=80"
 
 [tool.coverage.run]
-source = ["app"]
-omit = ["app/__init__.py", "*/migrations/*"]
+source = ["src/main/com/aibert/dosw"]
+omit = ["src/main/com/aibert/dosw/__init__.py", "*/migrations/*"]
 
 [tool.coverage.report]
 exclude_lines = [

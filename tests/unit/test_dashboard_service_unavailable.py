@@ -2,9 +2,9 @@ import pytest
 from datetime import datetime
 from unittest.mock import AsyncMock, MagicMock
 
-from app.application.service.dashboard_service import DashboardService
-from app.domain.exceptions.stats_exceptions import ServiceUnavailableError
-from app.domain.model.dashboard import DashboardStats, SubjectSummary, TaskSummary
+from com.aibert.dosw.application.service.dashboard_service import DashboardService
+from com.aibert.dosw.domain.exceptions.stats_exceptions import ServiceUnavailableError
+from com.aibert.dosw.domain.model.dashboard import DashboardStats, SubjectSummary, TaskSummary
 
 
 def _make_cached_dashboard(user_id: str = "user-1") -> DashboardStats:

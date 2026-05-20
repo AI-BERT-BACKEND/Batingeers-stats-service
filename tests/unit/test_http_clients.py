@@ -5,9 +5,9 @@ import respx
 import httpx
 from unittest.mock import patch, AsyncMock
 
-from app.infrastructure.external.academic_client import AcademicClient
-from app.infrastructure.external.task_client import TaskClient
-from app.domain.exceptions.stats_exceptions import ServiceUnavailableError
+from com.aibert.dosw.infrastructure.external.academic_client import AcademicClient
+from com.aibert.dosw.infrastructure.external.task_client import TaskClient
+from com.aibert.dosw.domain.exceptions.stats_exceptions import ServiceUnavailableError
 
 
 # ── fixtures ──────────────────────────────────────────────────────────────────

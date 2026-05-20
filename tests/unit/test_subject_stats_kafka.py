@@ -8,7 +8,7 @@ Event expected:
 import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
 
-from app.application.service.subject_stats_service import SubjectStatsService
+from com.aibert.dosw.application.service.subject_stats_service import SubjectStatsService
 
 # ── helpers ───────────────────────────────────────────────────────────────────
 

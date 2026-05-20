@@ -10,7 +10,7 @@ from unittest.mock import AsyncMock, patch
 import httpx
 from jose import jwt
 
-from app.config import settings
+from com.aibert.dosw.config import settings
 
 # ── helpers ───────────────────────────────────────────────────────────────────
 
@@ -69,7 +69,7 @@ def _run(coro):
 
 
 def test_health_sync():
-    from app.main import app
+    from com.aibert.dosw.main import app
 
     async def _call():
         async with httpx.AsyncClient(
@@ -87,7 +87,7 @@ def test_health_sync():
 
 
 def test_dashboard_sync_returns_200():
-    from app.main import app
+    from com.aibert.dosw.main import app
 
     async def _call():
         with (
@@ -115,7 +115,7 @@ def test_dashboard_sync_returns_200():
 
 
 def test_dashboard_sync_no_token_returns_403():
-    from app.main import app
+    from com.aibert.dosw.main import app
 
     async def _call():
         async with httpx.AsyncClient(
@@ -128,7 +128,7 @@ def test_dashboard_sync_no_token_returns_403():
 
 
 def test_dashboard_sync_invalid_token_returns_401():
-    from app.main import app
+    from com.aibert.dosw.main import app
 
     async def _call():
         async with httpx.AsyncClient(
@@ -147,7 +147,7 @@ def test_dashboard_sync_invalid_token_returns_401():
 
 
 def test_subjects_sync_returns_200():
-    from app.main import app
+    from com.aibert.dosw.main import app
 
     async def _call():
         with (
@@ -174,7 +174,7 @@ def test_subjects_sync_returns_200():
 
 
 def test_subject_specific_sync_returns_200():
-    from app.main import app
+    from com.aibert.dosw.main import app
 
     async def _call():
         with (
@@ -201,7 +201,7 @@ def test_subject_specific_sync_returns_200():
 
 
 def test_subject_not_found_sync_returns_404():
-    from app.main import app
+    from com.aibert.dosw.main import app
 
     async def _call():
         with (
@@ -230,7 +230,7 @@ def test_subject_not_found_sync_returns_404():
 
 
 def test_gamification_sync_returns_200():
-    from app.main import app
+    from com.aibert.dosw.main import app
 
     async def _call():
         with patch(
@@ -259,7 +259,7 @@ def test_gamification_sync_returns_200():
 
 
 def test_gamification_no_token_returns_403():
-    from app.main import app
+    from com.aibert.dosw.main import app
 
     async def _call():
         async with httpx.AsyncClient(
@@ -272,7 +272,7 @@ def test_gamification_no_token_returns_403():
 
 
 def test_gamification_empty_tasks_returns_level_1():
-    from app.main import app
+    from com.aibert.dosw.main import app
 
     async def _call():
         with patch(
@@ -297,8 +297,8 @@ def test_gamification_empty_tasks_returns_level_1():
 
 
 def test_service_unavailable_returns_503():
-    from app.main import app
-    from app.domain.exceptions.stats_exceptions import ServiceUnavailableError
+    from com.aibert.dosw.main import app
+    from com.aibert.dosw.domain.exceptions.stats_exceptions import ServiceUnavailableError
 
     async def _call():
         with (
@@ -324,7 +324,7 @@ def test_service_unavailable_returns_503():
 
 
 def test_generic_exception_returns_500():
-    from app.main import app
+    from com.aibert.dosw.main import app
 
     async def _call():
         with (

@@ -5,8 +5,8 @@ import pytest
 from fastapi.testclient import TestClient
 from jose import jwt
 
-from app.config import settings
-from app.main import app
+from com.aibert.dosw.config import settings
+from com.aibert.dosw.main import app
 
 _SUBJECTS = [
     {

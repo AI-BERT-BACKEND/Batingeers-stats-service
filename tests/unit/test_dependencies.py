@@ -6,7 +6,7 @@ from fastapi import HTTPException
 from fastapi.security import HTTPAuthorizationCredentials
 from jose import JWTError
 
-from app.dependencies import get_current_user
+from com.aibert.dosw.dependencies import get_current_user
 
 
 async def test_valid_token_returns_user_dict():

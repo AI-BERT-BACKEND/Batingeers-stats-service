@@ -1,8 +1,8 @@
 import pytest
 from datetime import date
 
-from app.application.utility.chart_generator import generate_weekly_evolution
-from app.domain.model.subject_stats import GradeEntry
+from com.aibert.dosw.application.utility.chart_generator import generate_weekly_evolution
+from com.aibert.dosw.domain.model.subject_stats import GradeEntry
 
 
 def _entry(

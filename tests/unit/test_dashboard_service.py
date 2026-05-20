@@ -1,7 +1,7 @@
 import pytest
 from unittest.mock import AsyncMock, MagicMock
 
-from app.application.service.dashboard_service import DashboardService
+from com.aibert.dosw.application.service.dashboard_service import DashboardService
 
 _SUBJECTS = [
     {

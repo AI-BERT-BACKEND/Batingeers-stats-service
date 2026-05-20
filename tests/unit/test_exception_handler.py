@@ -3,8 +3,8 @@
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from app.entrypoints.advice.exception_handler import register_exception_handlers
-from app.domain.exceptions.stats_exceptions import (
+from com.aibert.dosw.entrypoints.advice.exception_handler import register_exception_handlers
+from com.aibert.dosw.domain.exceptions.stats_exceptions import (
     ServiceUnavailableError,
     SubjectNotFoundError,
     UnauthorizedError,

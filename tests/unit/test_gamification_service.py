@@ -1,7 +1,7 @@
 import pytest
 from unittest.mock import AsyncMock, MagicMock
 
-from app.application.service.gamification_service import GamificationService
+from com.aibert.dosw.application.service.gamification_service import GamificationService
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 

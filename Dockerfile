@@ -7,6 +7,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
+ENV PYTHONPATH=/app/src/main
+
 EXPOSE 1506
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "1506"]
+CMD ["uvicorn", "com.aibert.dosw.main:app", "--host", "0.0.0.0", "--port", "1506"]

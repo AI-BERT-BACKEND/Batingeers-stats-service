@@ -2,9 +2,9 @@ import pytest
 from datetime import datetime
 from unittest.mock import AsyncMock, MagicMock
 
-from app.domain.model.dashboard import DashboardStats, SubjectSummary, TaskSummary
-from app.domain.model.subject_stats import GradeEntry, SubjectStats
-from app.infrastructure.adapters.persistence.mapper.snapshot_mapper import (
+from com.aibert.dosw.domain.model.dashboard import DashboardStats, SubjectSummary, TaskSummary
+from com.aibert.dosw.domain.model.subject_stats import GradeEntry, SubjectStats
+from com.aibert.dosw.infrastructure.adapters.persistence.mapper.snapshot_mapper import (
     dashboard_to_entity,
     entity_to_dashboard,
     entity_to_subject,
@@ -145,7 +145,7 @@ def test_entity_to_subject_minimum_needed_none():
 
 @pytest.mark.asyncio
 async def test_repository_save_dashboard_adds_and_commits():
-    from app.infrastructure.adapters.persistence.repository.stats_repository import (
+    from com.aibert.dosw.infrastructure.adapters.persistence.repository.stats_repository import (
         StatsSnapshotRepository,
     )
 
@@ -162,7 +162,7 @@ async def test_repository_save_dashboard_adds_and_commits():
 
 @pytest.mark.asyncio
 async def test_repository_get_dashboard_returns_none_when_not_found():
-    from app.infrastructure.adapters.persistence.repository.stats_repository import (
+    from com.aibert.dosw.infrastructure.adapters.persistence.repository.stats_repository import (
         StatsSnapshotRepository,
     )
 
@@ -180,7 +180,7 @@ async def test_repository_get_dashboard_returns_none_when_not_found():
 
 @pytest.mark.asyncio
 async def test_repository_save_subject_adds_and_commits():
-    from app.infrastructure.adapters.persistence.repository.stats_repository import (
+    from com.aibert.dosw.infrastructure.adapters.persistence.repository.stats_repository import (
         StatsSnapshotRepository,
     )
 
@@ -197,7 +197,7 @@ async def test_repository_save_subject_adds_and_commits():
 
 @pytest.mark.asyncio
 async def test_repository_get_subject_returns_none_when_not_found():
-    from app.infrastructure.adapters.persistence.repository.stats_repository import (
+    from com.aibert.dosw.infrastructure.adapters.persistence.repository.stats_repository import (
         StatsSnapshotRepository,
     )
 
