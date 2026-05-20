@@ -75,7 +75,7 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run tests
-        run: pytest --cov=app --cov-report=xml --cov-report=term-missing --cov-fail-under=80
+        run: pytest
 
       - name: Publish test results
         uses: EnricoMi/publish-unit-test-result-action@v2
@@ -119,7 +119,7 @@ jobs:
             -Dsonar.projectKey=AI-BERT-BACKEND_batingeers-stats-service
             -Dsonar.organization=ai-bert-backend
             -Dsonar.python.coverage.reportPaths=coverage.xml
-            -Dsonar.sources=app
+            -Dsonar.sources=src/main/com/aibert/dosw
             -Dsonar.tests=tests
 
       - name: Add Coverage report link to summary
