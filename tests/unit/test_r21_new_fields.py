@@ -27,8 +27,13 @@ _SUBJECT_MIXED = {
 
 _TASKS_WITH_DATES = [
     {"id": "t1", "subject_id": "sub-1", "status": "COMPLETED", "dueDate": "2026-04-01"},
-    {"id": "t2", "subject_id": "sub-1", "status": "PENDING", "dueDate": "2026-03-15"},
-    {"id": "t3", "subject_id": "sub-1", "status": "OVERDUE", "dueDate": "2026-02-28"},
+    {"id": "t2", "subject_id": "sub-1", "status": "TODO", "dueDate": "2026-03-15"},
+    {
+        "id": "t3",
+        "subject_id": "sub-1",
+        "status": "IN_PROGRESS",
+        "dueDate": "2026-02-28",
+    },
     {"id": "t4", "subject_id": "sub-1", "status": "CANCELLED", "dueDate": "2026-04-10"},
 ]
 

@@ -170,6 +170,9 @@ buildNumber.properties
 *.h2.db
 *.mv.db
 
+#### CLAUDE CODE ####
+.claude/
+
 #### ENVIRONMENT VARIABLES ####
 .env
 .env.*

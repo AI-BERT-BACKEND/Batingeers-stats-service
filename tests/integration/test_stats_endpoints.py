@@ -35,7 +35,7 @@ _SUBJECTS = [
 
 _TASKS = [
     {"id": "t1", "subject_id": "sub-1", "status": "COMPLETED"},
-    {"id": "t2", "subject_id": "sub-1", "status": "PENDING"},
+    {"id": "t2", "subject_id": "sub-1", "status": "TODO"},
 ]
 
 

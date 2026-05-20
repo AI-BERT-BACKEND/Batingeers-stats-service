@@ -284,8 +284,8 @@ _SUBJECT = {
 
 _TASKS = [
     {"id": "t1", "subject_id": "sub-1", "status": "COMPLETED"},
-    {"id": "t2", "subject_id": "sub-1", "status": "OVERDUE"},
-    {"id": "t3", "subject_id": "sub-1", "status": "PENDING"},
+    {"id": "t2", "subject_id": "sub-1", "status": "IN_PROGRESS"},
+    {"id": "t3", "subject_id": "sub-1", "status": "TODO"},
     {"id": "t4", "subject_id": "sub-1", "status": "CANCELLED"},
 ]
 
@@ -316,8 +316,8 @@ def test_get_subject_stats_task_completion():
     service = _make_service()
     result = asyncio.run(service.get_subject_stats("u1", "sub-1", "tok"))
     assert result.tasks_completed == 1
-    assert result.tasks_overdue == 1
-    assert result.tasks_pending == 1
+    assert result.tasks_overdue == 0
+    assert result.tasks_pending == 2
 
 
 def test_get_subject_stats_status_valid():
@@ -479,7 +479,7 @@ def test_get_subject_stats_related_tasks_sorted_desc():
         {
             "id": "t2",
             "subject_id": "sub-1",
-            "status": "PENDING",
+            "status": "TODO",
             "dueDate": "2026-03-01",
         },
     ]
