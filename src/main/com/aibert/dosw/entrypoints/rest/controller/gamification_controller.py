@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from fastapi import APIRouter, Depends
 
 from com.aibert.dosw.application.dto.response.gamification_response import (
@@ -17,7 +19,6 @@ def _get_gamification_service() -> GamificationService:
 
 @router.get(
     "/gamification",
-    response_model=GamificationResponseDto,
     summary="Student gamification profile (R24)",
     description=(
         "Returns the full gamification profile for the authenticated student, computed "
@@ -53,8 +54,8 @@ def _get_gamification_service() -> GamificationService:
     },
 )
 async def get_gamification_profile(
-    current_user: dict = Depends(get_current_user),
-    service: GamificationService = Depends(_get_gamification_service),
+    current_user: Annotated[dict, Depends(get_current_user)],
+    service: Annotated[GamificationService, Depends(_get_gamification_service)],
 ) -> GamificationResponseDto:
     profile = await service.get_gamification_profile(
         user_id=current_user["user_id"],

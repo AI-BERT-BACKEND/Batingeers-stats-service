@@ -1,5 +1,5 @@
 import asyncio
-from datetime import datetime
+from datetime import datetime, timezone
 
 from com.aibert.dosw.domain.exceptions.stats_exceptions import ServiceUnavailableError
 from com.aibert.dosw.domain.model.dashboard import (
@@ -154,7 +154,7 @@ class DashboardService(DashboardUseCase):
                 overdue=overdue,
                 completion_rate=completion_rate,
             ),
-            generated_at=datetime.utcnow(),
+            generated_at=datetime.now(timezone.utc),
         )
 
         if self._repo:

@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -14,8 +16,8 @@ from com.aibert.dosw.infrastructure.external.task_client import TaskClient
 router = APIRouter(prefix="/api/stats", tags=["Dashboard"])
 
 
-async def _get_dashboard_service(
-    db: AsyncSession | None = Depends(get_db),
+def _get_dashboard_service(
+    db: Annotated[AsyncSession | None, Depends(get_db)],
 ) -> DashboardService:
     repo = None
     if db is not None:
@@ -29,7 +31,6 @@ async def _get_dashboard_service(
 
 @router.get(
     "/dashboard",
-    response_model=DashboardResponseDto,
     summary="Academic statistics dashboard (R20)",
     description=(
         "Returns the complete academic dashboard for the authenticated student, "
@@ -58,8 +59,8 @@ async def _get_dashboard_service(
     },
 )
 async def get_dashboard(
-    current_user: dict = Depends(get_current_user),
-    service: DashboardService = Depends(_get_dashboard_service),
+    current_user: Annotated[dict, Depends(get_current_user)],
+    service: Annotated[DashboardService, Depends(_get_dashboard_service)],
 ) -> DashboardResponseDto:
     stats = await service.get_dashboard(
         user_id=current_user["user_id"],

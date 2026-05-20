@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jose import JWTError, jwt
@@ -7,8 +9,8 @@ from com.aibert.dosw.config import settings
 security = HTTPBearer()
 
 
-async def get_current_user(
-    credentials: HTTPAuthorizationCredentials = Depends(security),
+def get_current_user(
+    credentials: Annotated[HTTPAuthorizationCredentials, Depends(security)],
 ) -> dict:
     try:
         payload = jwt.decode(

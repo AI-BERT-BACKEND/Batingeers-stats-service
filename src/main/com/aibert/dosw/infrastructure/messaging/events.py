@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 @dataclass
@@ -15,7 +15,9 @@ class AcademicPerformanceAlertEvent:
     at_risk_subjects: int
     subjects_at_risk: list[dict] = field(default_factory=list)
     event_type: str = "ACADEMIC_PERFORMANCE_ALERT"
-    timestamp: str = field(default_factory=lambda: datetime.utcnow().isoformat())
+    timestamp: str = field(
+        default_factory=lambda: datetime.now(timezone.utc).isoformat()
+    )
 
 
 @dataclass
@@ -30,7 +32,9 @@ class AcademicOverloadAlertEvent:
     gpa_trend: str
     failing_subjects: int
     event_type: str = "ACADEMIC_OVERLOAD_ALERT"
-    timestamp: str = field(default_factory=lambda: datetime.utcnow().isoformat())
+    timestamp: str = field(
+        default_factory=lambda: datetime.now(timezone.utc).isoformat()
+    )
 
 
 @dataclass
@@ -46,4 +50,6 @@ class StudySuggestionEvent:
     trend: str
     current_average: float
     event_type: str = "STUDY_SUGGESTION"
-    timestamp: str = field(default_factory=lambda: datetime.utcnow().isoformat())
+    timestamp: str = field(
+        default_factory=lambda: datetime.now(timezone.utc).isoformat()
+    )

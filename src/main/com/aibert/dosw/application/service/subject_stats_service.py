@@ -1,5 +1,5 @@
 import asyncio
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 
 from com.aibert.dosw.application.utility.chart_generator import (
     generate_weekly_evolution,
@@ -177,7 +177,7 @@ def _build_subject_stats(subject: dict, subject_tasks: list[dict]) -> SubjectSta
         status=_classify_status(avg),
         related_tasks=related_tasks,
         chart_data=chart_data,
-        generated_at=datetime.utcnow(),
+        generated_at=datetime.now(timezone.utc),
     )
 
 
@@ -195,13 +195,10 @@ class SubjectStatsService(SubjectStatsUseCase):
     async def get_all_subjects_stats(
         self, user_id: str, token: str
     ) -> list[SubjectStats]:
-        try:
-            subjects_data, tasks_data = await asyncio.gather(
-                self._academic.get_subjects(user_id, token),
-                self._tasks.get_tasks(user_id, token),
-            )
-        except ServiceUnavailableError:
-            raise
+        subjects_data, tasks_data = await asyncio.gather(
+            self._academic.get_subjects(user_id, token),
+            self._tasks.get_tasks(user_id, token),
+        )
 
         stats_list = [
             _build_subject_stats(

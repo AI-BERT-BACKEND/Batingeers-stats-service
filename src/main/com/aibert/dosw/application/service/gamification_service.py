@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from com.aibert.dosw.domain.model.gamification import Badge, GamificationProfile
 from com.aibert.dosw.domain.ports.in_.gamification_use_case import GamificationUseCase
@@ -80,15 +80,12 @@ def _calculate_badges(tasks: list[dict], points: int) -> list[Badge]:
     results: list[Badge] = []
     for cfg in _ALL_BADGES:
         badge_id = cfg["badge_id"]
-        unlocked = False
-        if badge_id == "first_steps" and len(completed) >= 1:
-            unlocked = True
-        elif badge_id == "punctual" and on_time_count >= 5:
-            unlocked = True
-        elif badge_id == "consistent" and len(completed) >= 10:
-            unlocked = True
-        elif badge_id == "overachiever" and points >= 300:
-            unlocked = True
+        unlocked = (
+            (badge_id == "first_steps" and len(completed) >= 1)
+            or (badge_id == "punctual" and on_time_count >= 5)
+            or (badge_id == "consistent" and len(completed) >= 10)
+            or (badge_id == "overachiever" and points >= 300)
+        )
         results.append(
             Badge(
                 badge_id=cfg["badge_id"],
@@ -122,5 +119,5 @@ class GamificationService(GamificationUseCase):
             current_level=level,
             badges=badges,
             progress_to_next=progress,
-            generated_at=datetime.utcnow(),
+            generated_at=datetime.now(timezone.utc),
         )

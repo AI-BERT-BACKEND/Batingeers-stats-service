@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -16,8 +18,8 @@ from com.aibert.dosw.infrastructure.external.task_client import TaskClient
 router = APIRouter(prefix="/api/stats", tags=["Subject Statistics"])
 
 
-async def _get_subject_stats_service(
-    db: AsyncSession | None = Depends(get_db),
+def _get_subject_stats_service(
+    db: Annotated[AsyncSession | None, Depends(get_db)],
 ) -> SubjectStatsService:
     repo = None
     if db is not None:
@@ -31,7 +33,6 @@ async def _get_subject_stats_service(
 
 @router.get(
     "/subjects",
-    response_model=list[SubjectStatsResponseDto],
     summary="Statistics for all subjects (R21)",
     description=(
         "Returns detailed statistics for every subject belonging to the authenticated student. "
@@ -57,8 +58,8 @@ async def _get_subject_stats_service(
     },
 )
 async def get_all_subjects_stats(
-    current_user: dict = Depends(get_current_user),
-    service: SubjectStatsService = Depends(_get_subject_stats_service),
+    current_user: Annotated[dict, Depends(get_current_user)],
+    service: Annotated[SubjectStatsService, Depends(_get_subject_stats_service)],
 ) -> list[SubjectStatsResponseDto]:
     stats_list = await service.get_all_subjects_stats(
         user_id=current_user["user_id"],
@@ -69,7 +70,6 @@ async def get_all_subjects_stats(
 
 @router.get(
     "/subjects/{subject_id}",
-    response_model=SubjectStatsResponseDto,
     summary="Statistics for a specific subject (R21)",
     description=(
         "Returns the full analytics profile for a single subject. Equivalent to one item "
@@ -93,8 +93,8 @@ async def get_all_subjects_stats(
 )
 async def get_subject_stats(
     subject_id: str,
-    current_user: dict = Depends(get_current_user),
-    service: SubjectStatsService = Depends(_get_subject_stats_service),
+    current_user: Annotated[dict, Depends(get_current_user)],
+    service: Annotated[SubjectStatsService, Depends(_get_subject_stats_service)],
 ) -> SubjectStatsResponseDto:
     stats = await service.get_subject_stats(
         user_id=current_user["user_id"],
