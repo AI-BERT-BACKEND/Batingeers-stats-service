@@ -1,0 +1,43 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find \"c:/Users/Usuario/Desktop/Conection-Services\" -type f | head -100)",
+      "Read(//c/Users/Usuario/Desktop/Conection-Services/**)",
+      "Bash(xargs grep -l \"academic\\\\|task\\\\|http\\\\|client\\\\|requests\\\\|httpx\")",
+      "Bash(xargs cat)",
+      "Bash(xargs grep -l \"server.port\\\\|port:\")",
+      "Bash(python -c ' *)",
+      "Bash(PYTHONPATH=src/main python -c \"import com.aibert.dosw.main; print\\('imports OK'\\)\")",
+      "Bash(PYTHONPATH=src/main uvicorn com.aibert.dosw.main:app --host 0.0.0.0 --port 1506)",
+      "Bash(curl -s http://localhost:1506/health)",
+      "Bash(python3 -m uvicorn --version)",
+      "Bash(python -m uvicorn --version)",
+      "Bash(PYTHONPATH=src/main python -m uvicorn com.aibert.dosw.main:app --host 0.0.0.0 --port 1506)",
+      "Bash(tee /tmp/subjects_out.txt)",
+      "Bash(curl -s -w '\\\\nHTTP:%{http_code}' https://aibert-academic-service-qa.yellowwave-cb2d91fc.centralus.azurecontainerapps.io/api/v1/subjects -H 'X-Student-Id: test-student-123')",
+      "Bash(curl -s -w '\\\\nHTTP:%{http_code}' https://aibert-task-service-qa.yellowwave-cb2d91fc.centralus.azurecontainerapps.io/api/tasks/student/test-student-123 -H 'X-User-Id: test-student-123')",
+      "Bash(curl -s -w '\\\\nHTTP:%{http_code}' --max-time 10 https://aibert-academic-service-qa.yellowwave-cb2d91fc.centralus.azurecontainerapps.io/api/v1/subjects -H 'X-Student-Id: test-student-123')",
+      "Bash(curl -s -w '\\\\nHTTP:%{http_code}' --max-time 10 https://aibert-task-service-qa.yellowwave-cb2d91fc.centralus.azurecontainerapps.io/api/tasks/student/test-student-123 -H 'X-User-Id: test-student-123')",
+      "Bash(curl -s -w '\\\\nHTTP:%{http_code}' --max-time 10 'https://aibert-task-service-qa.yellowwave-cb2d91fc.centralus.azurecontainerapps.io/api/tasks?view=calendar&subjectId=1' -H 'X-User-Id: test-student-123')",
+      "Bash(python mocks/mock_academic_service.py)",
+      "Bash(python mocks/mock_task_service.py)",
+      "Bash(curl -s http://localhost:8082/api/v1/subjects -H \"X-Student-Id: test-student-123\")",
+      "Bash(python -m json.tool)",
+      "Bash(curl -s \"http://localhost:8083/api/tasks/student/test-student-123\" -H \"X-User-Id: test-student-123\")",
+      "Bash(netstat -ano)",
+      "Bash(taskkill /PID 34100 /F)",
+      "PowerShell(Stop-Process -Id 34100 -Force 2>$null)",
+      "Bash(curl -s -w '\\\\nHTTP:%{http_code}\\\\n' http://localhost:1506/api/stats/dashboard -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0LXN0dWRlbnQtMTIzIiwiaWF0IjoxNzc5MzAwNDQyLCJleHAiOjE4MTA4MzY0NDJ9.DyEAdg9JdUjcynjusIlcPgcqPvmHYdN0Ccrpfs_6zoY')",
+      "Bash(curl -sv http://localhost:1506/api/stats/dashboard -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0LXN0dWRlbnQtMTIzIiwiaWF0IjoxNzc5MzAwNDQyLCJleHAiOjE4MTA4MzY0NDJ9.DyEAdg9JdUjcynjusIlcPgcqPvmHYdN0Ccrpfs_6zoY')",
+      "Bash(curl -s http://localhost:1506/api/stats/dashboard -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0LXN0dWRlbnQtMTIzIiwiaWF0IjoxNzc5MzAwNDQyLCJleHAiOjE4MTA4MzY0NDJ9.DyEAdg9JdUjcynjusIlcPgcqPvmHYdN0Ccrpfs_6zoY')",
+      "Bash(curl -s http://localhost:1506/api/stats/subjects -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0LXN0dWRlbnQtMTIzIiwiaWF0IjoxNzc5MzAwNDQyLCJleHAiOjE4MTA4MzY0NDJ9.DyEAdg9JdUjcynjusIlcPgcqPvmHYdN0Ccrpfs_6zoY')",
+      "Bash(curl -s http://localhost:1506/api/stats/subjects/1 -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0LXN0dWRlbnQtMTIzIiwiaWF0IjoxNzc5MzAwNDQyLCJleHAiOjE4MTA4MzY0NDJ9.DyEAdg9JdUjcynjusIlcPgcqPvmHYdN0Ccrpfs_6zoY')",
+      "Bash(curl -s http://localhost:1506/api/stats/gamification -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0LXN0dWRlbnQtMTIzIiwiaWF0IjoxNzc5MzAwNDQyLCJleHAiOjE4MTA4MzY0NDJ9.DyEAdg9JdUjcynjusIlcPgcqPvmHYdN0Ccrpfs_6zoY')",
+      "Bash(curl -s -w 'HTTP:%{http_code}' http://localhost:1506/api/stats/dashboard)",
+      "Bash(PYTHONPATH=src/main python -)",
+      "Bash(curl -s __TRACKED_VAR__/api/stats/dashboard -H 'Authorization: Bearer __TRACKED_VAR__')",
+      "Bash(curl -s __TRACKED_VAR__/api/stats/subjects/1 -H 'Authorization: Bearer __TRACKED_VAR__')",
+      "Bash(curl -s __TRACKED_VAR__/api/stats/gamification -H 'Authorization: Bearer __TRACKED_VAR__')"
+    ]
+  }
+}

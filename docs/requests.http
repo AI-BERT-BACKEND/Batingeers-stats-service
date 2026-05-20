@@ -1,82 +1,124 @@
 ### Batingeers Stats Service — HTTP Request Collection
-### Base URLs:
-###   Local:  http://localhost:8000
+###
+### Configuración:
+###   Local:  http://localhost:1506
 ###   QA:     https://aibert-stats-service-qa.yellowwave-cb2d91fc.centralus.azurecontainerapps.io
 ###
-### Usage: set the @baseUrl and @token variables below before running.
+### Token de prueba (sub=test-student-123, expira 2027, secret=default-secret-change-in-production):
+###   eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0LXN0dWRlbnQtMTIzIiwiaWF0IjoxNzc5MzAwNDQyLCJleHAiOjE4MTA4MzY0NDJ9.DyEAdg9JdUjcynjusIlcPgcqPvmHYdN0Ccrpfs_6zoY
 
-@baseUrl = http://localhost:8000
-@token = <paste_your_jwt_here>
-@subjectId = 3fa85f64-5717-4562-b3fc-2c963f66afa6
+@baseUrl = http://localhost:1506
+@token   = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0LXN0dWRlbnQtMTIzIiwiaWF0IjoxNzc5MzAwNDQyLCJleHAiOjE4MTA4MzY0NDJ9.DyEAdg9JdUjcynjusIlcPgcqPvmHYdN0Ccrpfs_6zoY
+@subjectId = 1
 
 # ─────────────────────────────────────────────────────────────────────────────
-# AIB-31 | GET /api/v1/stats/dashboard
-# Returns: currentGPA (integer), completionRate (float), subjectList (array)
-# userId is extracted from the JWT — no param needed in the request.
+# Health check
 # ─────────────────────────────────────────────────────────────────────────────
 
-### Get academic dashboard — happy path
-GET {{baseUrl}}/api/v1/stats/dashboard
-Authorization: Bearer {{token}}
-Accept: application/json
-
-###
-
-### Get dashboard — without token (expect 401 Unauthorized)
-GET {{baseUrl}}/api/v1/stats/dashboard
-Accept: application/json
-
-###
-
-### Get dashboard — QA environment
-GET https://aibert-stats-service-qa.yellowwave-cb2d91fc.centralus.azurecontainerapps.io/api/v1/stats/dashboard
-Authorization: Bearer {{token}}
+### Health — verifica que el servicio está vivo
+GET {{baseUrl}}/health
 Accept: application/json
 
 ###
 
 # ─────────────────────────────────────────────────────────────────────────────
-# AIB-32 | GET /api/v1/stats/subjects/{subject_id}
-# Returns: gradesByPeriod, relatedTasks, gradeEvolution
-# subject_id must belong to the authenticated student (from JWT).
-# gradeEvolution is empty if fewer than 2 periods have grades (RN-02).
+# R20 | GET /api/stats/dashboard
+# Agrega datos de academic-service + task-service en un solo response.
+# El userId se extrae del claim "sub" del JWT — no hace falta parámetro extra.
 # ─────────────────────────────────────────────────────────────────────────────
 
-### Get subject statistics — happy path
-GET {{baseUrl}}/api/v1/stats/subjects/{{subjectId}}
+### Dashboard — happy path (espera: overall_gpa, gpa_trend, subjects[], tasks{})
+GET {{baseUrl}}/api/stats/dashboard
 Authorization: Bearer {{token}}
 Accept: application/json
 
 ###
 
-### Get subject statistics — subject does not belong to student (expect 403 Forbidden)
-GET {{baseUrl}}/api/v1/stats/subjects/00000000-0000-0000-0000-000000000000
+### Dashboard — sin token (espera 401 Unauthorized)
+GET {{baseUrl}}/api/stats/dashboard
+Accept: application/json
+
+###
+
+### Dashboard — entorno QA
+GET https://aibert-stats-service-qa.yellowwave-cb2d91fc.centralus.azurecontainerapps.io/api/stats/dashboard
 Authorization: Bearer {{token}}
 Accept: application/json
 
 ###
 
-### Get subject statistics — non-existent subject (expect 404 Not Found)
-GET {{baseUrl}}/api/v1/stats/subjects/ffffffff-ffff-ffff-ffff-ffffffffffff
+# ─────────────────────────────────────────────────────────────────────────────
+# R21 | GET /api/stats/subjects
+# Estadísticas de todas las materias del estudiante autenticado.
+# ─────────────────────────────────────────────────────────────────────────────
+
+### Todas las materias — happy path
+GET {{baseUrl}}/api/stats/subjects
 Authorization: Bearer {{token}}
 Accept: application/json
 
 ###
 
-### Get subject statistics — malformed UUID (expect 400 Bad Request)
-GET {{baseUrl}}/api/v1/stats/subjects/not-a-valid-uuid
+### Todas las materias — sin token (espera 401)
+GET {{baseUrl}}/api/stats/subjects
+Accept: application/json
+
+###
+
+# ─────────────────────────────────────────────────────────────────────────────
+# R21 | GET /api/stats/subjects/{subject_id}
+# Estadísticas detalladas de una materia específica.
+# subject_id es el ID numérico (Long) de academic-service — p.ej. 1, 2, 3.
+# ─────────────────────────────────────────────────────────────────────────────
+
+### Materia por ID — happy path
+GET {{baseUrl}}/api/stats/subjects/{{subjectId}}
 Authorization: Bearer {{token}}
 Accept: application/json
 
 ###
 
-### Get subject statistics — without token (expect 401 Unauthorized)
-GET {{baseUrl}}/api/v1/stats/subjects/{{subjectId}}
+### Materia por ID — no existe (espera 404)
+GET {{baseUrl}}/api/stats/subjects/999
+Authorization: Bearer {{token}}
 Accept: application/json
 
 ###
 
-### Get subject statistics — QA environment
-GET https://aibert-stats-service-qa.yellowwave-cb2d91fc.centralus.azurecontainerapps.io/api/v1/stats/subjects/{{subjectId}}
+### Materia por ID — sin token (espera 401)
+GET {{baseUrl}}/api/stats/subjects/{{subjectId}}
+Accept: application/json
+
+###
+
+### Materia por ID — entorno QA
+GET https://aibert-stats-service-qa.yellowwave-cb2d91fc.centralus.azurecontainerapps.io/api/stats/subjects/{{subjectId}}
 Authorization: Bearer {{token}}
 Accept: application/json
+
+###
+
+# ─────────────────────────────────────────────────────────────────────────────
+# R24 | GET /api/stats/gamification
+# Perfil de gamificación: puntos, nivel, badges, progreso al siguiente nivel.
+# ─────────────────────────────────────────────────────────────────────────────
+
+### Gamificación — happy path (espera: total_points, current_level, badges[], progress_to_next)
+GET {{baseUrl}}/api/stats/gamification
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###
+
+### Gamificación — sin token (espera 401)
+GET {{baseUrl}}/api/stats/gamification
+Accept: application/json
+
+###
+
+### Gamificación — entorno QA
+GET https://aibert-stats-service-qa.yellowwave-cb2d91fc.centralus.azurecontainerapps.io/api/stats/gamification
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###
