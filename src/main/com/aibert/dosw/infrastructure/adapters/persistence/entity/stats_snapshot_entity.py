@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import DateTime, Float, Integer, String, func
+from sqlalchemy import BigInteger, DateTime, Float, Integer, String, func
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
@@ -25,9 +25,11 @@ class DashboardSnapshotEntity(Base):
     failing_subjects: Mapped[int] = mapped_column(Integer, nullable=False)
     subjects_data: Mapped[dict] = mapped_column(JSONB, nullable=False, default=list)
     tasks_data: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
-    generated_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    generated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False
+    )
     created_at: Mapped[datetime] = mapped_column(
-        DateTime, nullable=False, server_default=func.now()
+        DateTime(timezone=True), nullable=False, server_default=func.now()
     )
 
 
@@ -58,7 +60,9 @@ class SubjectSnapshotEntity(Base):
     )
     related_tasks_data: Mapped[list] = mapped_column(JSONB, nullable=True, default=list)
     chart_data: Mapped[list] = mapped_column(JSONB, nullable=False, default=list)
-    generated_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    generated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False
+    )
     created_at: Mapped[datetime] = mapped_column(
-        DateTime, nullable=False, server_default=func.now()
+        DateTime(timezone=True), nullable=False, server_default=func.now()
     )
