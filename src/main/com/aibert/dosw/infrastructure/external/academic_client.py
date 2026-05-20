@@ -78,7 +78,9 @@ class AcademicClient:
                     return []
                 response.raise_for_status()
                 body = response.json()
-                raw_list: list[dict] = body.get("data") if isinstance(body, dict) else body
+                raw_list: list[dict] = (
+                    body.get("data") if isinstance(body, dict) else body
+                )
                 return [_normalize_subject(s) for s in (raw_list or [])]
         except httpx.HTTPStatusError as exc:
             raise ServiceUnavailableError(_SERVICE) from exc
@@ -91,7 +93,10 @@ class AcademicClient:
         reraise=True,
     )
     async def get_subject(
-        self, user_id: str, subject_id: str, token: str  # noqa: ARG002
+        self,
+        user_id: str,
+        subject_id: str,
+        token: str,  # noqa: ARG002
     ) -> dict | None:
         try:
             async with httpx.AsyncClient(timeout=self._timeout) as client:

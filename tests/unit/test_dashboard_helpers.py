@@ -254,8 +254,8 @@ _SUBJECTS = [
 
 _TASKS = [
     {"id": "t1", "subject_id": "sub-1", "status": "COMPLETED"},
-    {"id": "t2", "subject_id": "sub-1", "status": "PENDING"},
-    {"id": "t3", "subject_id": "sub-2", "status": "OVERDUE"},
+    {"id": "t2", "subject_id": "sub-1", "status": "TODO"},
+    {"id": "t3", "subject_id": "sub-2", "status": "IN_PROGRESS"},
     {"id": "t4", "subject_id": "sub-1", "status": "IN_PROGRESS"},
     {"id": "t5", "subject_id": "sub-1", "status": "CANCELLED"},
 ]
@@ -286,8 +286,8 @@ def test_dashboard_tasks_exclude_cancelled():
     # t5 is CANCELLED → 4 active
     assert result.tasks.total == 4
     assert result.tasks.completed == 1
-    assert result.tasks.overdue == 1
-    assert result.tasks.pending == 2  # PENDING + IN_PROGRESS
+    assert result.tasks.overdue == 0
+    assert result.tasks.pending == 3  # TODO + IN_PROGRESS + IN_PROGRESS
 
 
 def test_dashboard_completion_rate():

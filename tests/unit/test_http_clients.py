@@ -33,27 +33,37 @@ def task_client():
 
 
 async def test_get_subjects_success(academic_client):
-    subjects = [{"id": "s1", "name": "Math"}]
+    raw = [
+        {
+            "id": 1,
+            "subjectName": "Math",
+            "evaluationCuts": [],
+            "credits": 4,
+            "semester": "2026-1",
+        }
+    ]
     with respx.mock:
-        respx.get("http://academic/api/academic/subjects/user/u1").mock(
-            return_value=httpx.Response(200, json=subjects)
+        respx.get("http://academic/api/v1/subjects").mock(
+            return_value=httpx.Response(200, json={"data": raw})
         )
         result = await academic_client.get_subjects("u1", "tok")
-    assert result == subjects
+    assert len(result) == 1
+    assert result[0]["id"] == "1"
+    assert result[0]["name"] == "Math"
 
 
-async def test_get_subjects_sends_auth_header(academic_client):
+async def test_get_subjects_sends_student_id_header(academic_client):
     with respx.mock:
-        route = respx.get("http://academic/api/academic/subjects/user/u1").mock(
-            return_value=httpx.Response(200, json=[])
+        route = respx.get("http://academic/api/v1/subjects").mock(
+            return_value=httpx.Response(200, json={"data": []})
         )
         await academic_client.get_subjects("u1", "my-token")
-        assert route.calls[0].request.headers["authorization"] == "Bearer my-token"
+        assert route.calls[0].request.headers["x-student-id"] == "u1"
 
 
 async def test_get_subjects_404_returns_empty_list(academic_client):
     with respx.mock:
-        respx.get("http://academic/api/academic/subjects/user/u1").mock(
+        respx.get("http://academic/api/v1/subjects").mock(
             return_value=httpx.Response(404)
         )
         result = await academic_client.get_subjects("u1", "tok")
@@ -62,7 +72,7 @@ async def test_get_subjects_404_returns_empty_list(academic_client):
 
 async def test_get_subjects_server_error_raises_service_unavailable(academic_client):
     with respx.mock, patch("asyncio.sleep", new_callable=AsyncMock):
-        respx.get("http://academic/api/academic/subjects/user/u1").mock(
+        respx.get("http://academic/api/v1/subjects").mock(
             return_value=httpx.Response(500)
         )
         with pytest.raises(ServiceUnavailableError):
@@ -73,7 +83,7 @@ async def test_get_subjects_connection_error_raises_service_unavailable(
     academic_client,
 ):
     with respx.mock, patch("asyncio.sleep", new_callable=AsyncMock):
-        respx.get("http://academic/api/academic/subjects/user/u1").mock(
+        respx.get("http://academic/api/v1/subjects").mock(
             side_effect=httpx.ConnectError("refused")
         )
         with pytest.raises(ServiceUnavailableError):
@@ -84,18 +94,20 @@ async def test_get_subjects_connection_error_raises_service_unavailable(
 
 
 async def test_get_subject_success(academic_client):
-    subject = {"id": "s1", "name": "Math"}
+    raw = {"id": 1, "subjectName": "Math", "evaluationCuts": [], "credits": 4}
     with respx.mock:
-        respx.get("http://academic/api/academic/subjects/s1").mock(
-            return_value=httpx.Response(200, json=subject)
+        respx.get("http://academic/api/v1/subjects/s1").mock(
+            return_value=httpx.Response(200, json={"data": raw})
         )
         result = await academic_client.get_subject("u1", "s1", "tok")
-    assert result == subject
+    assert result is not None
+    assert result["id"] == "1"
+    assert result["name"] == "Math"
 
 
 async def test_get_subject_404_returns_none(academic_client):
     with respx.mock:
-        respx.get("http://academic/api/academic/subjects/s1").mock(
+        respx.get("http://academic/api/v1/subjects/s1").mock(
             return_value=httpx.Response(404)
         )
         result = await academic_client.get_subject("u1", "s1", "tok")
@@ -104,7 +116,7 @@ async def test_get_subject_404_returns_none(academic_client):
 
 async def test_get_subject_server_error_raises_service_unavailable(academic_client):
     with respx.mock, patch("asyncio.sleep", new_callable=AsyncMock):
-        respx.get("http://academic/api/academic/subjects/s1").mock(
+        respx.get("http://academic/api/v1/subjects/s1").mock(
             return_value=httpx.Response(503)
         )
         with pytest.raises(ServiceUnavailableError):
@@ -113,7 +125,7 @@ async def test_get_subject_server_error_raises_service_unavailable(academic_clie
 
 async def test_get_subject_connection_error_raises_service_unavailable(academic_client):
     with respx.mock, patch("asyncio.sleep", new_callable=AsyncMock):
-        respx.get("http://academic/api/academic/subjects/s1").mock(
+        respx.get("http://academic/api/v1/subjects/s1").mock(
             side_effect=httpx.ConnectError("refused")
         )
         with pytest.raises(ServiceUnavailableError):
@@ -124,18 +136,29 @@ async def test_get_subject_connection_error_raises_service_unavailable(academic_
 
 
 async def test_get_tasks_success(task_client):
-    tasks = [{"id": "t1", "status": "PENDING"}]
+    raw = [{"id": "t1", "status": "COMPLETED", "subjectId": "s1"}]
     with respx.mock:
-        respx.get("http://tasks/api/tasks/user/u1").mock(
-            return_value=httpx.Response(200, json=tasks)
+        respx.get("http://tasks/api/tasks/student/u1").mock(
+            return_value=httpx.Response(200, json=raw)
         )
         result = await task_client.get_tasks("u1", "tok")
-    assert result == tasks
+    assert len(result) == 1
+    assert result[0]["id"] == "t1"
+    assert result[0]["subject_id"] == "s1"
+
+
+async def test_get_tasks_sends_user_id_header(task_client):
+    with respx.mock:
+        route = respx.get("http://tasks/api/tasks/student/u1").mock(
+            return_value=httpx.Response(200, json=[])
+        )
+        await task_client.get_tasks("u1", "my-token")
+        assert route.calls[0].request.headers["x-user-id"] == "u1"
 
 
 async def test_get_tasks_404_returns_empty(task_client):
     with respx.mock:
-        respx.get("http://tasks/api/tasks/user/u1").mock(
+        respx.get("http://tasks/api/tasks/student/u1").mock(
             return_value=httpx.Response(404)
         )
         result = await task_client.get_tasks("u1", "tok")
@@ -144,7 +167,7 @@ async def test_get_tasks_404_returns_empty(task_client):
 
 async def test_get_tasks_server_error_raises_service_unavailable(task_client):
     with respx.mock, patch("asyncio.sleep", new_callable=AsyncMock):
-        respx.get("http://tasks/api/tasks/user/u1").mock(
+        respx.get("http://tasks/api/tasks/student/u1").mock(
             return_value=httpx.Response(500)
         )
         with pytest.raises(ServiceUnavailableError):
@@ -153,7 +176,7 @@ async def test_get_tasks_server_error_raises_service_unavailable(task_client):
 
 async def test_get_tasks_connection_error_raises_service_unavailable(task_client):
     with respx.mock, patch("asyncio.sleep", new_callable=AsyncMock):
-        respx.get("http://tasks/api/tasks/user/u1").mock(
+        respx.get("http://tasks/api/tasks/student/u1").mock(
             side_effect=httpx.ConnectError("refused")
         )
         with pytest.raises(ServiceUnavailableError):
@@ -164,37 +187,39 @@ async def test_get_tasks_connection_error_raises_service_unavailable(task_client
 
 
 async def test_get_tasks_by_subject_success(task_client):
-    tasks = [{"id": "t1", "subject_id": "s1"}]
+    raw = [{"id": "t1", "subjectId": "s1", "status": "COMPLETED"}]
     with respx.mock:
-        respx.get("http://tasks/api/tasks/user/u1").mock(
-            return_value=httpx.Response(200, json=tasks)
-        )
+        respx.get(
+            "http://tasks/api/tasks", params={"view": "calendar", "subjectId": "s1"}
+        ).mock(return_value=httpx.Response(200, json=raw))
         result = await task_client.get_tasks_by_subject("u1", "s1", "tok")
-    assert result == tasks
+    assert len(result) == 1
+    assert result[0]["id"] == "t1"
+    assert result[0]["subject_id"] == "s1"
 
 
 async def test_get_tasks_by_subject_404_returns_empty(task_client):
     with respx.mock:
-        respx.get("http://tasks/api/tasks/user/u1").mock(
-            return_value=httpx.Response(404)
-        )
+        respx.get(
+            "http://tasks/api/tasks", params={"view": "calendar", "subjectId": "s1"}
+        ).mock(return_value=httpx.Response(404))
         result = await task_client.get_tasks_by_subject("u1", "s1", "tok")
     assert result == []
 
 
 async def test_get_tasks_by_subject_server_error_raises(task_client):
     with respx.mock, patch("asyncio.sleep", new_callable=AsyncMock):
-        respx.get("http://tasks/api/tasks/user/u1").mock(
-            return_value=httpx.Response(500)
-        )
+        respx.get(
+            "http://tasks/api/tasks", params={"view": "calendar", "subjectId": "s1"}
+        ).mock(return_value=httpx.Response(500))
         with pytest.raises(ServiceUnavailableError):
             await task_client.get_tasks_by_subject("u1", "s1", "tok")
 
 
 async def test_get_tasks_by_subject_connection_error_raises(task_client):
     with respx.mock, patch("asyncio.sleep", new_callable=AsyncMock):
-        respx.get("http://tasks/api/tasks/user/u1").mock(
-            side_effect=httpx.ConnectError("refused")
-        )
+        respx.get(
+            "http://tasks/api/tasks", params={"view": "calendar", "subjectId": "s1"}
+        ).mock(side_effect=httpx.ConnectError("refused"))
         with pytest.raises(ServiceUnavailableError):
             await task_client.get_tasks_by_subject("u1", "s1", "tok")

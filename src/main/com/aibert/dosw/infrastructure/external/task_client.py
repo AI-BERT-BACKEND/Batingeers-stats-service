@@ -69,7 +69,10 @@ class TaskClient:
         reraise=True,
     )
     async def get_tasks_by_subject(
-        self, user_id: str, subject_id: str, token: str  # noqa: ARG002
+        self,
+        user_id: str,
+        subject_id: str,
+        token: str,  # noqa: ARG002
     ) -> list[dict]:
         try:
             async with httpx.AsyncClient(timeout=self._timeout) as client:

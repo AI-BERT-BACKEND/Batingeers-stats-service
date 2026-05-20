@@ -216,7 +216,12 @@ class Handler(BaseHTTPRequestHandler):
                 self._json(400, {"message": "Missing X-User-Id header"})
                 return
             if user_id != path_student_id:
-                self._json(403, {"message": "No tienes permiso para ver las tareas de otro estudiante"})
+                self._json(
+                    403,
+                    {
+                        "message": "No tienes permiso para ver las tareas de otro estudiante"
+                    },
+                )
                 return
             result = [t for t in TASKS if t["studentId"] == path_student_id]
             self._json(200, result)

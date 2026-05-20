@@ -157,18 +157,20 @@ async def test_no_performance_alert_when_all_subjects_passing():
 
 
 @pytest.mark.asyncio
-async def test_overload_alert_published_when_declining_trend_and_overdue_tasks():
-    overdue_task = {"id": "t1", "subject_id": "sub-d", "status": "OVERDUE"}
-    service = _make_service(_SUBJECTS_DECLINING, [overdue_task])
+async def test_no_overload_alert_when_declining_trend_because_overdue_is_always_zero():
+    # task-service uses TODO/IN_PROGRESS/PAUSED/COMPLETED; overdue is always 0,
+    # so the overload alert condition (trend=declining AND overdue>0) can never be met.
+    active_task = {"id": "t1", "subject_id": "sub-d", "status": "IN_PROGRESS"}
+    service = _make_service(_SUBJECTS_DECLINING, [active_task])
     with patch(
         "com.aibert.dosw.infrastructure.messaging.kafka_producer.publish_event",
         new=AsyncMock(),
     ) as mock_pub:
         result = await service.get_dashboard("u1", "tok")
         assert result.gpa_trend == "declining"
-        assert result.tasks.overdue == 1
+        assert result.tasks.overdue == 0
         topics = [call.args[0] for call in mock_pub.call_args_list]
-        assert any("overload" in t for t in topics)
+        assert not any("overload" in t for t in topics)
 
 
 @pytest.mark.asyncio

@@ -127,12 +127,15 @@ class DashboardService(DashboardUseCase):
 
         # task-service statuses: TODO, IN_PROGRESS, PAUSED, COMPLETED (no CANCELLED/OVERDUE)
         active_tasks = [
-            t for t in tasks_data
+            t
+            for t in tasks_data
             if t.get("status") in ("TODO", "IN_PROGRESS", "PAUSED", "COMPLETED")
         ]
         completed = sum(1 for t in active_tasks if t.get("status") == "COMPLETED")
         pending = sum(
-            1 for t in active_tasks if t.get("status") in ("TODO", "IN_PROGRESS", "PAUSED")
+            1
+            for t in active_tasks
+            if t.get("status") in ("TODO", "IN_PROGRESS", "PAUSED")
         )
         overdue = 0
         total_tasks = len(active_tasks)

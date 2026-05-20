@@ -87,7 +87,14 @@ class Handler(BaseHTTPRequestHandler):
         # GET /api/v1/subjects — list all subjects for the student
         if path == "/api/v1/subjects":
             if not student_id:
-                self._json(400, {"success": False, "error": "Missing X-Student-Id header", "code": 400})
+                self._json(
+                    400,
+                    {
+                        "success": False,
+                        "error": "Missing X-Student-Id header",
+                        "code": 400,
+                    },
+                )
                 return
             result = [s for s in SUBJECTS if s["studentId"] == student_id]
             self._json(200, _api_response(result))
@@ -97,13 +104,27 @@ class Handler(BaseHTTPRequestHandler):
         m = re.match(r"^/api/v1/subjects/(\d+)$", path)
         if m:
             if not student_id:
-                self._json(400, {"success": False, "error": "Missing X-Student-Id header", "code": 400})
+                self._json(
+                    400,
+                    {
+                        "success": False,
+                        "error": "Missing X-Student-Id header",
+                        "code": 400,
+                    },
+                )
                 return
             subject = _BY_ID.get(m.group(1))
             if subject and subject["studentId"] == student_id:
                 self._json(200, _api_response(subject))
             else:
-                self._json(403, {"success": False, "error": "Subject not found or does not belong to the student", "code": 403})
+                self._json(
+                    403,
+                    {
+                        "success": False,
+                        "error": "Subject not found or does not belong to the student",
+                        "code": 403,
+                    },
+                )
             return
 
         self._json(404, {"success": False, "error": "Not found", "code": 404})

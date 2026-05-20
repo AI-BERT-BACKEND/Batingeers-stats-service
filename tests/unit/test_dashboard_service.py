@@ -60,9 +60,9 @@ _SUBJECTS = [
 
 _TASKS = [
     {"id": "t1", "subject_id": "sub-1", "status": "COMPLETED"},
-    {"id": "t2", "subject_id": "sub-1", "status": "PENDING"},
+    {"id": "t2", "subject_id": "sub-1", "status": "TODO"},
     {"id": "t3", "subject_id": "sub-2", "status": "COMPLETED"},
-    {"id": "t4", "subject_id": "sub-2", "status": "OVERDUE"},
+    {"id": "t4", "subject_id": "sub-2", "status": "IN_PROGRESS"},
     {"id": "t5", "subject_id": "sub-1", "status": "COMPLETED"},
     {"id": "t6", "subject_id": "sub-1", "status": "CANCELLED"},  # no debe contarse
 ]
@@ -101,8 +101,8 @@ async def test_task_counts_exclude_cancelled(service):
     result = await service.get_dashboard("user-1", "token")
     assert result.tasks.total == 5  # t6 (CANCELLED) excluido
     assert result.tasks.completed == 3
-    assert result.tasks.pending == 1
-    assert result.tasks.overdue == 1
+    assert result.tasks.pending == 2
+    assert result.tasks.overdue == 0
 
 
 @pytest.mark.asyncio

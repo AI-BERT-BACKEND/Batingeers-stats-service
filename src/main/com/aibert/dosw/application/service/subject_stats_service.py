@@ -144,11 +144,14 @@ def _build_subject_stats(subject: dict, subject_tasks: list[dict]) -> SubjectSta
 
     # task-service statuses: TODO, IN_PROGRESS, PAUSED, COMPLETED (no CANCELLED/OVERDUE)
     active = [
-        t for t in subject_tasks
+        t
+        for t in subject_tasks
         if t.get("status") in ("TODO", "IN_PROGRESS", "PAUSED", "COMPLETED")
     ]
     completed = sum(1 for t in active if t.get("status") == "COMPLETED")
-    pending = sum(1 for t in active if t.get("status") in ("TODO", "IN_PROGRESS", "PAUSED"))
+    pending = sum(
+        1 for t in active if t.get("status") in ("TODO", "IN_PROGRESS", "PAUSED")
+    )
     overdue = 0
     total = len(active)
     rate = round((completed / total * 100) if total > 0 else 0.0, 2)
