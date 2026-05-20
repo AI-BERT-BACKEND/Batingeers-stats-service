@@ -10,8 +10,8 @@ class Settings(BaseSettings):
     jwt_secret: str = "default-secret-change-in-production"
     jwt_algorithm: str = "HS256"
 
-    academic_service_url: str = "http://academic-service:1502"
-    task_service_url: str = "http://task-service:1503"
+    academic_service_url: str = "https://academic-service:1502"
+    task_service_url: str = "https://task-service:1503"
 
     http_timeout: float = 10.0
     http_max_retries: int = 3
