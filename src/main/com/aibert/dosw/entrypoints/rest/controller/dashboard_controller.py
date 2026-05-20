@@ -46,10 +46,7 @@ def _get_dashboard_service(
         "overdue, and completion rate as a percentage\n\n"
         "**Fallback behavior:** if either upstream service is unreachable, the last snapshot "
         "cached in the database is returned. A 503 is raised only when there is no cached "
-        "data available at all.\n\n"
-        "**Kafka events published after each call:**\n"
-        "- `stats.academic-performance-alert` — when at least one subject is At Risk or Failing\n"
-        "- `stats.academic-overload-alert` — when GPA trend is declining AND there are overdue tasks"
+        "data available at all."
     ),
     responses={
         401: {"description": "Invalid or expired JWT token"},

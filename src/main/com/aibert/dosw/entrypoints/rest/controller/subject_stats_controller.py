@@ -78,8 +78,6 @@ async def get_all_subjects_stats(
         "**Grade evolution rule (RN-02):** `grade_evolution` is only populated when at least "
         "2 evaluation periods have a recorded grade. If the student has fewer graded periods, "
         "the array is returned empty and should be treated as 'not enough data yet'.\n\n"
-        "**Kafka events published:**\n"
-        "- `stats.study-suggestion` — when the subject's grade trend is `declining`\n\n"
         "**Fallback behavior:** if the upstream service fails, the last cached snapshot "
         "is returned. A 503 is raised only when no cached data exists at all."
     ),
