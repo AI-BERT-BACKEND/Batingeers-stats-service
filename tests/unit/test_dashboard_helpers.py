@@ -3,7 +3,7 @@ import asyncio
 import pytest
 from unittest.mock import AsyncMock, MagicMock
 
-from app.application.service.dashboard_service import (
+from com.aibert.dosw.application.service.dashboard_service import (
     DashboardService,
     _classify_status,
     _compute_gpa_trend,
@@ -339,7 +339,9 @@ def test_dashboard_no_repo_does_not_fail():
 
 
 def test_dashboard_service_unavailable_no_repo_raises():
-    from app.domain.exceptions.stats_exceptions import ServiceUnavailableError
+    from com.aibert.dosw.domain.exceptions.stats_exceptions import (
+        ServiceUnavailableError,
+    )
 
     academic = MagicMock()
     academic.get_subjects = AsyncMock(side_effect=ServiceUnavailableError("academic"))
@@ -353,8 +355,14 @@ def test_dashboard_service_unavailable_no_repo_raises():
 
 def test_dashboard_service_unavailable_with_cache_returns_cached():
     from datetime import datetime
-    from app.domain.exceptions.stats_exceptions import ServiceUnavailableError
-    from app.domain.model.dashboard import DashboardStats, SubjectSummary, TaskSummary
+    from com.aibert.dosw.domain.exceptions.stats_exceptions import (
+        ServiceUnavailableError,
+    )
+    from com.aibert.dosw.domain.model.dashboard import (
+        DashboardStats,
+        SubjectSummary,
+        TaskSummary,
+    )
 
     cached = DashboardStats(
         user_id="user-1",
@@ -392,7 +400,9 @@ def test_dashboard_service_unavailable_with_cache_returns_cached():
 
 
 def test_dashboard_service_unavailable_no_cache_raises():
-    from app.domain.exceptions.stats_exceptions import ServiceUnavailableError
+    from com.aibert.dosw.domain.exceptions.stats_exceptions import (
+        ServiceUnavailableError,
+    )
 
     academic = MagicMock()
     academic.get_subjects = AsyncMock(side_effect=ServiceUnavailableError("academic"))

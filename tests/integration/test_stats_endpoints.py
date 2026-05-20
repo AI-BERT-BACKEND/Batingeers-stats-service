@@ -5,8 +5,8 @@ import pytest
 from fastapi.testclient import TestClient
 from jose import jwt
 
-from app.config import settings
-from app.main import app
+from com.aibert.dosw.config import settings
+from com.aibert.dosw.main import app
 
 _SUBJECTS = [
     {
@@ -69,8 +69,10 @@ def test_health_check_returns_up(client):
 # ── Dashboard (R20) ────────────────────────────────────────────────────────────
 
 
-@patch("app.entrypoints.rest.controller.dashboard_controller.AcademicClient")
-@patch("app.entrypoints.rest.controller.dashboard_controller.TaskClient")
+@patch(
+    "com.aibert.dosw.entrypoints.rest.controller.dashboard_controller.AcademicClient"
+)
+@patch("com.aibert.dosw.entrypoints.rest.controller.dashboard_controller.TaskClient")
 def test_dashboard_returns_200(MockTask, MockAcademic, client, auth_headers):
     MockAcademic.return_value.get_subjects = AsyncMock(return_value=_SUBJECTS)
     MockTask.return_value.get_tasks = AsyncMock(return_value=_TASKS)
@@ -88,15 +90,19 @@ def test_dashboard_returns_200(MockTask, MockAcademic, client, auth_headers):
     assert data["tasks"]["completed"] == 1
 
 
-@patch("app.entrypoints.rest.controller.dashboard_controller.AcademicClient")
-@patch("app.entrypoints.rest.controller.dashboard_controller.TaskClient")
+@patch(
+    "com.aibert.dosw.entrypoints.rest.controller.dashboard_controller.AcademicClient"
+)
+@patch("com.aibert.dosw.entrypoints.rest.controller.dashboard_controller.TaskClient")
 def test_dashboard_without_token_returns_403(MockTask, MockAcademic, client):
     response = client.get("/api/stats/dashboard")
     assert response.status_code == 403
 
 
-@patch("app.entrypoints.rest.controller.dashboard_controller.AcademicClient")
-@patch("app.entrypoints.rest.controller.dashboard_controller.TaskClient")
+@patch(
+    "com.aibert.dosw.entrypoints.rest.controller.dashboard_controller.AcademicClient"
+)
+@patch("com.aibert.dosw.entrypoints.rest.controller.dashboard_controller.TaskClient")
 def test_dashboard_with_invalid_token_returns_401(MockTask, MockAcademic, client):
     headers = {"Authorization": "Bearer token.invalido.aqui"}
     response = client.get("/api/stats/dashboard", headers=headers)
@@ -106,8 +112,12 @@ def test_dashboard_with_invalid_token_returns_401(MockTask, MockAcademic, client
 # ── Subjects stats (R21) ───────────────────────────────────────────────────────
 
 
-@patch("app.entrypoints.rest.controller.subject_stats_controller.AcademicClient")
-@patch("app.entrypoints.rest.controller.subject_stats_controller.TaskClient")
+@patch(
+    "com.aibert.dosw.entrypoints.rest.controller.subject_stats_controller.AcademicClient"
+)
+@patch(
+    "com.aibert.dosw.entrypoints.rest.controller.subject_stats_controller.TaskClient"
+)
 def test_get_all_subjects_returns_200(MockTask, MockAcademic, client, auth_headers):
     MockAcademic.return_value.get_subjects = AsyncMock(return_value=_SUBJECTS)
     MockTask.return_value.get_tasks = AsyncMock(return_value=_TASKS)
@@ -122,8 +132,12 @@ def test_get_all_subjects_returns_200(MockTask, MockAcademic, client, auth_heade
     assert data[0]["current_average"] == 4.0
 
 
-@patch("app.entrypoints.rest.controller.subject_stats_controller.AcademicClient")
-@patch("app.entrypoints.rest.controller.subject_stats_controller.TaskClient")
+@patch(
+    "com.aibert.dosw.entrypoints.rest.controller.subject_stats_controller.AcademicClient"
+)
+@patch(
+    "com.aibert.dosw.entrypoints.rest.controller.subject_stats_controller.TaskClient"
+)
 def test_get_specific_subject_returns_200(MockTask, MockAcademic, client, auth_headers):
     MockAcademic.return_value.get_subject = AsyncMock(return_value=_SUBJECTS[0])
     MockTask.return_value.get_tasks_by_subject = AsyncMock(return_value=_TASKS)
@@ -139,8 +153,12 @@ def test_get_specific_subject_returns_200(MockTask, MockAcademic, client, auth_h
     assert data["status"] in ("passing", "at_risk", "failing")
 
 
-@patch("app.entrypoints.rest.controller.subject_stats_controller.AcademicClient")
-@patch("app.entrypoints.rest.controller.subject_stats_controller.TaskClient")
+@patch(
+    "com.aibert.dosw.entrypoints.rest.controller.subject_stats_controller.AcademicClient"
+)
+@patch(
+    "com.aibert.dosw.entrypoints.rest.controller.subject_stats_controller.TaskClient"
+)
 def test_get_nonexistent_subject_returns_404(
     MockTask, MockAcademic, client, auth_headers
 ):

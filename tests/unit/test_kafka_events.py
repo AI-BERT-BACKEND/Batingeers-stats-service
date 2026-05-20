@@ -2,7 +2,7 @@ from dataclasses import asdict
 
 import pytest
 
-from app.infrastructure.messaging.events import (
+from com.aibert.dosw.infrastructure.messaging.events import (
     AcademicOverloadAlertEvent,
     AcademicPerformanceAlertEvent,
     StudySuggestionEvent,

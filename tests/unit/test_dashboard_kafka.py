@@ -9,7 +9,7 @@ Events expected:
 import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
 
-from app.application.service.dashboard_service import DashboardService
+from com.aibert.dosw.application.service.dashboard_service import DashboardService
 
 # ── helpers ───────────────────────────────────────────────────────────────────
 
@@ -117,7 +117,8 @@ def _make_service(subjects, tasks):
 async def test_performance_alert_published_when_subject_is_failing():
     service = _make_service([_SUBJECT_FAILING], [])
     with patch(
-        "app.infrastructure.messaging.kafka_producer.publish_event", new=AsyncMock()
+        "com.aibert.dosw.infrastructure.messaging.kafka_producer.publish_event",
+        new=AsyncMock(),
     ) as mock_pub:
         result = await service.get_dashboard("u1", "tok")
         assert result.failing_subjects == 1
@@ -129,7 +130,8 @@ async def test_performance_alert_published_when_subject_is_failing():
 async def test_performance_alert_published_when_subject_is_at_risk():
     service = _make_service([_SUBJECT_AT_RISK], [])
     with patch(
-        "app.infrastructure.messaging.kafka_producer.publish_event", new=AsyncMock()
+        "com.aibert.dosw.infrastructure.messaging.kafka_producer.publish_event",
+        new=AsyncMock(),
     ) as mock_pub:
         result = await service.get_dashboard("u1", "tok")
         assert result.at_risk_subjects == 1
@@ -141,7 +143,8 @@ async def test_performance_alert_published_when_subject_is_at_risk():
 async def test_no_performance_alert_when_all_subjects_passing():
     service = _make_service([_SUBJECT_PASSING], [])
     with patch(
-        "app.infrastructure.messaging.kafka_producer.publish_event", new=AsyncMock()
+        "com.aibert.dosw.infrastructure.messaging.kafka_producer.publish_event",
+        new=AsyncMock(),
     ) as mock_pub:
         result = await service.get_dashboard("u1", "tok")
         assert result.failing_subjects == 0
@@ -158,7 +161,8 @@ async def test_overload_alert_published_when_declining_trend_and_overdue_tasks()
     overdue_task = {"id": "t1", "subject_id": "sub-d", "status": "OVERDUE"}
     service = _make_service(_SUBJECTS_DECLINING, [overdue_task])
     with patch(
-        "app.infrastructure.messaging.kafka_producer.publish_event", new=AsyncMock()
+        "com.aibert.dosw.infrastructure.messaging.kafka_producer.publish_event",
+        new=AsyncMock(),
     ) as mock_pub:
         result = await service.get_dashboard("u1", "tok")
         assert result.gpa_trend == "declining"
@@ -171,7 +175,8 @@ async def test_overload_alert_published_when_declining_trend_and_overdue_tasks()
 async def test_no_overload_alert_when_trend_declining_but_no_overdue():
     service = _make_service(_SUBJECTS_DECLINING, [])
     with patch(
-        "app.infrastructure.messaging.kafka_producer.publish_event", new=AsyncMock()
+        "com.aibert.dosw.infrastructure.messaging.kafka_producer.publish_event",
+        new=AsyncMock(),
     ) as mock_pub:
         result = await service.get_dashboard("u1", "tok")
         assert result.gpa_trend == "declining"
@@ -185,7 +190,8 @@ async def test_no_overload_alert_when_overdue_but_trend_stable():
     overdue_task = {"id": "t1", "subject_id": "sub-pass", "status": "OVERDUE"}
     service = _make_service([_SUBJECT_PASSING], [overdue_task])
     with patch(
-        "app.infrastructure.messaging.kafka_producer.publish_event", new=AsyncMock()
+        "com.aibert.dosw.infrastructure.messaging.kafka_producer.publish_event",
+        new=AsyncMock(),
     ) as mock_pub:
         result = await service.get_dashboard("u1", "tok")
         assert result.gpa_trend == "stable"
@@ -201,7 +207,8 @@ async def test_no_events_published_when_all_conditions_clean():
     completed_task = {"id": "t1", "subject_id": "sub-pass", "status": "COMPLETED"}
     service = _make_service([_SUBJECT_PASSING], [completed_task])
     with patch(
-        "app.infrastructure.messaging.kafka_producer.publish_event", new=AsyncMock()
+        "com.aibert.dosw.infrastructure.messaging.kafka_producer.publish_event",
+        new=AsyncMock(),
     ) as mock_pub:
         await service.get_dashboard("u1", "tok")
         mock_pub.assert_not_called()

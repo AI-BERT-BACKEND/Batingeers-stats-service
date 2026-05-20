@@ -10,7 +10,7 @@ from unittest.mock import AsyncMock, patch
 import httpx
 from jose import jwt
 
-from app.config import settings
+from com.aibert.dosw.config import settings
 
 # ── helpers ───────────────────────────────────────────────────────────────────
 
@@ -69,7 +69,7 @@ def _run(coro):
 
 
 def test_health_sync():
-    from app.main import app
+    from com.aibert.dosw.main import app
 
     async def _call():
         async with httpx.AsyncClient(
@@ -87,15 +87,15 @@ def test_health_sync():
 
 
 def test_dashboard_sync_returns_200():
-    from app.main import app
+    from com.aibert.dosw.main import app
 
     async def _call():
         with (
             patch(
-                "app.entrypoints.rest.controller.dashboard_controller.AcademicClient"
+                "com.aibert.dosw.entrypoints.rest.controller.dashboard_controller.AcademicClient"
             ) as MockAcademic,
             patch(
-                "app.entrypoints.rest.controller.dashboard_controller.TaskClient"
+                "com.aibert.dosw.entrypoints.rest.controller.dashboard_controller.TaskClient"
             ) as MockTask,
         ):
             MockAcademic.return_value.get_subjects = AsyncMock(return_value=_SUBJECTS)
@@ -115,7 +115,7 @@ def test_dashboard_sync_returns_200():
 
 
 def test_dashboard_sync_no_token_returns_403():
-    from app.main import app
+    from com.aibert.dosw.main import app
 
     async def _call():
         async with httpx.AsyncClient(
@@ -128,7 +128,7 @@ def test_dashboard_sync_no_token_returns_403():
 
 
 def test_dashboard_sync_invalid_token_returns_401():
-    from app.main import app
+    from com.aibert.dosw.main import app
 
     async def _call():
         async with httpx.AsyncClient(
@@ -147,15 +147,15 @@ def test_dashboard_sync_invalid_token_returns_401():
 
 
 def test_subjects_sync_returns_200():
-    from app.main import app
+    from com.aibert.dosw.main import app
 
     async def _call():
         with (
             patch(
-                "app.entrypoints.rest.controller.subject_stats_controller.AcademicClient"
+                "com.aibert.dosw.entrypoints.rest.controller.subject_stats_controller.AcademicClient"
             ) as MockAcademic,
             patch(
-                "app.entrypoints.rest.controller.subject_stats_controller.TaskClient"
+                "com.aibert.dosw.entrypoints.rest.controller.subject_stats_controller.TaskClient"
             ) as MockTask,
         ):
             MockAcademic.return_value.get_subjects = AsyncMock(return_value=_SUBJECTS)
@@ -174,15 +174,15 @@ def test_subjects_sync_returns_200():
 
 
 def test_subject_specific_sync_returns_200():
-    from app.main import app
+    from com.aibert.dosw.main import app
 
     async def _call():
         with (
             patch(
-                "app.entrypoints.rest.controller.subject_stats_controller.AcademicClient"
+                "com.aibert.dosw.entrypoints.rest.controller.subject_stats_controller.AcademicClient"
             ) as MockAcademic,
             patch(
-                "app.entrypoints.rest.controller.subject_stats_controller.TaskClient"
+                "com.aibert.dosw.entrypoints.rest.controller.subject_stats_controller.TaskClient"
             ) as MockTask,
         ):
             MockAcademic.return_value.get_subject = AsyncMock(return_value=_SUBJECTS[0])
@@ -201,15 +201,15 @@ def test_subject_specific_sync_returns_200():
 
 
 def test_subject_not_found_sync_returns_404():
-    from app.main import app
+    from com.aibert.dosw.main import app
 
     async def _call():
         with (
             patch(
-                "app.entrypoints.rest.controller.subject_stats_controller.AcademicClient"
+                "com.aibert.dosw.entrypoints.rest.controller.subject_stats_controller.AcademicClient"
             ) as MockAcademic,
             patch(
-                "app.entrypoints.rest.controller.subject_stats_controller.TaskClient"
+                "com.aibert.dosw.entrypoints.rest.controller.subject_stats_controller.TaskClient"
             ) as MockTask,
         ):
             MockAcademic.return_value.get_subject = AsyncMock(return_value=None)
@@ -230,11 +230,11 @@ def test_subject_not_found_sync_returns_404():
 
 
 def test_gamification_sync_returns_200():
-    from app.main import app
+    from com.aibert.dosw.main import app
 
     async def _call():
         with patch(
-            "app.entrypoints.rest.controller.gamification_controller.TaskClient"
+            "com.aibert.dosw.entrypoints.rest.controller.gamification_controller.TaskClient"
         ) as MockTask:
             MockTask.return_value.get_tasks = AsyncMock(
                 return_value=_GAMIFICATION_TASKS
@@ -259,7 +259,7 @@ def test_gamification_sync_returns_200():
 
 
 def test_gamification_no_token_returns_403():
-    from app.main import app
+    from com.aibert.dosw.main import app
 
     async def _call():
         async with httpx.AsyncClient(
@@ -272,11 +272,11 @@ def test_gamification_no_token_returns_403():
 
 
 def test_gamification_empty_tasks_returns_level_1():
-    from app.main import app
+    from com.aibert.dosw.main import app
 
     async def _call():
         with patch(
-            "app.entrypoints.rest.controller.gamification_controller.TaskClient"
+            "com.aibert.dosw.entrypoints.rest.controller.gamification_controller.TaskClient"
         ) as MockTask:
             MockTask.return_value.get_tasks = AsyncMock(return_value=[])
             async with httpx.AsyncClient(
@@ -297,16 +297,18 @@ def test_gamification_empty_tasks_returns_level_1():
 
 
 def test_service_unavailable_returns_503():
-    from app.main import app
-    from app.domain.exceptions.stats_exceptions import ServiceUnavailableError
+    from com.aibert.dosw.main import app
+    from com.aibert.dosw.domain.exceptions.stats_exceptions import (
+        ServiceUnavailableError,
+    )
 
     async def _call():
         with (
             patch(
-                "app.entrypoints.rest.controller.dashboard_controller.AcademicClient"
+                "com.aibert.dosw.entrypoints.rest.controller.dashboard_controller.AcademicClient"
             ) as MockAcademic,
             patch(
-                "app.entrypoints.rest.controller.dashboard_controller.TaskClient"
+                "com.aibert.dosw.entrypoints.rest.controller.dashboard_controller.TaskClient"
             ) as MockTask,
         ):
             MockAcademic.return_value.get_subjects = AsyncMock(
@@ -324,15 +326,15 @@ def test_service_unavailable_returns_503():
 
 
 def test_generic_exception_returns_500():
-    from app.main import app
+    from com.aibert.dosw.main import app
 
     async def _call():
         with (
             patch(
-                "app.entrypoints.rest.controller.dashboard_controller.AcademicClient"
+                "com.aibert.dosw.entrypoints.rest.controller.dashboard_controller.AcademicClient"
             ) as MockAcademic,
             patch(
-                "app.entrypoints.rest.controller.dashboard_controller.TaskClient"
+                "com.aibert.dosw.entrypoints.rest.controller.dashboard_controller.TaskClient"
             ) as MockTask,
         ):
             MockAcademic.return_value.get_subjects = AsyncMock(
