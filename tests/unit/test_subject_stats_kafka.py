@@ -76,7 +76,8 @@ def _make_service(subject):
 async def test_study_suggestion_published_when_trend_is_declining():
     service = _make_service(_SUBJECT_DECLINING)
     with patch(
-        "app.infrastructure.messaging.kafka_producer.publish_event", new=AsyncMock()
+        "com.aibert.dosw.infrastructure.messaging.kafka_producer.publish_event",
+        new=AsyncMock(),
     ) as mock_pub:
         result = await service.get_subject_stats("u1", "sub-1", "tok")
         assert result.trend == "declining"
@@ -89,7 +90,8 @@ async def test_study_suggestion_published_when_trend_is_declining():
 async def test_study_suggestion_event_contains_correct_user_and_subject():
     service = _make_service(_SUBJECT_DECLINING)
     with patch(
-        "app.infrastructure.messaging.kafka_producer.publish_event", new=AsyncMock()
+        "com.aibert.dosw.infrastructure.messaging.kafka_producer.publish_event",
+        new=AsyncMock(),
     ) as mock_pub:
         await service.get_subject_stats("user-xyz", "sub-1", "tok")
         event_arg = mock_pub.call_args[0][1]
@@ -103,7 +105,8 @@ async def test_study_suggestion_event_contains_correct_user_and_subject():
 async def test_no_event_published_when_trend_is_improving():
     service = _make_service(_SUBJECT_IMPROVING)
     with patch(
-        "app.infrastructure.messaging.kafka_producer.publish_event", new=AsyncMock()
+        "com.aibert.dosw.infrastructure.messaging.kafka_producer.publish_event",
+        new=AsyncMock(),
     ) as mock_pub:
         result = await service.get_subject_stats("u1", "sub-2", "tok")
         assert result.trend == "improving"
@@ -114,7 +117,8 @@ async def test_no_event_published_when_trend_is_improving():
 async def test_no_event_published_when_trend_is_stable():
     service = _make_service(_SUBJECT_STABLE)
     with patch(
-        "app.infrastructure.messaging.kafka_producer.publish_event", new=AsyncMock()
+        "com.aibert.dosw.infrastructure.messaging.kafka_producer.publish_event",
+        new=AsyncMock(),
     ) as mock_pub:
         result = await service.get_subject_stats("u1", "sub-3", "tok")
         assert result.trend == "stable"
@@ -125,7 +129,8 @@ async def test_no_event_published_when_trend_is_stable():
 async def test_no_event_published_when_no_grades():
     service = _make_service(_SUBJECT_NO_GRADES)
     with patch(
-        "app.infrastructure.messaging.kafka_producer.publish_event", new=AsyncMock()
+        "com.aibert.dosw.infrastructure.messaging.kafka_producer.publish_event",
+        new=AsyncMock(),
     ) as mock_pub:
         result = await service.get_subject_stats("u1", "sub-4", "tok")
         assert result.trend == "stable"

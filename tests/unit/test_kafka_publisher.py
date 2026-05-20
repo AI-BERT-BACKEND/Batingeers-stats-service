@@ -102,7 +102,9 @@ async def test_publish_event_swallows_producer_exception():
 @pytest.mark.asyncio
 async def test_start_producer_noop_when_no_brokers_configured():
     """start_producer does nothing when kafka_bootstrap_servers is not set."""
-    with patch("app.infrastructure.messaging.kafka_producer.settings") as mock_settings:
+    with patch(
+        "com.aibert.dosw.infrastructure.messaging.kafka_producer.settings"
+    ) as mock_settings:
         mock_settings.kafka_bootstrap_servers = None
         await start_producer()
         assert kp._producer is None
@@ -111,10 +113,12 @@ async def test_start_producer_noop_when_no_brokers_configured():
 @pytest.mark.asyncio
 async def test_start_producer_handles_connection_failure_gracefully():
     """If aiokafka raises during start, the exception is caught and _producer stays None."""
-    with patch("app.infrastructure.messaging.kafka_producer.settings") as mock_settings:
+    with patch(
+        "com.aibert.dosw.infrastructure.messaging.kafka_producer.settings"
+    ) as mock_settings:
         mock_settings.kafka_bootstrap_servers = "localhost:9092"
         with patch(
-            "app.infrastructure.messaging.kafka_producer.AIOKafkaProducer",
+            "com.aibert.dosw.infrastructure.messaging.kafka_producer.AIOKafkaProducer",
             side_effect=ImportError,
         ):
             await start_producer()
@@ -127,10 +131,12 @@ async def test_start_producer_creates_and_starts_producer():
     mock_producer = MagicMock()
     mock_producer.start = AsyncMock()
 
-    with patch("app.infrastructure.messaging.kafka_producer.settings") as mock_settings:
+    with patch(
+        "com.aibert.dosw.infrastructure.messaging.kafka_producer.settings"
+    ) as mock_settings:
         mock_settings.kafka_bootstrap_servers = "localhost:9092"
         with patch(
-            "app.infrastructure.messaging.kafka_producer.AIOKafkaProducer",
+            "com.aibert.dosw.infrastructure.messaging.kafka_producer.AIOKafkaProducer",
             return_value=mock_producer,
         ):
             await start_producer()

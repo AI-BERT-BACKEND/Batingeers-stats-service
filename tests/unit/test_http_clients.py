@@ -15,7 +15,7 @@ from com.aibert.dosw.domain.exceptions.stats_exceptions import ServiceUnavailabl
 
 @pytest.fixture
 def academic_client():
-    with patch("app.infrastructure.external.academic_client.settings") as s:
+    with patch("com.aibert.dosw.infrastructure.external.academic_client.settings") as s:
         s.academic_service_url = "http://academic"
         s.http_timeout = 5.0
         yield AcademicClient()
@@ -23,7 +23,7 @@ def academic_client():
 
 @pytest.fixture
 def task_client():
-    with patch("app.infrastructure.external.task_client.settings") as s:
+    with patch("com.aibert.dosw.infrastructure.external.task_client.settings") as s:
         s.task_service_url = "http://tasks"
         s.http_timeout = 5.0
         yield TaskClient()
