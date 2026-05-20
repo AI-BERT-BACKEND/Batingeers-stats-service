@@ -2,7 +2,11 @@ import asyncio
 from datetime import datetime
 
 from com.aibert.dosw.domain.exceptions.stats_exceptions import ServiceUnavailableError
-from com.aibert.dosw.domain.model.dashboard import DashboardStats, SubjectSummary, TaskSummary
+from com.aibert.dosw.domain.model.dashboard import (
+    DashboardStats,
+    SubjectSummary,
+    TaskSummary,
+)
 from com.aibert.dosw.domain.ports.in_.dashboard_use_case import DashboardUseCase
 from com.aibert.dosw.domain.ports.out_.stats_snapshot_port import StatsSnapshotPort
 from com.aibert.dosw.infrastructure.external.academic_client import AcademicClient
@@ -166,7 +170,9 @@ class DashboardService(DashboardUseCase):
             AcademicOverloadAlertEvent,
             AcademicPerformanceAlertEvent,
         )
-        from com.aibert.dosw.infrastructure.messaging.kafka_producer import publish_event
+        from com.aibert.dosw.infrastructure.messaging.kafka_producer import (
+            publish_event,
+        )
 
         if stats.at_risk_subjects > 0 or stats.failing_subjects > 0:
             subjects_at_risk = [

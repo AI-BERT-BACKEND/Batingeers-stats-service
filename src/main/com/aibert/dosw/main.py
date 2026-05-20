@@ -4,7 +4,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from com.aibert.dosw.config import settings
-from com.aibert.dosw.entrypoints.advice.exception_handler import register_exception_handlers
+from com.aibert.dosw.entrypoints.advice.exception_handler import (
+    register_exception_handlers,
+)
 from com.aibert.dosw.entrypoints.rest.controller.dashboard_controller import (
     router as dashboard_router,
 )

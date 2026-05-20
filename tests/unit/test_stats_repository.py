@@ -2,7 +2,11 @@ import pytest
 from datetime import datetime
 from unittest.mock import AsyncMock, MagicMock
 
-from com.aibert.dosw.domain.model.dashboard import DashboardStats, SubjectSummary, TaskSummary
+from com.aibert.dosw.domain.model.dashboard import (
+    DashboardStats,
+    SubjectSummary,
+    TaskSummary,
+)
 from com.aibert.dosw.domain.model.subject_stats import GradeEntry, SubjectStats
 from com.aibert.dosw.infrastructure.adapters.persistence.mapper.snapshot_mapper import (
     dashboard_to_entity,

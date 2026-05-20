@@ -298,7 +298,9 @@ def test_gamification_empty_tasks_returns_level_1():
 
 def test_service_unavailable_returns_503():
     from com.aibert.dosw.main import app
-    from com.aibert.dosw.domain.exceptions.stats_exceptions import ServiceUnavailableError
+    from com.aibert.dosw.domain.exceptions.stats_exceptions import (
+        ServiceUnavailableError,
+    )
 
     async def _call():
         with (

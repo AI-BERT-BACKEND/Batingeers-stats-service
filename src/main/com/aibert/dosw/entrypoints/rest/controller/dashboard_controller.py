@@ -1,7 +1,9 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from com.aibert.dosw.application.dto.response.dashboard_response import DashboardResponseDto
+from com.aibert.dosw.application.dto.response.dashboard_response import (
+    DashboardResponseDto,
+)
 from com.aibert.dosw.application.mapper.stats_mapper import dashboard_to_dto
 from com.aibert.dosw.application.service.dashboard_service import DashboardService
 from com.aibert.dosw.dependencies import get_current_user

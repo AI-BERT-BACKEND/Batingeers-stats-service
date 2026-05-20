@@ -1,9 +1,13 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from com.aibert.dosw.application.dto.response.subject_stats_response import SubjectStatsResponseDto
+from com.aibert.dosw.application.dto.response.subject_stats_response import (
+    SubjectStatsResponseDto,
+)
 from com.aibert.dosw.application.mapper.stats_mapper import subject_stats_to_dto
-from com.aibert.dosw.application.service.subject_stats_service import SubjectStatsService
+from com.aibert.dosw.application.service.subject_stats_service import (
+    SubjectStatsService,
+)
 from com.aibert.dosw.dependencies import get_current_user
 from com.aibert.dosw.infrastructure.db import get_db
 from com.aibert.dosw.infrastructure.external.academic_client import AcademicClient

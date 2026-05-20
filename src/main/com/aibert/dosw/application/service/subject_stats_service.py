@@ -1,7 +1,9 @@
 import asyncio
 from datetime import date, datetime
 
-from com.aibert.dosw.application.utility.chart_generator import generate_weekly_evolution
+from com.aibert.dosw.application.utility.chart_generator import (
+    generate_weekly_evolution,
+)
 from com.aibert.dosw.domain.exceptions.stats_exceptions import (
     SubjectNotFoundError,
     ServiceUnavailableError,
@@ -247,7 +249,9 @@ class SubjectStatsService(SubjectStatsUseCase):
     async def _publish_events(self, user_id: str, stats: SubjectStats) -> None:
         from com.aibert.dosw.config import settings as cfg
         from com.aibert.dosw.infrastructure.messaging.events import StudySuggestionEvent
-        from com.aibert.dosw.infrastructure.messaging.kafka_producer import publish_event
+        from com.aibert.dosw.infrastructure.messaging.kafka_producer import (
+            publish_event,
+        )
 
         if stats.trend == "declining":
             await publish_event(

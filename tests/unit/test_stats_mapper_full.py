@@ -2,9 +2,16 @@ from datetime import date, datetime
 
 import pytest
 
-from com.aibert.dosw.application.mapper.stats_mapper import dashboard_to_dto, subject_stats_to_dto
+from com.aibert.dosw.application.mapper.stats_mapper import (
+    dashboard_to_dto,
+    subject_stats_to_dto,
+)
 from com.aibert.dosw.application.utility.chart_generator import ChartPoint
-from com.aibert.dosw.domain.model.dashboard import DashboardStats, SubjectSummary, TaskSummary
+from com.aibert.dosw.domain.model.dashboard import (
+    DashboardStats,
+    SubjectSummary,
+    TaskSummary,
+)
 from com.aibert.dosw.domain.model.subject_stats import GradeEntry, SubjectStats
 
 

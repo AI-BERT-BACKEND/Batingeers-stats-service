@@ -1,7 +1,9 @@
 import pytest
 from unittest.mock import AsyncMock, MagicMock
 
-from com.aibert.dosw.application.service.subject_stats_service import SubjectStatsService
+from com.aibert.dosw.application.service.subject_stats_service import (
+    SubjectStatsService,
+)
 from com.aibert.dosw.domain.exceptions.stats_exceptions import SubjectNotFoundError
 
 _SUBJECT = {

@@ -2,7 +2,9 @@ import pytest
 from datetime import datetime
 from unittest.mock import AsyncMock, MagicMock
 
-from com.aibert.dosw.application.service.subject_stats_service import SubjectStatsService
+from com.aibert.dosw.application.service.subject_stats_service import (
+    SubjectStatsService,
+)
 from com.aibert.dosw.domain.exceptions.stats_exceptions import ServiceUnavailableError
 from com.aibert.dosw.domain.model.subject_stats import GradeEntry, SubjectStats
 

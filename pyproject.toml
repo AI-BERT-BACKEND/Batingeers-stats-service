@@ -21,3 +21,8 @@ exclude_lines = [
     "@abstractmethod",
     "pass$",
 ]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.15.13",
+]

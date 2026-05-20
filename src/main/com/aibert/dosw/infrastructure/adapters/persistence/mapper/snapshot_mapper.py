@@ -1,7 +1,11 @@
 from datetime import date
 
 from com.aibert.dosw.application.utility.chart_generator import ChartPoint
-from com.aibert.dosw.domain.model.dashboard import DashboardStats, SubjectSummary, TaskSummary
+from com.aibert.dosw.domain.model.dashboard import (
+    DashboardStats,
+    SubjectSummary,
+    TaskSummary,
+)
 from com.aibert.dosw.domain.model.subject_stats import GradeEntry, SubjectStats
 from com.aibert.dosw.infrastructure.adapters.persistence.entity.stats_snapshot_entity import (
     DashboardSnapshotEntity,
