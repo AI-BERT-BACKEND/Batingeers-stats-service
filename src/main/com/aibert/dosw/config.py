@@ -17,7 +17,12 @@ class Settings(BaseSettings):
     http_max_retries: int = 3
 
     # CORS — comma-separated list of allowed origins. Use ["*"] to allow all (development only).
-    cors_allowed_origins: list[str] = ["*"]
+    cors_allowed_origins: list[str] = [
+        "http://localhost:3000",
+        "http://localhost:5173",
+        "http://localhost:4200",
+        "https://frontend-umber-seven-28.vercel.app",
+    ]
 
     # Kafka — leave unset to disable event publishing entirely
     kafka_bootstrap_servers: str | None = None
