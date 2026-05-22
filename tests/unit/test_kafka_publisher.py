@@ -106,6 +106,7 @@ async def test_start_producer_noop_when_no_brokers_configured():
         "com.aibert.dosw.infrastructure.messaging.kafka_producer.settings"
     ) as mock_settings:
         mock_settings.kafka_bootstrap_servers = None
+        mock_settings.kafka_connection_string = None
         await start_producer()
         assert kp._producer is None
 
@@ -117,6 +118,7 @@ async def test_start_producer_handles_connection_failure_gracefully():
         "com.aibert.dosw.infrastructure.messaging.kafka_producer.settings"
     ) as mock_settings:
         mock_settings.kafka_bootstrap_servers = "localhost:9092"
+        mock_settings.kafka_connection_string = None
         with patch(
             "com.aibert.dosw.infrastructure.messaging.kafka_producer.AIOKafkaProducer",
             side_effect=ImportError,
@@ -135,6 +137,7 @@ async def test_start_producer_creates_and_starts_producer():
         "com.aibert.dosw.infrastructure.messaging.kafka_producer.settings"
     ) as mock_settings:
         mock_settings.kafka_bootstrap_servers = "localhost:9092"
+        mock_settings.kafka_connection_string = None
         with patch(
             "com.aibert.dosw.infrastructure.messaging.kafka_producer.AIOKafkaProducer",
             return_value=mock_producer,
