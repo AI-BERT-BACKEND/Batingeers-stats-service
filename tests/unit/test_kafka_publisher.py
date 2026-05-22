@@ -147,6 +147,53 @@ async def test_start_producer_creates_and_starts_producer():
             mock_producer.start.assert_called_once()
 
 
+# ── _parse_event_hubs_bootstrap ───────────────────────────────────────────────
+
+
+def test_parse_event_hubs_bootstrap_returns_host_with_port():
+    """Extracts the namespace host and appends :9093 from a valid connection string."""
+    conn = "Endpoint=sb://my-namespace.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=abc123="
+    result = kp._parse_event_hubs_bootstrap(conn)
+    assert result == "my-namespace.servicebus.windows.net:9093"
+
+
+def test_parse_event_hubs_bootstrap_raises_on_invalid_string():
+    """Raises ValueError when the connection string has no parseable Endpoint."""
+    with pytest.raises(ValueError, match="Invalid KAFKA_CONNECTION_STRING"):
+        kp._parse_event_hubs_bootstrap("not-a-valid-connection-string")
+
+
+# ── start_producer (Azure Event Hubs path) ────────────────────────────────────
+
+
+@pytest.mark.asyncio
+async def test_start_producer_uses_event_hubs_when_connection_string_set():
+    """When kafka_connection_string is set, start_producer uses the SASL/SSL Event Hubs path."""
+    mock_producer = MagicMock()
+    mock_producer.start = AsyncMock()
+    conn = "Endpoint=sb://my-namespace.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=abc123="
+
+    with patch(
+        "com.aibert.dosw.infrastructure.messaging.kafka_producer.settings"
+    ) as mock_settings:
+        mock_settings.kafka_connection_string = conn
+        mock_settings.kafka_bootstrap_servers = None
+        with patch(
+            "com.aibert.dosw.infrastructure.messaging.kafka_producer.AIOKafkaProducer",
+            return_value=mock_producer,
+        ) as MockProducer:
+            await start_producer()
+            assert kp._producer is mock_producer
+            mock_producer.start.assert_called_once()
+            call_kwargs = MockProducer.call_args[1]
+            assert call_kwargs["security_protocol"] == "SASL_SSL"
+            assert call_kwargs["sasl_mechanism"] == "PLAIN"
+            assert (
+                call_kwargs["bootstrap_servers"]
+                == "my-namespace.servicebus.windows.net:9093"
+            )
+
+
 # ── stop_producer ─────────────────────────────────────────────────────────────
 
 
