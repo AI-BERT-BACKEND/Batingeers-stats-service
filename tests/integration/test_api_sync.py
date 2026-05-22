@@ -114,7 +114,7 @@ def test_dashboard_sync_returns_200():
     assert "tasks" in data
 
 
-def test_dashboard_sync_no_token_returns_403():
+def test_dashboard_sync_no_token_returns_401():
     from com.aibert.dosw.main import app
 
     async def _call():
@@ -124,7 +124,7 @@ def test_dashboard_sync_no_token_returns_403():
             return await client.get("/api/stats/dashboard")
 
     response = _run(_call())
-    assert response.status_code == 403
+    assert response.status_code == 401
 
 
 def test_dashboard_sync_invalid_token_returns_401():
@@ -258,7 +258,7 @@ def test_gamification_sync_returns_200():
     assert all("unlocked" in b for b in data["badges"])
 
 
-def test_gamification_no_token_returns_403():
+def test_gamification_no_token_returns_401():
     from com.aibert.dosw.main import app
 
     async def _call():
@@ -268,7 +268,7 @@ def test_gamification_no_token_returns_403():
             return await client.get("/api/stats/gamification")
 
     response = _run(_call())
-    assert response.status_code == 403
+    assert response.status_code == 401
 
 
 def test_gamification_empty_tasks_returns_level_1():

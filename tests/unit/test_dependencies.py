@@ -1,12 +1,20 @@
 """Tests for the JWT authentication dependency."""
 
 import pytest
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 from fastapi import HTTPException
 from fastapi.security import HTTPAuthorizationCredentials
 from jose import JWTError
-
 from com.aibert.dosw.dependencies import get_current_user
+
+
+def _mock_request(user_id=None, user_email=None):
+    request = MagicMock()
+    request.headers.get = lambda key, default=None: {
+        "X-User-Id": user_id,
+        "X-User-Email": user_email,
+    }.get(key, default)
+    return request
 
 
 async def test_valid_token_returns_user_dict():
@@ -15,7 +23,7 @@ async def test_valid_token_returns_user_dict():
         "com.aibert.dosw.dependencies.jwt.decode",
         return_value={"sub": "user-123", "name": "Test"},
     ):
-        result = get_current_user(credentials)
+        result = get_current_user(_mock_request(), credentials)
     assert result["user_id"] == "user-123"
     assert result["token"] == "valid-tok"
     assert result["payload"]["sub"] == "user-123"
@@ -28,7 +36,7 @@ async def test_missing_sub_raises_401():
         return_value={"email": "user@example.com"},
     ):
         with pytest.raises(HTTPException) as exc_info:
-            get_current_user(credentials)
+            get_current_user(_mock_request(), credentials)
     assert exc_info.value.status_code == 401
     assert "missing 'sub' claim" in exc_info.value.detail
 
@@ -39,7 +47,7 @@ async def test_jwt_error_raises_401():
         "com.aibert.dosw.dependencies.jwt.decode", side_effect=JWTError("expired")
     ):
         with pytest.raises(HTTPException) as exc_info:
-            get_current_user(credentials)
+            get_current_user(_mock_request(), credentials)
     assert exc_info.value.status_code == 401
     assert "Invalid or expired token" in exc_info.value.detail
 
@@ -50,5 +58,14 @@ async def test_jwt_error_includes_www_authenticate_header():
         "com.aibert.dosw.dependencies.jwt.decode", side_effect=JWTError("expired")
     ):
         with pytest.raises(HTTPException) as exc_info:
-            get_current_user(credentials)
+            get_current_user(_mock_request(), credentials)
     assert exc_info.value.headers == {"WWW-Authenticate": "Bearer"}
+
+
+async def test_gateway_headers_returns_user_dict():
+    result = get_current_user(
+        _mock_request(user_id="abc-123", user_email="juan@email.com")
+    )
+    assert result["user_id"] == "abc-123"
+    assert result["email"] == "juan@email.com"
+    assert result["token"] is None

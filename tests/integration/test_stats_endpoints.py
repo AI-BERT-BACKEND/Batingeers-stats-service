@@ -94,9 +94,9 @@ def test_dashboard_returns_200(MockTask, MockAcademic, client, auth_headers):
     "com.aibert.dosw.entrypoints.rest.controller.dashboard_controller.AcademicClient"
 )
 @patch("com.aibert.dosw.entrypoints.rest.controller.dashboard_controller.TaskClient")
-def test_dashboard_without_token_returns_403(MockTask, MockAcademic, client):
+def test_dashboard_without_token_returns_401(MockTask, MockAcademic, client):
     response = client.get("/api/stats/dashboard")
-    assert response.status_code == 403
+    assert response.status_code == 401
 
 
 @patch(
