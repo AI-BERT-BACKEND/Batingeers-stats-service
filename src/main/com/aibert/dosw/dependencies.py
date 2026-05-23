@@ -39,7 +39,7 @@ def get_current_user(
             settings.jwt_secret,
             algorithms=[settings.jwt_algorithm],
         )
-        user_id = payload.get("sub")
+        user_id = payload.get("userId") or payload.get("sub")
         if user_id is None:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,

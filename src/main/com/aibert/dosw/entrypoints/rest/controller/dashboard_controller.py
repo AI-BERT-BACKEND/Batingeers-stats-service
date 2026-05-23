@@ -52,6 +52,41 @@ def _get_dashboard_service(
         "- `stats.academic-overload-alert` — when GPA trend is declining AND there are overdue tasks"
     ),
     responses={
+        200: {
+            "description": "Academic dashboard retrieved successfully",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "user_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                        "overall_gpa": 4,
+                        "gpa_trend": "stable",
+                        "total_subjects": 5,
+                        "passing_subjects": 3,
+                        "at_risk_subjects": 1,
+                        "failing_subjects": 1,
+                        "subjects": [
+                            {
+                                "subject_id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+                                "name": "Cálculo Diferencial",
+                                "code": "MAT-101",
+                                "credits": 4,
+                                "current_average": 4.2,
+                                "status": "Passing",
+                                "teacher_name": "Dr. García",
+                            }
+                        ],
+                        "tasks": {
+                            "total": 12,
+                            "completed": 8,
+                            "pending": 3,
+                            "overdue": 1,
+                            "completion_rate": 66.7,
+                        },
+                        "generated_at": "2026-05-22T16:52:39.763Z",
+                    }
+                }
+            },
+        },
         401: {"description": "Invalid or expired JWT token"},
         503: {
             "description": "Upstream services unreachable and no cached snapshot available"
