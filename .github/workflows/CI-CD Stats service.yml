@@ -119,6 +119,7 @@ jobs:
             -Dsonar.projectKey=AI-BERT-BACKEND_batingeers-stats-service
             -Dsonar.organization=ai-bert-backend
             -Dsonar.python.coverage.reportPaths=coverage.xml
+            -Dsonar.python.coveragePlugin=cobertura
             -Dsonar.sources=src/main/com/aibert/dosw
             -Dsonar.tests=tests
 
@@ -145,6 +146,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
