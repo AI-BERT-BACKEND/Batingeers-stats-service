@@ -9,11 +9,15 @@ asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
 testpaths = ["tests"]
 pythonpath = ["src/main"]
-addopts = "--cov=src/main/com/aibert/dosw --cov-report=xml --cov-report=term-missing --cov-fail-under=80"
+addopts = "--cov=. --cov-report=xml --cov-report=term-missing --cov-fail-under=80"
 
 [tool.coverage.run]
-source = ["src/main/com/aibert/dosw"]
-omit = ["src/main/com/aibert/dosw/__init__.py", "*/migrations/*"]
+source = ["."]
+omit = [
+    "*/tests/*",
+    "*/migrations/*",
+    "*/__init__.py",
+]
 relative_files = true
 
 [tool.coverage.report]
