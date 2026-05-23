@@ -49,6 +49,54 @@ def _get_gamification_service() -> GamificationService:
         "0% progress, and all 4 badges locked."
     ),
     responses={
+        200: {
+            "description": "Gamification profile retrieved successfully",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "user_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                        "total_points": 150,
+                        "current_level": 2,
+                        "badges": [
+                            {
+                                "badge_id": "first_steps",
+                                "badge_name": "First Steps",
+                                "icon": "🎯",
+                                "description": "Complete at least 1 task",
+                                "unlocked": True,
+                                "unlocked_date": "2026-03-10",
+                            },
+                            {
+                                "badge_id": "punctual",
+                                "badge_name": "Punctual",
+                                "icon": "⏰",
+                                "description": "Complete 5 or more tasks on or before the due date",
+                                "unlocked": False,
+                                "unlocked_date": None,
+                            },
+                            {
+                                "badge_id": "consistent",
+                                "badge_name": "Consistent",
+                                "icon": "🔥",
+                                "description": "Complete 10 or more tasks (any timing)",
+                                "unlocked": False,
+                                "unlocked_date": None,
+                            },
+                            {
+                                "badge_id": "overachiever",
+                                "badge_name": "Overachiever",
+                                "icon": "🏆",
+                                "description": "Accumulate 300 or more points (reach Level 3)",
+                                "unlocked": False,
+                                "unlocked_date": None,
+                            },
+                        ],
+                        "progress_to_next": 25.0,
+                        "generated_at": "2026-05-22T16:52:39.763Z",
+                    }
+                }
+            },
+        },
         401: {"description": "Invalid or expired JWT token"},
         503: {"description": "task-service is unreachable"},
     },

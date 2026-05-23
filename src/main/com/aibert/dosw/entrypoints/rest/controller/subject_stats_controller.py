@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Path
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from com.aibert.dosw.application.dto.response.subject_stats_response import (
@@ -53,6 +53,59 @@ def _get_subject_stats_service(
         "- `related_tasks` — tasks associated with this subject, sorted by due date descending"
     ),
     responses={
+        200: {
+            "description": "Subject statistics retrieved successfully",
+            "content": {
+                "application/json": {
+                    "example": [
+                        {
+                            "subject_id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+                            "subject_name": "Cálculo Diferencial",
+                            "subject_code": "MAT-101",
+                            "credits": 4,
+                            "grades_by_period": [
+                                {
+                                    "period_id": "d4e5f6a7-b8c9-0123-defa-234567890123",
+                                    "period_name": "Primer Parcial",
+                                    "weight_percentage": 30.0,
+                                    "obtained_grade": 4.5,
+                                    "contribution": 1.35,
+                                    "projected_grade": 3.8,
+                                }
+                            ],
+                            "current_average": 3.8,
+                            "max_possible_grade": 4.6,
+                            "minimum_needed": 2.5,
+                            "trend": "stable",
+                            "tasks_total": 6,
+                            "tasks_completed": 4,
+                            "tasks_pending": 1,
+                            "tasks_overdue": 1,
+                            "task_completion_rate": 66.7,
+                            "status": "passing",
+                            "projected_grade": 3.8,
+                            "related_tasks": [
+                                {
+                                    "task_id": "c3d4e5f6-a7b8-9012-cdef-123456789012",
+                                    "task_name": "Taller de integrales",
+                                    "status": "Pending",
+                                    "due_date": "2026-06-15",
+                                    "priority": "High",
+                                    "estimated_hours": 3.5,
+                                }
+                            ],
+                            "grade_evolution": [
+                                {
+                                    "week": 4,
+                                    "accumulated_grade": 3.8,
+                                    "registered_date": "2026-03-15",
+                                }
+                            ],
+                        }
+                    ]
+                }
+            },
+        },
         401: {"description": "Invalid or expired JWT token"},
         503: {"description": "One of the upstream services is unavailable"},
     },
@@ -84,6 +137,57 @@ async def get_all_subjects_stats(
         "is returned. A 503 is raised only when no cached data exists at all."
     ),
     responses={
+        200: {
+            "description": "Subject statistics retrieved successfully",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "subject_id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+                        "subject_name": "Cálculo Diferencial",
+                        "subject_code": "MAT-101",
+                        "credits": 4,
+                        "grades_by_period": [
+                            {
+                                "period_id": "d4e5f6a7-b8c9-0123-defa-234567890123",
+                                "period_name": "Primer Parcial",
+                                "weight_percentage": 30.0,
+                                "obtained_grade": 4.5,
+                                "contribution": 1.35,
+                                "projected_grade": 3.8,
+                            }
+                        ],
+                        "current_average": 3.8,
+                        "max_possible_grade": 4.6,
+                        "minimum_needed": 2.5,
+                        "trend": "stable",
+                        "tasks_total": 6,
+                        "tasks_completed": 4,
+                        "tasks_pending": 1,
+                        "tasks_overdue": 1,
+                        "task_completion_rate": 66.7,
+                        "status": "passing",
+                        "projected_grade": 3.8,
+                        "related_tasks": [
+                            {
+                                "task_id": "c3d4e5f6-a7b8-9012-cdef-123456789012",
+                                "task_name": "Taller de integrales",
+                                "status": "Pending",
+                                "due_date": "2026-06-15",
+                                "priority": "High",
+                                "estimated_hours": 3.5,
+                            }
+                        ],
+                        "grade_evolution": [
+                            {
+                                "week": 4,
+                                "accumulated_grade": 3.8,
+                                "registered_date": "2026-03-15",
+                            }
+                        ],
+                    }
+                }
+            },
+        },
         401: {"description": "Invalid or expired JWT token"},
         404: {"description": "Subject not found"},
         503: {
@@ -92,7 +196,13 @@ async def get_all_subjects_stats(
     },
 )
 async def get_subject_stats(
-    subject_id: str,
+    subject_id: Annotated[
+        str,
+        Path(
+            description="UUID of the subject",
+            example="b2c3d4e5-f6a7-8901-bcde-f12345678901",
+        ),
+    ],
     current_user: Annotated[dict, Depends(get_current_user)],
     service: Annotated[SubjectStatsService, Depends(_get_subject_stats_service)],
 ) -> SubjectStatsResponseDto:
