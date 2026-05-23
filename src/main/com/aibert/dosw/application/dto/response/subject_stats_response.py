@@ -5,7 +5,9 @@ from pydantic import BaseModel, Field
 class TaskDetailDto(BaseModel):
     task_id: str = Field(..., example="c3d4e5f6-a7b8-9012-cdef-123456789012")
     task_name: str = Field(..., example="Taller de integrales")
-    status: str = Field(..., description="Pending | Completed | Overdue", example="Pending")
+    status: str = Field(
+        ..., description="Pending | Completed | Overdue", example="Pending"
+    )
     due_date: date | None = Field(
         None, description="Due date (YYYY-MM-DD)", example="2026-06-15"
     )
@@ -43,7 +45,9 @@ class GradeEntryDto(BaseModel):
 
 
 class GradeEvolutionPointDto(BaseModel):
-    week: int = Field(..., description="Academic week number within the semester", example=4)
+    week: int = Field(
+        ..., description="Academic week number within the semester", example=4
+    )
     accumulated_grade: float = Field(
         ...,
         description="Cumulative weighted average up to this week (0.0 – 5.0)",
@@ -75,7 +79,9 @@ class SubjectStatsResponseDto(BaseModel):
         description="Minimum grade needed in pending evaluations to pass. Null if already passing or impossible",
         example=2.5,
     )
-    trend: str = Field(..., description="improving | declining | stable", example="stable")
+    trend: str = Field(
+        ..., description="improving | declining | stable", example="stable"
+    )
     tasks_total: int = Field(..., example=6)
     tasks_completed: int = Field(..., example=4)
     tasks_pending: int = Field(..., example=1)
@@ -83,7 +89,9 @@ class SubjectStatsResponseDto(BaseModel):
     task_completion_rate: float = Field(
         ..., description="Task completion rate (0.0 – 100.0)", example=66.7
     )
-    status: str = Field(..., description="passing | at_risk | failing", example="passing")
+    status: str = Field(
+        ..., description="passing | at_risk | failing", example="passing"
+    )
     projected_grade: float = Field(
         ...,
         description="Projected final grade assuming 0 on all ungraded evaluations",
