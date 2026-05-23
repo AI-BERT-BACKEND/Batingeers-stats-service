@@ -24,8 +24,11 @@ class Settings(BaseSettings):
         "https://frontend-umber-seven-28.vercel.app",
     ]
 
-    # Kafka — leave unset to disable event publishing entirely
+    # Kafka — leave unset to disable event publishing entirely.
+    # For Azure Event Hubs: set KAFKA_CONNECTION_STRING (bootstrap server is derived automatically).
+    # For plain Kafka: set KAFKA_BOOTSTRAP_SERVERS only.
     kafka_bootstrap_servers: str | None = None
+    kafka_connection_string: str | None = None
     kafka_topic_performance: str = "stats.academic-performance-alert"
     kafka_topic_overload: str = "stats.academic-overload-alert"
     kafka_topic_study_suggestion: str = "stats.study-suggestion"

@@ -9,7 +9,7 @@ _SERVICE = "academic-service"
 
 def _student_headers(user_id: str) -> dict[str, str]:
 
-    return {"X-Student-Id": user_id}
+    return {"studentId": user_id}
 
 
 def _normalize_subject(raw: dict) -> dict:

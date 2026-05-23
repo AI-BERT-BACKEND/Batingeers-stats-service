@@ -58,7 +58,7 @@ async def test_get_subjects_sends_student_id_header(academic_client):
             return_value=httpx.Response(200, json={"data": []})
         )
         await academic_client.get_subjects("u1", "my-token")
-        assert route.calls[0].request.headers["x-student-id"] == "u1"
+        assert route.calls[0].request.headers["studentid"] == "u1"
 
 
 async def test_get_subjects_404_returns_empty_list(academic_client):
